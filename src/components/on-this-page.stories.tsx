@@ -3,7 +3,7 @@ import { useTranslations } from "next-intl";
 import { OnThisPage } from "@/components/on-this-page";
 
 const meta = {
-  title: "Rules/OnThisPage",
+  title: "Page blocks/OnThisPage",
   component: OnThisPage,
   args: { items: [] },
 } satisfies Meta<typeof OnThisPage>;

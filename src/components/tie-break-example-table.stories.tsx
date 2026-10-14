@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { TieBreakExampleTable } from "@/components/tie-break-example-table";
 
 const meta = {
-  title: "Rules/TieBreakExampleTable",
+  title: "Rules content/TieBreakExampleTable",
   component: TieBreakExampleTable,
 } satisfies Meta<typeof TieBreakExampleTable>;
 

@@ -4,7 +4,7 @@ import { CtaLink } from "@/components/cta-link";
 import { withRedSurface } from "../../.storybook/decorators";
 
 const meta = {
-  title: "Layout/CtaLink",
+  title: "Page blocks/CtaLink",
   component: CtaLink,
   args: { href: "/rules", children: "" },
 } satisfies Meta<typeof CtaLink>;

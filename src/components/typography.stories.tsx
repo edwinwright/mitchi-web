@@ -10,7 +10,7 @@ import { withInverseSurface } from "../../.storybook/decorators";
 // Heading, SectionHeading, Prose and RuleBody are thin wrappers, so they share
 // one story file. Classes on Heading are the ones the pages pass.
 const meta = {
-  title: "Typography",
+  title: "Foundations/Typography",
 } satisfies Meta;
 
 export default meta;

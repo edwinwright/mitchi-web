@@ -3,7 +3,7 @@ import { useTranslations } from "next-intl";
 import { ExampleStrip } from "@/components/example-strip";
 
 const meta = {
-  title: "Rules/ExampleStrip",
+  title: "Rules content/ExampleStrip",
   component: ExampleStrip,
   args: { rows: [] },
 } satisfies Meta<typeof ExampleStrip>;

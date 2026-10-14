@@ -7,7 +7,7 @@ import {
 import { withInverseSurface } from "../../.storybook/decorators";
 
 const meta = {
-  title: "Brand/MitchiDie",
+  title: "Foundations/MitchiDie",
   component: MitchiDie,
   args: { face: 1 },
 } satisfies Meta<typeof MitchiDie>;

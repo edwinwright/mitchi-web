@@ -5,7 +5,7 @@ import { RuleSection } from "@/components/rule-section";
 import { tags } from "@/i18n/rich-text";
 
 const meta = {
-  title: "Rules/RuleSection",
+  title: "Page blocks/RuleSection",
   component: RuleSection,
   args: { id: "setup", number: 3, heading: "", children: null },
 } satisfies Meta<typeof RuleSection>;

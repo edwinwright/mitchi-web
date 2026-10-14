@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { RankingCard } from "@/components/ranking-card";
 
 const meta = {
-  title: "Reference/RankingCard",
+  title: "Rules content/RankingCard",
   component: RankingCard,
 } satisfies Meta<typeof RankingCard>;
 

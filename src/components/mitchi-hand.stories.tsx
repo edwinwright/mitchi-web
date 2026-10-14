@@ -4,7 +4,7 @@ import { MitchiHand } from "@/components/mitchi-hand";
 import { withInverseSurface } from "../../.storybook/decorators";
 
 const meta = {
-  title: "Brand/MitchiHand",
+  title: "Foundations/MitchiHand",
   component: MitchiHand,
   args: { high: 2, low: 1 },
 } satisfies Meta<typeof MitchiHand>;

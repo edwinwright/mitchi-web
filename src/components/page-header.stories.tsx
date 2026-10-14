@@ -3,7 +3,7 @@ import { useTranslations } from "next-intl";
 import { PageHeader } from "@/components/page-header";
 
 const meta = {
-  title: "Layout/PageHeader",
+  title: "Page blocks/PageHeader",
   component: PageHeader,
   parameters: { layout: "fullscreen" },
   args: { title: "" },

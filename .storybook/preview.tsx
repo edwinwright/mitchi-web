@@ -59,6 +59,21 @@ const preview: Preview = {
   ],
   parameters: {
     nextjs: { appDirectory: true },
+    // Groups run from primitives up to pages; stories inside a group are
+    // alphabetical. Only the groups are ordered, by name.
+    // A new group must be added here, or it sorts after the listed ones.
+    options: {
+      storySort: {
+        method: "alphabetical",
+        order: [
+          "Foundations",
+          "Page blocks",
+          "Rules content",
+          "Site chrome",
+          "Home",
+        ],
+      },
+    },
     viewport: { options: MINIMAL_VIEWPORTS },
   },
 };

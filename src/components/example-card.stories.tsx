@@ -5,7 +5,7 @@ import { ExampleStrip } from "@/components/example-strip";
 import { tags } from "@/i18n/rich-text";
 
 const meta = {
-  title: "Rules/ExampleCard",
+  title: "Rules content/ExampleCard",
   component: ExampleCard,
   args: { children: null },
 } satisfies Meta<typeof ExampleCard>;

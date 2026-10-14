@@ -3,7 +3,7 @@ import { useTranslations } from "next-intl";
 import { TwoColumnTable } from "@/components/two-column-table";
 
 const meta = {
-  title: "Layout/TwoColumnTable",
+  title: "Page blocks/TwoColumnTable",
   component: TwoColumnTable,
   args: { leftHeader: "", rightHeader: "", rows: [] },
 } satisfies Meta<typeof TwoColumnTable>;

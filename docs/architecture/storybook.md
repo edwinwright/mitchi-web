@@ -22,6 +22,8 @@ Everything lives in `.storybook/`.
 | `decorators.tsx` | Shared decorators for inverse stories. |
 | `preview-head.html`, `manager-head.html` | The `noindex` meta tag. |
 
+**Sidebar.** Stories are grouped by role, from primitives up to pages: Foundations (type and brand), Page blocks, Rules content, Site chrome, Home. The group order is `storySort` in `preview.tsx`, and stories inside a group are alphabetical. A story's title is `Group/ComponentName`. A new group must be added to the `order` list, or it sorts after the listed ones.
+
 **Provider and locale toolbar.** Every story is wrapped in `NextIntlClientProvider`, given the messages for the locale chosen in the toolbar. The toolbar has one entry per `routing.locales`, titled by `Intl.DisplayNames`. The messages are static imports in a map typed `satisfies Record<Locale, unknown>`, so adding a locale to `routing` fails `tsc` until its file is imported in `preview.tsx`.
 
 **Viewports.** Storybook's built-in `MINIMAL_VIEWPORTS`: Small mobile (320), Large mobile (414), Tablet (834), Desktop (1280). No custom presets. 320 is the strictest width for overflow checks. A story picks one with `globals: { viewport: { value: "mobile1", isRotated: false } }`.

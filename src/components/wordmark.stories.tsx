@@ -3,7 +3,7 @@ import { Wordmark } from "@/components/wordmark";
 import { withInverseSurface } from "../../.storybook/decorators";
 
 const meta = {
-  title: "Brand/Wordmark",
+  title: "Foundations/Wordmark",
   component: Wordmark,
 } satisfies Meta<typeof Wordmark>;
 

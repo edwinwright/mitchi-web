@@ -4,7 +4,7 @@ import { StepList } from "@/components/step-list";
 import { tags } from "@/i18n/rich-text";
 
 const meta = {
-  title: "Layout/StepList",
+  title: "Page blocks/StepList",
   component: StepList,
   args: { items: [] },
 } satisfies Meta<typeof StepList>;

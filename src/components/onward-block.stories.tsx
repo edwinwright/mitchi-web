@@ -3,7 +3,7 @@ import { useTranslations } from "next-intl";
 import { OnwardBlock } from "@/components/onward-block";
 
 const meta = {
-  title: "Layout/OnwardBlock",
+  title: "Page blocks/OnwardBlock",
   component: OnwardBlock,
   args: { href: "/reference", heading: "", label: "", summary: "" },
 } satisfies Meta<typeof OnwardBlock>;
