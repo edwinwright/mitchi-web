@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { Wordmark } from "@/components/wordmark";
+import { withInverseSurface } from "../../.storybook/decorators";
 
 const meta = {
   title: "Brand/Wordmark",
@@ -13,13 +14,7 @@ export const Default: Story = {};
 
 export const Inverse: Story = {
   args: { inverse: true },
-  decorators: [
-    (Story) => (
-      <div className="bg-red-600 p-6">
-        <Story />
-      </div>
-    ),
-  ],
+  decorators: [withInverseSurface],
 };
 
 export const Small: Story = { args: { size: 20 } };

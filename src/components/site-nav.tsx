@@ -48,8 +48,8 @@ export function SiteNav({
       current: "border-red-600",
     },
     inverse: {
-      idle: "border-transparent hover:text-red-500",
-      current: "border-red-500",
+      idle: "text-white border-transparent hover:text-red-500",
+      current: "text-white border-red-500",
     },
   } as const;
 
