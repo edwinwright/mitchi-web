@@ -141,6 +141,8 @@ Update `docs/product/site-map.md` when the new slugs are real in routing, not la
 
 `src/proxy.ts` needs no edit: it is `createMiddleware(routing)`, so the new locale is negotiated, redirected and cookie-persisted as soon as it is in `locales`. The same goes for `hreflang` alternates, canonicals and the sitemap, which all loop over `routing.locales`. Adding Polish touched none of those files.
 
+Add the locale's messages to the `messages` map in `.storybook/preview.tsx` (one `import` and one entry). `tsc` fails until you do. The Storybook locale toolbar picks the locale up from `routing.locales`.
+
 **5. Check the font subsets.** `src/app/fonts.ts` names the Google Fonts subsets each face loads. `latin` covers Spanish (its accented letters are Latin-1) but not Polish: ą ć ę ł ń ś ź ż are Latin Extended-A, and without `latin-ext` every one of them renders in the fallback font on every page of that locale, with nothing failing. Add the subset a language needs and confirm it in the built CSS (a preloaded `@font-face` per family with the right `unicode-range`) and then in a browser on real text, a heading, a body paragraph and a mono label. Japanese is a separate font decision, not a subset.
 
 **6. Translate,** deleting the `[XX] ` marker from each string as you go. The markers are the only progress bar this work has, and once they are gone a silent fallback looks exactly like a correct page. Rich text tags and ICU parameter names survive untouched; word order around them may change.

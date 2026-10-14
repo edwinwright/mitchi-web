@@ -77,8 +77,8 @@ function LocaleGroup({
   const ground = inverse ? "inverse" : "regular";
 
   const ulClasses = cn(
-    "flex rounded-md border font-mono text-xs overflow-hidden",
-    inverse ? "border-white" : "border-foreground",
+    "inline-flex rounded-md border font-mono text-xs overflow-hidden",
+    inverse ? "border-white bg-black text-white" : "bg-white border-foreground",
   );
 
   const linkClassMap = {

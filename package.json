@@ -10,7 +10,9 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "i18n:new": "node scripts/new-locale.mjs",
-    "i18n:check": "node scripts/check-messages.mjs"
+    "i18n:check": "node scripts/check-messages.mjs",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
   },
   "dependencies": {
     "@vercel/analytics": "^2.0.1",
@@ -23,6 +25,7 @@
     "tailwind-merge": "^3.6.0"
   },
   "devDependencies": {
+    "@storybook/nextjs-vite": "^10.6.2",
     "@tailwindcss/postcss": "^4",
     "@tailwindcss/typography": "^0.5.20",
     "@types/node": "^20",
@@ -30,7 +33,9 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.3.4",
+    "storybook": "^10.6.2",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vite": "^8.3.4"
   }
 }
