@@ -14,6 +14,12 @@ type Locale = (typeof routing.locales)[number];
 // Adding a locale to `routing` fails tsc here until its messages are imported.
 const messages = { en, es, pl } satisfies Record<Locale, unknown>;
 
+// CLDR lowercases language names in es and pl ("español"); the site's
+// switcher shows them capitalised, so the toolbar does too.
+function capitalise(name: string, locale: string) {
+  return name.charAt(0).toLocaleUpperCase(locale) + name.slice(1);
+}
+
 const preview: Preview = {
   initialGlobals: { locale: routing.defaultLocale },
   globalTypes: {
@@ -25,7 +31,9 @@ const preview: Preview = {
         dynamicTitle: true,
         items: routing.locales.map((locale) => ({
           value: locale,
-          title: new Intl.DisplayNames([locale], { type: "language" }).of(
+          title: capitalise(
+            new Intl.DisplayNames([locale], { type: "language" }).of(locale) ??
+              locale,
             locale,
           ),
         })),

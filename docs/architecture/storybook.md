@@ -51,7 +51,7 @@ One `*.stories.tsx` beside each component, with `meta` typed `satisfies Meta<typ
 - **Hooks go in a named component.** A `render` property is not a component, so call `useTranslations` inside a function component the `render` returns.
 - **Never import `next/link` or `next/navigation`.** Lint enforces it.
 - **Hands are data, hand names are messages.** Pass an explicit hand id to `t()`. Do not build a key from two dice.
-- **Inverse variants sit on a background-only surface.** Use `withInverseSurface` (the foreground colour) or `withRedSurface` (the hero's ground) from `.storybook/decorators.tsx`. A surface must set background and padding only. Colour is inherited, so a surface that sets a text colour hides a component that should set its own.
+- **Inverse variants sit on a background-only surface.** Use `withInverseSurface` (the foreground colour) or `withRedSurface` (the hero's ground) from `.storybook/decorators.tsx`. A surface sets background and padding only, never a text colour: colour is inherited, so a surface that sets one hides whether the component sets its own. A component should carry a sensible default text and background colour where it needs one to look right (the language switcher does), rather than rely on its parent.
 - **Full-bleed components** (header, footer, home sections) use `parameters: { layout: "fullscreen" }`.
 
 Stories sit in the root `tsconfig.json`, so `tsc` and `next build` type-check them.

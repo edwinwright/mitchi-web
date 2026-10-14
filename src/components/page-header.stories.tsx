@@ -6,6 +6,7 @@ const meta = {
   title: "Page blocks/PageHeader",
   component: PageHeader,
   parameters: { layout: "fullscreen" },
+  // Include title in args to avoid TS warnings
   args: { title: "" },
 } satisfies Meta<typeof PageHeader>;
 

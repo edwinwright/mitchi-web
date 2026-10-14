@@ -2,8 +2,8 @@ import type { Decorator } from "@storybook/nextjs-vite";
 
 /**
  * Dark grounds for inverse variants. Background and padding only: never set a
- * text colour here. It is inherited, and would hide a component that should
- * carry its own.
+ * text colour here. It is inherited, and would hide whether the component
+ * sets its own.
  */
 export const withInverseSurface: Decorator = (Story) => (
   <div className="bg-foreground p-6">
