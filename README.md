@@ -29,6 +29,7 @@ that claim.
 | ---------------------------------------- | ------------------------------------------------------------------- |
 | `docs/architecture/tech-stack.md`        | What the project uses, what it deliberately does not, and why       |
 | `docs/architecture/i18n-conventions.md`  | How message content is keyed, typed and rendered                    |
+| `docs/architecture/storybook.md`         | The component workshop: running it, writing a story, deployment     |
 | `docs/domain/glossary.md`                | The game's vocabulary, binding on copy in every language            |
 | `docs/domain/translation-rationale.*.md` | Per-language reasoning, and the alternatives set aside              |
 | `docs/product/voice.md`                  | How the site is written                                             |
@@ -44,6 +45,7 @@ Copy lives in `messages/<locale>.json`, one file per language.
 ```bash
 npm install
 npm run dev
+npm run storybook    # component workshop on http://localhost:6006
 ```
 
 ## Checks
@@ -52,6 +54,7 @@ npm run dev
 npm run typecheck
 npm run build
 npm run i18n:check
+npm run build-storybook
 ./scripts/smoke.sh                 # production
 ./scripts/smoke.sh http://localhost:3000
 ```

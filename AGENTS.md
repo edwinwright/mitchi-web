@@ -11,6 +11,7 @@ A statically generated Next.js site publishing the rules of Mitchi, a two-dice g
 | `docs/domain/glossary.md` | The game's vocabulary. Binding on copy in every language. |
 | `docs/product/voice.md` | How the site is written. |
 | `docs/product/site-map.md` | The routes, and what the site deliberately does not have. |
+| `docs/architecture/storybook.md` | Storybook: how to run it, how to write a story, what it does not cover. |
 | `.work/` | Local, ephemeral work-order notes, not committed. One subdirectory per work order, check for one in progress before starting; naming and file layout may vary. |
 
 Read the plan for the current work item and do one slice at a time. Stop at the end of a slice and show the diff.
@@ -32,9 +33,13 @@ npm run dev           # local
 npx tsc --noEmit      # types, including message keys
 npm run lint
 npm run build         # read the route table
+npm run storybook     # component workshop on :6006
+npm run build-storybook
 ```
 
 `npm run build` prints a route table. Every route must show `●`, prerendered with both locale paths listed, and a `proxy` entry must be present. A route showing `ƒ` means something is reading request state at render time: fix it before committing, do not ship it.
+
+A new component gets a story, beside it as `*.stories.tsx`. Stories read every visible string from real message keys through `useTranslations`: no hardcoded copy, no per-locale stories (the toolbar switches locale). See `docs/architecture/storybook.md`.
 
 ## Skills
 

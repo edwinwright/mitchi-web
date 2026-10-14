@@ -52,6 +52,12 @@ App Router `src/app/sitemap.ts` and `src/app/robots.ts`. No sitemap or robots pa
 
 Open Graph and Twitter card images are a single static file, `public/meta/og-default.jpg`, wired into `openGraph.images`/`twitter.images` in `pageMetadata()` (`src/i18n/metadata.ts`). One shared image for every route and locale; no dynamic `opengraph-image.tsx`/`ImageResponse` route, no dependency, no per-page image yet.
 
+## Component workshop
+
+Storybook (`storybook`), with the `@storybook/nextjs-vite` framework and `vite`, which the framework needs as a peer. Dev dependencies only: nothing here reaches the site bundle. No addons. Setup, conventions and deployment are in `docs/architecture/storybook.md`.
+
+Not Chromatic or any visual regression service, not interaction or accessibility test runners, and not `addon-docs` (MDX and autodocs pages). Not `npx storybook init`, which adds those. Not `@tailwindcss/vite`: Tailwind already runs through PostCSS and works unchanged.
+
 ## Analytics
 
 Vercel Web Analytics, via `@vercel/analytics`, mounted once in the locale layout. It sets no cookie, reads and writes nothing on the device, and identifies visitors by a hash of the incoming request that is discarded after 24 hours. It therefore needs no consent banner, and the site must stay that way: anything that later writes to the device changes that answer.
@@ -64,4 +70,4 @@ No custom events: they are Pro-only, and the brief is page views.
 
 ## Tooling and deployment
 
-npm, with the lockfile committed. ESLint via `eslint-config-next`. Vercel builds and deploys from `main`, so there is no CI pipeline to maintain.
+npm, with the lockfile committed. ESLint via `eslint-config-next`. Vercel builds and deploys from `main`, so there is no CI pipeline to maintain. Storybook is a second Vercel project built from the same repository, at `storybook.mitchidice.com`; it is still Vercel deploying from `main`, not a pipeline.
