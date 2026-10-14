@@ -34,7 +34,7 @@ export function SiteFooter() {
         </div>
 
         <div className="flex flex-col gap-4 border-t border-stone-800 pt-5">
-          <div className="flex justify-between items-center gap-6">
+          <div className="flex flex-wrap items-center gap-x-8 gap-y-2 justify-between">
             <p className="font-mono text-xs text-stone-500">mitchidice.com</p>
             <LanguageSwitcher variant="list" inverse />
           </div>
