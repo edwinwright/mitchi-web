@@ -18,9 +18,12 @@ Everything lives in `.storybook/`.
 | File | What it does |
 |---|---|
 | `main.ts` | Framework `@storybook/nextjs-vite`, stories from `src/**/*.stories.@(ts\|tsx)`, `public/` as static files, telemetry off, no addons. |
+| `manager.ts` | The sidebar mark: the Mitchi wordmark, linking to `SITE_ORIGIN`. |
 | `preview.tsx` | The global decorator, the locale toolbar, the viewport list and the Next.js navigation flag. |
 | `decorators.tsx` | Shared decorators for inverse stories. |
 | `preview-head.html`, `manager-head.html` | The `noindex` meta tag. |
+
+**Brand.** The sidebar image is capped at 150 by 100 pixels. `public/brand/mitchi-wordmark.svg` still reads at that size. The full lockup is wider, so the same cap shrinks the dice. The manager stays on the light theme, so the mark is the ink wordmark, served from `staticDirs`.
 
 **Sidebar.** Stories are grouped by role, from primitives up to pages: Foundations (type and brand), Page blocks, Rules content, Site chrome, Home. The group order is `storySort` in `preview.tsx`, and stories inside a group are alphabetical. A story's title is `Group/ComponentName`. A new group must be added to the `order` list, or it sorts after the listed ones.
 
