@@ -87,18 +87,13 @@ A second Vercel project, `mitchi-storybook`, imports this same repository. The s
 | Node version | 24, or at least what `storybook` requires |
 | Domain | `storybook.mitchidice.com` |
 
-**Ignored Build Step** (Settings, Git). Exit 0 skips the build, exit 1 builds. The paths are everything Storybook reads, including `next.config.ts`, because the Vite framework loads it:
+**Ignored Build Step** (Settings → Build and Deployment). Behavior: **Run my Bash script**. Exit 0 skips the build, exit 1 builds. Each project points at its own script, and the path list lives in that script. Leave `ignoreCommand` out of `vercel.json`: that file would apply to both projects.
 
-```bash
-git diff --quiet HEAD^ HEAD -- .storybook src messages public package.json package-lock.json next.config.ts postcss.config.mjs tsconfig.json global.d.ts
-```
+| Project | Script |
+|---|---|
+| `mitchi-storybook` | `scripts/vercel-ignore-storybook.sh` |
+| `mitchi-web` | `scripts/vercel-ignore-site.sh` |
 
-It compares only the last commit, so a push of several commits at once can skip a build it needed. Squash-merged pull requests, the repo's current pattern, are safe.
+Both compare `HEAD` with `VERCEL_GIT_PREVIOUS_SHA`, the last successful deploy of that project on that branch, so a push of several commits is still seen. A canceled deploy does not move the base. An empty variable (the first deploy of a branch), or a base commit missing from the checkout, builds.
 
-**Optional reverse rule on `mitchi-web`**, so a story-only commit does not redeploy the site:
-
-```bash
-git diff --quiet HEAD^ HEAD -- . ':(exclude).storybook' ':(exclude,glob)**/*.stories.tsx'
-```
-
-The same limit applies, and a wrong skip on the production site costs more than a spare build, so it is optional.
+The Storybook script builds when that range differs in anything Storybook reads, including `next.config.ts`, because the Vite framework loads it, and including the script itself. The site script skips only when the range differs under `.storybook/` or in `*.stories.tsx`. A wrong skip on the production site costs more than a spare build, so that script builds whenever the base is missing.
