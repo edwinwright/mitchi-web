@@ -1,4 +1,5 @@
 import { defineConfig, globalIgnores } from "eslint/config";
+import eslintConfigPrettier from "eslint-config-prettier/flat";
 import nextVitals from "eslint-config-next/core-web-vitals";
 import nextTs from "eslint-config-next/typescript";
 
@@ -23,7 +24,7 @@ const eslintConfig = defineConfig([
             {
               name: "next/link",
               message:
-              "Import Link from @/i18n/navigation so locale pathnames are applied.",
+                "Import Link from @/i18n/navigation so locale pathnames are applied.",
             },
             {
               name: "next/navigation",
@@ -34,13 +35,14 @@ const eslintConfig = defineConfig([
                 "useRouter",
               ],
               message:
-              "Import redirect, usePathname and useRouter from @/i18n/navigation.",
+                "Import redirect, usePathname and useRouter from @/i18n/navigation.",
             },
           ],
         },
       ],
     },
-  }
+  },
+  eslintConfigPrettier,
 ]);
 
 export default eslintConfig;

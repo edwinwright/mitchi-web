@@ -4,15 +4,15 @@ A statically generated Next.js site publishing the rules of Mitchi, a two-dice g
 
 ## Read before changing anything
 
-| File | What it governs |
-|---|---|
-| `docs/architecture/tech-stack.md` | What may be used, and what may not. No new dependency without a line in it. |
-| `docs/architecture/i18n-conventions.md` | How messages are keyed, typed and rendered. |
-| `docs/domain/glossary.md` | The game's vocabulary. Binding on copy in every language. |
-| `docs/product/voice.md` | How the site is written. |
-| `docs/product/site-map.md` | The routes, and what the site deliberately does not have. |
-| `docs/architecture/storybook.md` | Storybook: how to run it, how to write a story, what it does not cover. |
-| `.work/` | Local, ephemeral work-order notes, not committed. One subdirectory per work order, check for one in progress before starting; naming and file layout may vary. |
+| File                                    | What it governs                                                                                                                                                |
+| --------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `docs/architecture/tech-stack.md`       | What may be used, and what may not. No new dependency without a line in it.                                                                                    |
+| `docs/architecture/i18n-conventions.md` | How messages are keyed, typed and rendered.                                                                                                                    |
+| `docs/domain/glossary.md`               | The game's vocabulary. Binding on copy in every language.                                                                                                      |
+| `docs/product/voice.md`                 | How the site is written.                                                                                                                                       |
+| `docs/product/site-map.md`              | The routes, and what the site deliberately does not have.                                                                                                      |
+| `docs/architecture/storybook.md`        | Storybook: how to run it, how to write a story, what it does not cover.                                                                                        |
+| `.work/`                                | Local, ephemeral work-order notes, not committed. One subdirectory per work order, check for one in progress before starting; naming and file layout may vary. |
 
 Read the plan for the current work item and do one slice at a time. Stop at the end of a slice and show the diff.
 
@@ -32,6 +32,7 @@ Read the plan for the current work item and do one slice at a time. Stop at the 
 npm run dev           # local
 npx tsc --noEmit      # types, including message keys
 npm run lint
+npm run format
 npm run build         # read the route table
 npm run storybook     # component workshop on :6006
 npm run build-storybook

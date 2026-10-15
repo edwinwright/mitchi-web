@@ -30,14 +30,14 @@ roles, first person on About, lower-case `ty`.
 
 The forms in use are in the glossary. Alternatives considered and set aside:
 
-| Term | Rejected | Why |
-|---|---|---|
-| Hand | `ręka` | Card-game flavour, and with dice it reads as the physical hand |
-| Die | `kostka` | The everyday word and equally common; `kość` is the rulebook standard. Either would do, one is used |
-| Stop | `pasować` | Means to pass on a turn, not to keep a hand |
-| Re-roll | `rzucić ponownie` | Correct but a phrase; `przerzucić` is the word dice rules use |
-| Game (session) | `partia` | Available, as `la partida` is in Spanish, but `gra` covers both senses in this copy without ambiguity. One word |
-| Worst hand so far | `najgorszy dotychczasowy układ` | Not rejected, just not chosen: `najgorszy jak dotąd układ` is shorter for the strip. Flagged for the reviewer |
+| Term              | Rejected                        | Why                                                                                                             |
+| ----------------- | ------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| Hand              | `ręka`                          | Card-game flavour, and with dice it reads as the physical hand                                                  |
+| Die               | `kostka`                        | The everyday word and equally common; `kość` is the rulebook standard. Either would do, one is used             |
+| Stop              | `pasować`                       | Means to pass on a turn, not to keep a hand                                                                     |
+| Re-roll           | `rzucić ponownie`               | Correct but a phrase; `przerzucić` is the word dice rules use                                                   |
+| Game (session)    | `partia`                        | Available, as `la partida` is in Spanish, but `gra` covers both senses in this copy without ambiguity. One word |
+| Worst hand so far | `najgorszy dotychczasowy układ` | Not rejected, just not chosen: `najgorszy jak dotąd układ` is shorter for the strip. Flagged for the reviewer   |
 
 **`Mitchi` agreement.** Neuter, as for indeclinable foreign nouns. Masculine by
 analogy with `układ` is defensible. Flagged; whichever the reviewer prefers is

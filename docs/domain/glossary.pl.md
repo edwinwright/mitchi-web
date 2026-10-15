@@ -12,32 +12,32 @@ Polish nouns change ending by grammatical role (seven cases, three genders, two 
 
 ## Terms
 
-| English | Polish | Forms in the copy | Note |
-|---|---|---|---|
-| Mitchi (game, and the hand) | Mitchi | Mitchi (all cases) | Indeclinable, as foreign words ending in `-i` are in Polish. Agreement neuter: `pierwsze Mitchi`, `każde Mitchi`, `dwa Mitchi`. No plural ending. See below. **Reviewer: neuter or masculine agreement** |
-| Game | gra | gra, gry, grę, w grze | One word for both senses, the system and the session. See below |
-| Hand | układ | układ, układu, układem, układy | The dice and poker combination word. Masculine inanimate, so accusative equals nominative: the term string survives as both subject and object |
-| Die / dice | kość / kości | kość, kości, kością, kośćmi, dwie kości, obie kości, jedną kość | Rulebook standard. "Roll both dice" takes the instrumental: `rzuca dwiema kośćmi` |
-| Roll (the throw) | rzucać / rzucić | rzuca, rzuć, rzućcie | Imperfective for rules stating what happens, perfective for a one-off instruction. See below |
-| Roll (the result) | wyrzucić | wyrzuca, wyrzucił, wyrzucone | What came up: `wyrzuca sześć-cztery`. See below |
-| Re-roll | przerzucić | przerzucić obie kości, przerzucić jedną kość | A third verb, where English adds a prefix and Spanish a phrase. See below |
-| Roll (the noun) | rzut | rzut, rzutu, rzuty, rzutów, w rzucie | |
-| Roll limit | limit rzutów | limit rzutów, limitu rzutów, do limitu rzutów | Masculine inanimate: nominative equals accusative |
-| In one, in two, in three | w jednym, w dwóch, w trzech | | Locative, "in one (roll)": `sześć-trzy w dwóch`. Each strip note is a whole string, so the form is written per sentence, never selected by a count |
-| Stop | zatrzymać się | zatrzymuje się, zatrzymaj się | Plain verb, no game idiom needed |
-| Round | runda | runda, rundy, rundę, w rundzie | |
-| Turn | tura | tura, tury, turę, w turze | Standard board game word |
-| Starting player | gracz rozpoczynający | gracz rozpoczynający, gracza rozpoczynającego | Standard rulebook phrase. Person nouns are masculine animate, so accusative equals genitive, unlike `układ`: `przez gracza rozpoczynającego` |
-| Worst hand | najgorszy układ | najgorszy układ, najgorszego układu | The base term |
-| Worst hand so far | najgorszy jak dotąd układ | najgorszy jak dotąd układ, najgorszego jak dotąd układu | Compact enough for the example strip. **Reviewer: versus `najgorszy dotychczasowy układ`** |
-| Doubles | dublety | dublety, dublet | The backgammon and dice word for a pair |
-| Six-high, five-high, four-high, three-high | najwyżej szóstka, najwyżej piątka, najwyżej czwórka, najwyżej trójka | as group names, capitalised | "A six at most", which is the definition. See below. **Reviewer: the least certain naming choice in the set** |
-| The pot | pula | pula, puli, pulę, w puli | The standard Polish poker word. See below |
-| Take the pot | zgarnąć pulę | zgarnia pulę | The idiomatic poker phrase |
-| Tie-break | dogrywka | dogrywka, dogrywki, dogrywkę, w dogrywce | Standard sports and games word for a play-off |
-| Tied | remis / remisować | remisują, mają remis, mają ten sam układ | "Tied on the worst hand" phrases as "have the same worst hand": `mają ten sam najgorszy układ` |
-| Points | punkty | punkt, punkty, punktów | Three plural forms. See below |
-| Point limit | limit punktów | limit punktów, limitu punktów | |
+| English                                    | Polish                                                               | Forms in the copy                                               | Note                                                                                                                                                                                                     |
+| ------------------------------------------ | -------------------------------------------------------------------- | --------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Mitchi (game, and the hand)                | Mitchi                                                               | Mitchi (all cases)                                              | Indeclinable, as foreign words ending in `-i` are in Polish. Agreement neuter: `pierwsze Mitchi`, `każde Mitchi`, `dwa Mitchi`. No plural ending. See below. **Reviewer: neuter or masculine agreement** |
+| Game                                       | gra                                                                  | gra, gry, grę, w grze                                           | One word for both senses, the system and the session. See below                                                                                                                                          |
+| Hand                                       | układ                                                                | układ, układu, układem, układy                                  | The dice and poker combination word. Masculine inanimate, so accusative equals nominative: the term string survives as both subject and object                                                           |
+| Die / dice                                 | kość / kości                                                         | kość, kości, kością, kośćmi, dwie kości, obie kości, jedną kość | Rulebook standard. "Roll both dice" takes the instrumental: `rzuca dwiema kośćmi`                                                                                                                        |
+| Roll (the throw)                           | rzucać / rzucić                                                      | rzuca, rzuć, rzućcie                                            | Imperfective for rules stating what happens, perfective for a one-off instruction. See below                                                                                                             |
+| Roll (the result)                          | wyrzucić                                                             | wyrzuca, wyrzucił, wyrzucone                                    | What came up: `wyrzuca sześć-cztery`. See below                                                                                                                                                          |
+| Re-roll                                    | przerzucić                                                           | przerzucić obie kości, przerzucić jedną kość                    | A third verb, where English adds a prefix and Spanish a phrase. See below                                                                                                                                |
+| Roll (the noun)                            | rzut                                                                 | rzut, rzutu, rzuty, rzutów, w rzucie                            |                                                                                                                                                                                                          |
+| Roll limit                                 | limit rzutów                                                         | limit rzutów, limitu rzutów, do limitu rzutów                   | Masculine inanimate: nominative equals accusative                                                                                                                                                        |
+| In one, in two, in three                   | w jednym, w dwóch, w trzech                                          |                                                                 | Locative, "in one (roll)": `sześć-trzy w dwóch`. Each strip note is a whole string, so the form is written per sentence, never selected by a count                                                       |
+| Stop                                       | zatrzymać się                                                        | zatrzymuje się, zatrzymaj się                                   | Plain verb, no game idiom needed                                                                                                                                                                         |
+| Round                                      | runda                                                                | runda, rundy, rundę, w rundzie                                  |                                                                                                                                                                                                          |
+| Turn                                       | tura                                                                 | tura, tury, turę, w turze                                       | Standard board game word                                                                                                                                                                                 |
+| Starting player                            | gracz rozpoczynający                                                 | gracz rozpoczynający, gracza rozpoczynającego                   | Standard rulebook phrase. Person nouns are masculine animate, so accusative equals genitive, unlike `układ`: `przez gracza rozpoczynającego`                                                             |
+| Worst hand                                 | najgorszy układ                                                      | najgorszy układ, najgorszego układu                             | The base term                                                                                                                                                                                            |
+| Worst hand so far                          | najgorszy jak dotąd układ                                            | najgorszy jak dotąd układ, najgorszego jak dotąd układu         | Compact enough for the example strip. **Reviewer: versus `najgorszy dotychczasowy układ`**                                                                                                               |
+| Doubles                                    | dublety                                                              | dublety, dublet                                                 | The backgammon and dice word for a pair                                                                                                                                                                  |
+| Six-high, five-high, four-high, three-high | najwyżej szóstka, najwyżej piątka, najwyżej czwórka, najwyżej trójka | as group names, capitalised                                     | "A six at most", which is the definition. See below. **Reviewer: the least certain naming choice in the set**                                                                                            |
+| The pot                                    | pula                                                                 | pula, puli, pulę, w puli                                        | The standard Polish poker word. See below                                                                                                                                                                |
+| Take the pot                               | zgarnąć pulę                                                         | zgarnia pulę                                                    | The idiomatic poker phrase                                                                                                                                                                               |
+| Tie-break                                  | dogrywka                                                             | dogrywka, dogrywki, dogrywkę, w dogrywce                        | Standard sports and games word for a play-off                                                                                                                                                            |
+| Tied                                       | remis / remisować                                                    | remisują, mają remis, mają ten sam układ                        | "Tied on the worst hand" phrases as "have the same worst hand": `mają ten sam najgorszy układ`                                                                                                           |
+| Points                                     | punkty                                                               | punkt, punkty, punktów                                          | Three plural forms. See below                                                                                                                                                                            |
+| Point limit                                | limit punktów                                                        | limit punktów, limitu punktów                                   |                                                                                                                                                                                                          |
 
 ## Addressing the player
 
@@ -93,10 +93,10 @@ The test is the same as for Spanish: if the sentence is about the act, `rzucać`
 
 Polish numerals govern three forms of the noun:
 
-| Count | Form | Example |
-|---|---|---|
-| 1 | `punkt` | `1 punkt` |
-| 2, 3, 4 (and 22, 23, 24, 32…) | `punkty` | `2 punkty`, `24 punkty` |
+| Count                             | Form      | Example                                       |
+| --------------------------------- | --------- | --------------------------------------------- |
+| 1                                 | `punkt`   | `1 punkt`                                     |
+| 2, 3, 4 (and 22, 23, 24, 32…)     | `punkty`  | `2 punkty`, `24 punkty`                       |
 | 5 to 21, then 25 to 31, and so on | `punktów` | `5 punktów`, `25 punktów`, `limit 25 punktów` |
 
 The English strings use static numbers ("1 point", "2 points", "adds 2 more"), so no ICU `plural` is needed: each occurrence is hand-picked and written whole. This table is here so nobody "fixes" `2 punkty` to `2 punktów`, or `25 punktów` to `25 punkty`. Bare `punkty` (no numeral) is the ordinary plural: `punkty są złe`, `najmniej punktów wygrywa` (the genitive after "fewest").

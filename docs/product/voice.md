@@ -8,14 +8,14 @@ How the site is written, in every language. Binding on English and on every tran
 
 No idioms. "Tied", never "level". No jokes, no asides, no "simply" and no "just". A reader mid-game wants an answer, not a personality.
 
-| Do | Do not |
-|---|---|
-| "Roll both dice." | "Go ahead and roll both dice." |
-| "You may re-roll either die." | "You're free to re-roll either die if you fancy it." |
+| Do                                         | Do not                                                |
+| ------------------------------------------ | ----------------------------------------------------- |
+| "Roll both dice."                          | "Go ahead and roll both dice."                        |
+| "You may re-roll either die."              | "You're free to re-roll either die if you fancy it."  |
 | "The starting player sets the roll limit." | "You set the roll limit." (when only one player does) |
-| "The worst hand takes the pot." | "Bad luck: the worst hand takes the pot." |
-| "Players tied on the worst hand" | "Players level on the worst hand" |
-| Use the terms in `docs/domain/glossary.md` | Introduce a synonym because a sentence reads better |
+| "The worst hand takes the pot."            | "Bad luck: the worst hand takes the pot."             |
+| "Players tied on the worst hand"           | "Players level on the worst hand"                     |
+| Use the terms in `docs/domain/glossary.md` | Introduce a synonym because a sentence reads better   |
 
 In translation, procedure takes the informal second person singular, or whatever form the language uses for game instructions addressed to the player. For Spanish, this holds for prose addressed to one player; numbered steps addressed to the whole table take the infinitive instead, see `docs/domain/glossary.es.md`.
 

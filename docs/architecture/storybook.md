@@ -15,13 +15,13 @@ If a story fails to load with "Failed to fetch dynamically imported module", res
 
 Everything lives in `.storybook/`.
 
-| File | What it does |
-|---|---|
-| `main.ts` | Framework `@storybook/nextjs-vite`, stories from `src/**/*.stories.@(ts\|tsx)`, `public/` as static files, telemetry off, no addons. |
-| `manager.ts` | The sidebar mark: the Mitchi wordmark, linking to `SITE_ORIGIN`. |
-| `preview.tsx` | The global decorator, the locale toolbar, the viewport list and the Next.js navigation flag. |
-| `decorators.tsx` | Shared decorators for inverse stories. |
-| `preview-head.html`, `manager-head.html` | The `noindex` meta tag. |
+| File                                     | What it does                                                                                                                         |
+| ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| `main.ts`                                | Framework `@storybook/nextjs-vite`, stories from `src/**/*.stories.@(ts\|tsx)`, `public/` as static files, telemetry off, no addons. |
+| `manager.ts`                             | The sidebar mark: the Mitchi wordmark, linking to `SITE_ORIGIN`.                                                                     |
+| `preview.tsx`                            | The global decorator, the locale toolbar, the viewport list and the Next.js navigation flag.                                         |
+| `decorators.tsx`                         | Shared decorators for inverse stories.                                                                                               |
+| `preview-head.html`, `manager-head.html` | The `noindex` meta tag.                                                                                                              |
 
 **Brand.** The sidebar image is capped at 150 by 100 pixels. `public/brand/mitchi-wordmark.svg` still reads at that size. The full lockup is wider, so the same cap shrinks the dice. The manager stays on the light theme, so the mark is the ink wordmark, served from `staticDirs`.
 
@@ -75,24 +75,24 @@ Not a `Disallow` in `robots.txt`: a crawler that is disallowed from a page never
 
 A second Vercel project, `mitchi-storybook`, imports this same repository. The site's project is unaffected.
 
-| Setting | Value |
-|---|---|
-| Production branch | `main` |
-| Framework preset | Storybook if offered, otherwise Other |
-| Root directory | repository root |
-| Install command | default (`npm install`) |
-| Build command | `npm run build-storybook` (not `npm run build`, which also runs the `prebuild` marker guard) |
-| Output directory | `storybook-static` |
-| Environment variables | none |
-| Node version | 24, or at least what `storybook` requires |
-| Domain | `storybook.mitchidice.com` |
+| Setting               | Value                                                                                        |
+| --------------------- | -------------------------------------------------------------------------------------------- |
+| Production branch     | `main`                                                                                       |
+| Framework preset      | Storybook if offered, otherwise Other                                                        |
+| Root directory        | repository root                                                                              |
+| Install command       | default (`npm install`)                                                                      |
+| Build command         | `npm run build-storybook` (not `npm run build`, which also runs the `prebuild` marker guard) |
+| Output directory      | `storybook-static`                                                                           |
+| Environment variables | none                                                                                         |
+| Node version          | 24, or at least what `storybook` requires                                                    |
+| Domain                | `storybook.mitchidice.com`                                                                   |
 
 **Ignored Build Step** (Settings → Build and Deployment). Behavior: **Run my Bash script**. Exit 0 skips the build, exit 1 builds. Each project points at its own script, and the path list lives in that script. Leave `ignoreCommand` out of `vercel.json`: that file would apply to both projects.
 
-| Project | Script |
-|---|---|
+| Project            | Script                               |
+| ------------------ | ------------------------------------ |
 | `mitchi-storybook` | `scripts/vercel-ignore-storybook.sh` |
-| `mitchi-web` | `scripts/vercel-ignore-site.sh` |
+| `mitchi-web`       | `scripts/vercel-ignore-site.sh`      |
 
 Both compare `HEAD` with `VERCEL_GIT_PREVIOUS_SHA`, the last successful deploy of that project on that branch, so a push of several commits is still seen. A canceled deploy does not move the base. An empty variable (the first deploy of a branch), or a base commit missing from the checkout, builds.
 
