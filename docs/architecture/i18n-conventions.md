@@ -4,16 +4,16 @@ How message content is structured and authored. The routing decisions (`localePr
 
 ## Where things live
 
-| Thing | Home |
-|---|---|
-| Message content | `messages/<locale>.json`, one file per locale, dynamically imported per locale in `src/i18n/request.ts` |
-| Hand data, group order | `src/data/hands.ts` |
-| Section anchor IDs | The components that render the sections |
-| Routing and slugs | `src/i18n/routing.ts` |
-| Rich text tag map | `src/i18n/rich-text.tsx` (`tags`) |
-| Page metadata | `src/i18n/metadata.ts` (`pageMetadata`, `PAGES`) — titles and descriptions from `meta.*` |
-| Production origin | `src/lib/config.ts` (`SITE_ORIGIN`) — `metadataBase`, sitemap, robots |
-| Sitemap and robots | `src/app/sitemap.ts`, `src/app/robots.ts` (App Router built-ins; outside `[locale]`) |
+| Thing                  | Home                                                                                                    |
+| ---------------------- | ------------------------------------------------------------------------------------------------------- |
+| Message content        | `messages/<locale>.json`, one file per locale, dynamically imported per locale in `src/i18n/request.ts` |
+| Hand data, group order | `src/data/hands.ts`                                                                                     |
+| Section anchor IDs     | The components that render the sections                                                                 |
+| Routing and slugs      | `src/i18n/routing.ts`                                                                                   |
+| Rich text tag map      | `src/i18n/rich-text.tsx` (`tags`)                                                                       |
+| Page metadata          | `src/i18n/metadata.ts` (`pageMetadata`, `PAGES`) — titles and descriptions from `meta.*`                |
+| Production origin      | `src/lib/config.ts` (`SITE_ORIGIN`) — `metadataBase`, sitemap, robots                                   |
+| Sitemap and robots     | `src/app/sitemap.ts`, `src/app/robots.ts` (App Router built-ins; outside `[locale]`)                    |
 
 Namespaces, and no fourteenth without a reason: `meta`, `site`, `nav`, `nextPage`, `home`, `rules`, `reference`, `about`, `notFound`, `handGroups`, `hands`, `potTable`, `vocabulary`.
 
@@ -66,15 +66,15 @@ Messages own linguistic structure. Components own document structure: `<p>`, `<h
 
 **No generic `<link>`.** A tag that can point anywhere forces the URL into the component as a prop, and two `<link>`s in one string cannot carry two destinations. Each in-text action is its own tag, baked to one target in `tags`.
 
-| Tag | Action |
-|---|---|
-| `<em>` | Emphasis |
-| `<strong>` | Strong emphasis |
-| `<term>` | Vocabulary reference. Jumps to `/rules#vocabulary`. |
-| `<tieBreaks>` | Jumps to `/rules#tie-breaks`. |
-| `<about>` | Opens `/about`. |
-| `<rules>` | Opens `/rules`. |
-| `<reference>` | Opens `/reference`. |
+| Tag           | Action                                              |
+| ------------- | --------------------------------------------------- |
+| `<em>`        | Emphasis                                            |
+| `<strong>`    | Strong emphasis                                     |
+| `<term>`      | Vocabulary reference. Jumps to `/rules#vocabulary`. |
+| `<tieBreaks>` | Jumps to `/rules#tie-breaks`.                       |
+| `<about>`     | Opens `/about`.                                     |
+| `<rules>`     | Opens `/rules`.                                     |
+| `<reference>` | Opens `/reference`.                                 |
 
 Names are identifiers: letters only, so they are valid ICU tags and unquoted keys in the `tags` map. Not `<tie-breaks>`, `<link-to-about>` or `<a>`. A `Link` suffix would show translators that the span is a link; at this size the table above is the legend. If the site grows a large set of in-text actions, revisit.
 
@@ -89,9 +89,9 @@ Body copy rendered in a `<p>` (or other inline-rich block) always goes through `
 `en.json` is the schema. Augment the next-intl config so every key is checked:
 
 ```ts
-import messages from './messages/en.json';
+import messages from "./messages/en.json";
 
-declare module 'next-intl' {
+declare module "next-intl" {
   interface AppConfig {
     Messages: typeof messages;
   }

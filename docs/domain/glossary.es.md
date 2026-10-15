@@ -10,29 +10,29 @@ Variety: European Spanish, informal.
 
 ## Terms
 
-| English | Spanish | Note |
-|---|---|---|
-| Mitchi (game, and the hand) | Mitchi | Untranslated. The game's name never inflects; the hand pluralises, `dos Mitchis`. See below |
-| Game | el juego / la partida | The system versus the session played. See below |
-| Hand | la mano | |
-| Die / dice | el dado / los dados | |
-| Roll (the noun, and the throw) | la tirada, tirar | `tirar los dados` is the idiomatic game verb. `lanzar` is the athletic one |
-| Roll (the result) | sacar | `saca seis-cuatro`. See below |
-| Roll limit | el límite de tiradas | |
-| In one, in two, in three | en una, en dos, en tres | Compact form, used in the example strip and the vocabulary definition (`seis-tres en dos`). Prose elsewhere spells it out (`en dos tiradas`), see below |
-| Stop | plantarse | The verb Spanish games use for ending a turn, from blackjack and mus. `detenerse` and `parar` read as translation |
-| Round | la ronda | |
-| Turn | el turno | Standard term for a player's rolls in a round, up to the roll limit |
-| Starting player | el jugador inicial | The standard term in Spanish board game rules |
-| Worst hand | la peor mano | The base term. The Spanish pair mirrors the English pair exactly |
-| Worst hand so far | la peor mano hasta ahora | A direct translation of the English, which is why the English was renamed first |
-| Doubles | dobles | |
-| The pot | el bote | See below |
-| Take the pot | llevarse el bote | |
-| Tie-break | el desempate | Verb: `desempatar` |
-| Tied | empatado/a | From `empatar`, "to tie". Pairs with `desempate`/`desempatar` |
-| Points | los puntos | |
-| Point limit | el límite de puntos | |
+| English                        | Spanish                  | Note                                                                                                                                                    |
+| ------------------------------ | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Mitchi (game, and the hand)    | Mitchi                   | Untranslated. The game's name never inflects; the hand pluralises, `dos Mitchis`. See below                                                             |
+| Game                           | el juego / la partida    | The system versus the session played. See below                                                                                                         |
+| Hand                           | la mano                  |                                                                                                                                                         |
+| Die / dice                     | el dado / los dados      |                                                                                                                                                         |
+| Roll (the noun, and the throw) | la tirada, tirar         | `tirar los dados` is the idiomatic game verb. `lanzar` is the athletic one                                                                              |
+| Roll (the result)              | sacar                    | `saca seis-cuatro`. See below                                                                                                                           |
+| Roll limit                     | el límite de tiradas     |                                                                                                                                                         |
+| In one, in two, in three       | en una, en dos, en tres  | Compact form, used in the example strip and the vocabulary definition (`seis-tres en dos`). Prose elsewhere spells it out (`en dos tiradas`), see below |
+| Stop                           | plantarse                | The verb Spanish games use for ending a turn, from blackjack and mus. `detenerse` and `parar` read as translation                                       |
+| Round                          | la ronda                 |                                                                                                                                                         |
+| Turn                           | el turno                 | Standard term for a player's rolls in a round, up to the roll limit                                                                                     |
+| Starting player                | el jugador inicial       | The standard term in Spanish board game rules                                                                                                           |
+| Worst hand                     | la peor mano             | The base term. The Spanish pair mirrors the English pair exactly                                                                                        |
+| Worst hand so far              | la peor mano hasta ahora | A direct translation of the English, which is why the English was renamed first                                                                         |
+| Doubles                        | dobles                   |                                                                                                                                                         |
+| The pot                        | el bote                  | See below                                                                                                                                               |
+| Take the pot                   | llevarse el bote         |                                                                                                                                                         |
+| Tie-break                      | el desempate             | Verb: `desempatar`                                                                                                                                      |
+| Tied                           | empatado/a               | From `empatar`, "to tie". Pairs with `desempate`/`desempatar`                                                                                           |
+| Points                         | los puntos               |                                                                                                                                                         |
+| Point limit                    | el límite de puntos      |                                                                                                                                                         |
 
 ## Addressing the player
 

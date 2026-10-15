@@ -10,30 +10,33 @@
 //   npm run i18n:check
 //   node scripts/check-messages.mjs --no-markers
 
-import { readdirSync, readFileSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
-import path from 'node:path';
+import { readdirSync, readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import path from "node:path";
 
 const rootDir = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
-const messagesDir = path.join(rootDir, 'messages');
-const enPath = path.join(messagesDir, 'en.json');
-const en = JSON.parse(readFileSync(enPath, 'utf8'));
+const messagesDir = path.join(rootDir, "messages");
+const enPath = path.join(messagesDir, "en.json");
+const en = JSON.parse(readFileSync(enPath, "utf8"));
 
 const locales = readdirSync(messagesDir)
-  .filter((file) => file.endsWith('.json') && file !== 'en.json')
-  .map((file) => file.replace(/\.json$/, ''));
+  .filter((file) => file.endsWith(".json") && file !== "en.json")
+  .map((file) => file.replace(/\.json$/, ""));
 
-function flatten(value, prefix = '') {
-  if (typeof value === 'string') {
+function flatten(value, prefix = "") {
+  if (typeof value === "string") {
     return { [prefix]: value };
   }
-  if (value && typeof value === 'object' && !Array.isArray(value)) {
+  if (value && typeof value === "object" && !Array.isArray(value)) {
     return Object.entries(value).reduce(
-      (acc, [key, v]) => Object.assign(acc, flatten(v, prefix ? `${prefix}.${key}` : key)),
-      {}
+      (acc, [key, v]) =>
+        Object.assign(acc, flatten(v, prefix ? `${prefix}.${key}` : key)),
+      {},
     );
   }
-  throw new Error(`Unsupported message value at "${prefix}": ${JSON.stringify(value)}`);
+  throw new Error(
+    `Unsupported message value at "${prefix}": ${JSON.stringify(value)}`,
+  );
 }
 
 // An ICU select/plural/selectordinal block's branch output ("1 {one} 2
@@ -47,7 +50,7 @@ function flatten(value, prefix = '') {
 // plain tag/param scan runs on what is left of the string.
 function extractIcuArgs(str) {
   const argTokens = [];
-  let rest = '';
+  let rest = "";
   let lastIndex = 0;
   const opener = /\{(\w+),\s*(?:select|plural|selectordinal)\s*,/g;
   let match;
@@ -60,13 +63,13 @@ function extractIcuArgs(str) {
     let end = -1;
     const cases = [];
     for (let i = bodyStart; i < str.length; i++) {
-      if (str[i] === '{') {
+      if (str[i] === "{") {
         if (depth === 1) {
           const label = str.slice(caseStart, i).trim();
           if (label) cases.push(label);
         }
         depth++;
-      } else if (str[i] === '}') {
+      } else if (str[i] === "}") {
         depth--;
         if (depth === 0) {
           end = i;
@@ -92,7 +95,7 @@ function tokens(str) {
   return [...tags, ...params, ...argTokens].sort();
 }
 
-const failOnMarkers = process.argv.includes('--no-markers');
+const failOnMarkers = process.argv.includes("--no-markers");
 const MARKER = /^\[[A-Z]{2}(-[A-Z]{2})?\] /;
 
 const enFlat = flatten(en);
@@ -106,7 +109,7 @@ for (const [key, value] of Object.entries(enFlat)) {
 
 for (const locale of locales) {
   const localePath = path.join(messagesDir, `${locale}.json`);
-  const data = JSON.parse(readFileSync(localePath, 'utf8'));
+  const data = JSON.parse(readFileSync(localePath, "utf8"));
   const localeFlat = flatten(data);
   const localeKeys = new Set(Object.keys(localeFlat));
 
@@ -129,11 +132,11 @@ for (const locale of locales) {
 
   for (const key of enKeys) {
     if (!localeKeys.has(key)) continue;
-    const enTokens = tokens(enFlat[key]).join(',');
-    const localeTokens = tokens(localeFlat[key]).join(',');
+    const enTokens = tokens(enFlat[key]).join(",");
+    const localeTokens = tokens(localeFlat[key]).join(",");
     if (enTokens !== localeTokens) {
       console.error(
-        `${locale}.json: "${key}" tags/params mismatch — en has [${enTokens}], ${locale} has [${localeTokens}]`
+        `${locale}.json: "${key}" tags/params mismatch — en has [${enTokens}], ${locale} has [${localeTokens}]`,
       );
       ok = false;
     }
@@ -141,12 +144,12 @@ for (const locale of locales) {
 }
 
 if (markers.length > 0) {
-  const label = failOnMarkers ? 'error' : 'warning';
-  console[failOnMarkers ? 'error' : 'warn'](
-    `${label}: ${markers.length} untranslated marker${markers.length === 1 ? '' : 's'}:`
+  const label = failOnMarkers ? "error" : "warning";
+  console[failOnMarkers ? "error" : "warn"](
+    `${label}: ${markers.length} untranslated marker${markers.length === 1 ? "" : "s"}:`,
   );
   for (const entry of markers) {
-    console[failOnMarkers ? 'error' : 'warn'](`  ${entry}`);
+    console[failOnMarkers ? "error" : "warn"](`  ${entry}`);
   }
   if (failOnMarkers) ok = false;
 }
@@ -157,6 +160,6 @@ if (!ok) {
 
 console.log(
   locales.length > 0
-    ? `${locales.join(', ')} match en.json: key parity and tag/param parity OK.`
-    : 'No locale files to check.'
+    ? `${locales.join(", ")} match en.json: key parity and tag/param parity OK.`
+    : "No locale files to check.",
 );

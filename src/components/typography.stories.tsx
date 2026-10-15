@@ -35,7 +35,9 @@ function Headings() {
 
 function SectionHeadings({ inverse = false }: { inverse?: boolean }) {
   const t = useTranslations("rules");
-  return <SectionHeading inverse={inverse}>{t("scoring.heading")}</SectionHeading>;
+  return (
+    <SectionHeading inverse={inverse}>{t("scoring.heading")}</SectionHeading>
+  );
 }
 
 function ProseSample() {

@@ -22,11 +22,36 @@ const WHITE = "#ffffff";
 
 const FACES: Record<DieFace, [number, number][]> = {
   1: [[1, 1]],
-  2: [[0, 1], [2, 1]],
-  3: [[0, 2], [1, 1], [2, 0]],
-  4: [[0, 0], [2, 0], [0, 2], [2, 2]],
-  5: [[0, 0], [2, 0], [1, 1], [0, 2], [2, 2]],
-  6: [[0, 0], [2, 0], [0, 1], [2, 1], [0, 2], [2, 2]],
+  2: [
+    [0, 1],
+    [2, 1],
+  ],
+  3: [
+    [0, 2],
+    [1, 1],
+    [2, 0],
+  ],
+  4: [
+    [0, 0],
+    [2, 0],
+    [0, 2],
+    [2, 2],
+  ],
+  5: [
+    [0, 0],
+    [2, 0],
+    [1, 1],
+    [0, 2],
+    [2, 2],
+  ],
+  6: [
+    [0, 0],
+    [2, 0],
+    [0, 1],
+    [2, 1],
+    [0, 2],
+    [2, 2],
+  ],
 };
 
 // Fixed ids, not useId(): the component must render as a Server Component with
@@ -38,7 +63,11 @@ const DARK = "mitchi-drill-dark";
 const LIGHT = "mitchi-drill-light";
 
 const CENTRES = [0.24, 0.5, 0.76];
-const OFFSET_RATIO: Record<DieVariant, number> = { offset: 0.088, flat: 0, block: 0.077 };
+const OFFSET_RATIO: Record<DieVariant, number> = {
+  offset: 0.088,
+  flat: 0,
+  block: 0.077,
+};
 
 /** Full footprint of a die, die edge plus its offset. */
 export function boxSize(size: number, variant: DieVariant = "flat") {
@@ -70,8 +99,7 @@ export function MitchiDie({
   const px = (n: number) => Number(n.toFixed(3));
 
   // outline, drawn as an inset ring so the pip grid stays pure geometry
-  const outline =
-    variant === "flat" && inverse ? null : inverse ? WHITE : INK;
+  const outline = variant === "flat" && inverse ? null : inverse ? WHITE : INK;
   const weight = !outline
     ? 0
     : variant === "offset"
@@ -116,11 +144,25 @@ export function MitchiDie({
             <stop offset="0.82" stopColor="#000" stopOpacity="0" />
             <stop offset="1" stopColor="#000" stopOpacity="0.13" />
           </radialGradient>
-          <radialGradient id={DARK} cx="0.6" cy="0.6" r="0.72" fx="0.6" fy="0.6">
+          <radialGradient
+            id={DARK}
+            cx="0.6"
+            cy="0.6"
+            r="0.72"
+            fx="0.6"
+            fy="0.6"
+          >
             <stop offset="0.55" stopColor="#000" stopOpacity="0" />
             <stop offset="1" stopColor="#000" stopOpacity="0.62" />
           </radialGradient>
-          <radialGradient id={LIGHT} cx="0.4" cy="0.4" r="0.72" fx="0.4" fy="0.4">
+          <radialGradient
+            id={LIGHT}
+            cx="0.4"
+            cy="0.4"
+            r="0.72"
+            fx="0.4"
+            fy="0.4"
+          >
             <stop offset="0.55" stopColor="#fff" stopOpacity="0" />
             <stop offset="1" stopColor="#fff" stopOpacity="0.44" />
           </radialGradient>

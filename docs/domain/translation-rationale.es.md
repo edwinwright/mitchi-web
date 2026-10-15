@@ -14,10 +14,10 @@ repeated.
 European Spanish, informal, in two registers rather than one.
 
 - **Procedure and definitions: impersonal or third person.** `cada jugador
-  tira`, `se tira`, `el jugador inicial tira los dados`.
+tira`, `se tira`, `el jugador inicial tira los dados`.
 - **The reader's own position: second person singular, `tú`.** Only where the
   sentence is about what you are trying to do rather than what happens: `solo
-  necesitas superar la peor mano`.
+necesitas superar la peor mano`.
 - **Home and About: second person freely.** They already are in English.
 
 This mirrors the English. Every procedural string in `en.json` is third person;
@@ -64,22 +64,22 @@ locale is ever added.
 
 ## 4. Terms
 
-| English | Spanish | Note |
-|---|---|---|
-| Mitchi | Mitchi | Untranslated, uninflected, in every language |
-| Hand | la mano | |
-| Die / dice | el dado / los dados | |
-| Roll | la tirada, tirar | `tirar los dados` is the idiomatic game verb; `lanzar` is the athletic one |
-| Roll limit | el límite de tiradas | |
-| Round | la ronda | |
-| Starting player | el jugador inicial | The standard term in Spanish board game rules |
-| Worst hand so far | la peor mano hasta ahora | |
-| Doubles | dobles | |
-| The pot | el bote | Section 3 |
-| Take the pot | llevarse el bote | |
-| Tie-break | el desempate | Verb: `desempatar` |
-| Points | los puntos | |
-| Point limit | el límite de puntos | |
+| English           | Spanish                  | Note                                                                       |
+| ----------------- | ------------------------ | -------------------------------------------------------------------------- |
+| Mitchi            | Mitchi                   | Untranslated, uninflected, in every language                               |
+| Hand              | la mano                  |                                                                            |
+| Die / dice        | el dado / los dados      |                                                                            |
+| Roll              | la tirada, tirar         | `tirar los dados` is the idiomatic game verb; `lanzar` is the athletic one |
+| Roll limit        | el límite de tiradas     |                                                                            |
+| Round             | la ronda                 |                                                                            |
+| Starting player   | el jugador inicial       | The standard term in Spanish board game rules                              |
+| Worst hand so far | la peor mano hasta ahora |                                                                            |
+| Doubles           | dobles                   |                                                                            |
+| The pot           | el bote                  | Section 3                                                                  |
+| Take the pot      | llevarse el bote         |                                                                            |
+| Tie-break         | el desempate             | Verb: `desempatar`                                                         |
+| Points            | los puntos               |                                                                            |
+| Point limit       | el límite de puntos      |                                                                            |
 
 ## 5. Hand and group names
 
@@ -100,12 +100,12 @@ than with `mano`.
 
 ## 6. Slugs
 
-| English | Spanish |
-|---|---|
-| `/` | `/es` |
-| `/rules` | `/es/reglas` |
+| English      | Spanish          |
+| ------------ | ---------------- |
+| `/`          | `/es`            |
+| `/rules`     | `/es/reglas`     |
 | `/reference` | `/es/referencia` |
-| `/about` | `/es/acerca-de` |
+| `/about`     | `/es/acerca-de`  |
 
 `/speak` was also given a slug at the time, left untranslated because Mitchi
 Speak is a proper noun. The route was later retired; its redirect remains

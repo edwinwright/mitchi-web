@@ -15,9 +15,7 @@ type Story = StoryObj<typeof meta>;
 function Steps() {
   const t = useTranslations("rules.setup");
   return (
-    <StepList
-      items={[t.rich("pointLimit", tags), t.rich("whoStarts", tags)]}
-    />
+    <StepList items={[t.rich("pointLimit", tags), t.rich("whoStarts", tags)]} />
   );
 }
 

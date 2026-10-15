@@ -70,4 +70,4 @@ No custom events: they are Pro-only, and the brief is page views.
 
 ## Tooling and deployment
 
-npm, with the lockfile committed. ESLint via `eslint-config-next`. Vercel builds and deploys from `main`, so there is no CI pipeline to maintain. Storybook is a second Vercel project built from the same repository, at `storybook.mitchidice.com`; it is still Vercel deploying from `main`, not a pipeline.
+npm, with the lockfile committed. ESLint via `eslint-config-next`. Prettier formats the repo; `eslint-config-prettier` is last in the ESLint flat config so lint rules do not fight the formatter. Both are dev dependencies. Vercel builds and deploys from `main`, so there is no CI pipeline to maintain. Storybook is a second Vercel project built from the same repository, at `storybook.mitchidice.com`; it is still Vercel deploying from `main`, not a pipeline.
