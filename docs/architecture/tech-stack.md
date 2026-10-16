@@ -30,6 +30,8 @@ Not CSS-in-JS, not Sass, not a CSS framework alongside Tailwind. Not a CDN `<lin
 
 Semantic HTML, written here. Tables are tables, definition lists are `dl`, supplementary blocks are `aside`.
 
+The first interactive feature, the practice game, landed in WO-0016 with plain buttons; the shadcn/ui position below is unchanged.
+
 No UI kit. shadcn/ui was considered and rejected: the site is a dozen semantic elements and never reaches the dialogs, popovers and forms where the kit earns its keep. It stays a live option if an interactive feature ever lands, because it is copy-paste source rather than a framework. No Radix, no headless component library, no icon package.
 
 ## Content
@@ -44,7 +46,23 @@ Inline SVG, written here. No icon or illustration package for a site whose only 
 
 ## Testing
 
-None yet, and none added to satisfy a convention. If a unit needs a test, Vitest with Testing Library is the choice. The current checks are the build route table, a keyboard pass, and `./scripts/smoke.sh` (request-time locale routing and HTML canonical / hreflang).
+Vitest, in the node environment, for the game engine, the local store and pure UI helpers. Testing Library and jsdom are for the `useLocalSession` hook and the focus handoff only, and are installed with the slice that writes those tests. Dev dependencies only. `@types/node` follows the Node major in use (24).
+
+Not Jest, Playwright or Cypress. The existing checks stay: the build route table, a keyboard pass, and `./scripts/smoke.sh` (request-time locale routing and HTML canonical / hreflang).
+
+## Game engine
+
+Pure TypeScript in `src/modules/game/engine`. No state library, no new runtime dependency, and nothing written to the device, so the position under Analytics holds. Design and rules of the module are in `docs/architecture/game-engine.md`.
+
+## CI
+
+GitHub Actions on pull requests: lint, import rules, types, tests, message parity and build. Vercel deploys; it does not test.
+
+## Code layout
+
+Feature code lives in `src/modules/<name>`, entered through the module's index. See `docs/architecture/modules.md`.
+
+dependency-cruiser checks what may import what, as a dev dependency. Chosen over `no-restricted-imports` because its rules are independent `from`/`to` pairs: ESLint flat config replaces a rule's options block by block, so a later block can silently drop an earlier ban. Not `eslint-plugin-boundaries`.
 
 ## Discovery
 
@@ -70,4 +88,4 @@ No custom events: they are Pro-only, and the brief is page views.
 
 ## Tooling and deployment
 
-npm, with the lockfile committed. ESLint via `eslint-config-next`. Prettier formats the repo; `eslint-config-prettier` is last in the ESLint flat config so lint rules do not fight the formatter. Both are dev dependencies. Vercel builds and deploys from `main`, so there is no CI pipeline to maintain. Storybook is a second Vercel project built from the same repository, at `storybook.mitchidice.com`; it is still Vercel deploying from `main`, not a pipeline.
+npm, with the lockfile committed. ESLint via `eslint-config-next`. Prettier formats the repo; `eslint-config-prettier` is last in the ESLint flat config so lint rules do not fight the formatter. Both are dev dependencies. Vercel builds and deploys from `main`; checks run in CI (see above), not on Vercel. Storybook is a second Vercel project built from the same repository, at `storybook.mitchidice.com`; it is still Vercel deploying from `main`, not a pipeline.
