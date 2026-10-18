@@ -9,6 +9,8 @@ export type DieSlot = 0 | 1;
 /** By slot. */
 export type KeptPair = readonly [boolean, boolean];
 export type Direction = "clockwise" | "anticlockwise";
+/** Ascending seat order. One seat is a win; two or more is a draw. */
+export type Winners = readonly [Seat, ...Seat[]];
 export const MAX_ROLLS = 3;
 
 export type GameConfig = {
@@ -72,12 +74,7 @@ export type Phase =
       readonly taker: Seat;
       readonly takerHand: HandId;
     }
-  | {
-      readonly kind: "endTie";
-      readonly order: readonly Seat[];
-      readonly rolled: readonly TieRoll[];
-    }
-  | { readonly kind: "gameOver"; readonly winner: Seat };
+  | { readonly kind: "gameOver"; readonly winners: Winners };
 
 export type GameState = {
   readonly config: GameConfig;
@@ -97,7 +94,7 @@ export type SeatHand =
       readonly kind: "hand";
       readonly dice: DicePair;
       readonly hand: HandId;
-      /** null for tie-break and end-tie rolls. */
+      /** null for tie-break rolls. */
       readonly rollsUsed: RollCount | null;
       /** false only for the acting seat mid-turn. */
       readonly final: boolean;

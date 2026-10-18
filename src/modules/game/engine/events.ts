@@ -6,6 +6,7 @@ import type {
   Direction,
   KeptPair,
   Seat,
+  Winners,
 } from "./types";
 
 export type BotReason =
@@ -46,7 +47,7 @@ export type GameEvent =
   | {
       readonly type: "turnStarted";
       readonly seat: Seat;
-      readonly context: "round" | "tieBreak" | "endTie";
+      readonly context: "round" | "tieBreak";
     }
   | {
       readonly type: "rolled";
@@ -113,16 +114,8 @@ export type GameEvent =
       readonly points: number;
       readonly tieBreaks: number;
     }
-  | { readonly type: "endTieStarted"; readonly seats: readonly Seat[] }
-  | {
-      readonly type: "endTieRolled";
-      readonly seat: Seat;
-      readonly dice: DicePair;
-      readonly hand: HandId;
-    }
-  | { readonly type: "endTieTied"; readonly seats: readonly Seat[] }
   | {
       readonly type: "gameEnded";
-      readonly winner: Seat;
+      readonly winners: Winners;
       readonly points: readonly number[];
     };

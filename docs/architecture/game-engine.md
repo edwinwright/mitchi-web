@@ -50,7 +50,7 @@ Whoever runs the engine calls `completeAction(state, request, spare, reason?)`, 
 
 - **Actions:** `roll` (with `values`, `reason`), `keep` (`die`, `kept`), `stop` (`reason`), plus the seatless `newGame` and `nextRound`.
 - **Rejections:** `unknownAction`, `unknownSeat`, `wrongPhase`, `notYourTurn`, `noDiceRolled`, `noRollsLeft`, `bothKept`, `wrongDiceCount`, `invalidDie`. The first failing check wins; the order is in `apply.ts`.
-- **Events** are what happened, in order, for the commentary and the log: game, roll-off, round, turn, roll, keep, roll limit, worst hand, pot, tie-break, pot taken, end tie, game ended. A `keep` that sets a die to the flag it already has is accepted with the same state reference and no events.
+- **Events** are what happened, in order, for the commentary and the log: game, roll-off, round, turn, roll, keep, roll limit, worst hand, pot, tie-break, pot taken, game ended. A `keep` that sets a die to the flag it already has is accepted with the same state reference and no events.
 
 The unions live in `engine/actions.ts` and `engine/events.ts`. They are the reviewed contract; read them there.
 
@@ -63,8 +63,7 @@ turn ─(all finished, unique worst)─▶ take the pot ─▶ roundSummary ─n
 turn ─(all finished, tied worst)──▶ tieBreak 1 ─(unique worst)─▶ take the pot
                                        └─(tied again)─▶ tieBreak n+1
 take the pot: points += pot; if anyone is at the limit or over:
-    unique fewest ─▶ gameOver;  tied fewest ─▶ endTie ─(unique best)─▶ gameOver
-                                                  └─(tied best)─▶ endTie among them
+    ─▶ gameOver (winners: every seat on the fewest points; two or more is a draw)
 gameOver ─newGame─▶ rollOff
 ```
 
@@ -72,11 +71,10 @@ A hand is not fixed until the turn ends. A Mitchi rolled mid-turn and re-rolled 
 
 ## What `/rules` does not state
 
-The engine implements every rule on `/rules`, plus three behaviours the page does not say. Each is a presentational default, chosen so the game can run. A `/rules` sentence for them is a later work order.
+The engine implements every rule on `/rules`, plus two behaviours the page does not say. Each is a presentational default, chosen so the game can run. A `/rules` sentence for them is a later work order.
 
 1. **Tie-break direction alternates, anticlockwise first.** A main round runs clockwise, so tie-break 1 runs anticlockwise, tie-break 2 clockwise, and so on. The order walks the table from the last roller in that direction, keeping only the tied seats.
 2. **A tied best roll in the roll-off re-rolls among the tied.** Only the seats that tied on the highest die roll again.
-3. **A tied best roll in the end tie re-rolls among the tied.** Only the seats that tied on the best hand roll again, in ascending seat order.
 
 ## The role of `local/`
 
