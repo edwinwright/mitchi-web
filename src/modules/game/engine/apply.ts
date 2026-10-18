@@ -1,8 +1,20 @@
 import type { Action, ApplyResult, RejectionCode } from "./actions";
-import type { GameEvent } from "./events";
+import type { BotReason, GameEvent } from "./events";
 import { clockwiseFrom } from "./order";
 import * as select from "./select";
-import type { Die, GameConfig, GameState, Seat } from "./types";
+import { handFromDice, isMitchi, worstOf } from "./hand-rank";
+import {
+  MAX_ROLLS,
+  type DicePair,
+  type Die,
+  type FinishedHand,
+  type GameConfig,
+  type GameState,
+  type KeptPair,
+  type Phase,
+  type RoundState,
+  type Seat,
+} from "./types";
 
 const ACTION_TYPES = ["roll", "keep", "stop", "newGame", "nextRound"] as const;
 
@@ -29,9 +41,9 @@ export function createGame(config: GameConfig): GameState {
  * Never throws on bad input (ENG-4): a rejection carries the same state
  * reference and no events. It throws only for a corrupt state.
  *
- * Slice 4 builds `newGame` and the roll-off. A turn, tie-break or
- * round-summary action that passes validation is answered `wrongPhase`
- * until the slice that builds that phase.
+ * Built so far: `newGame`, the roll-off and the main-round turn. A
+ * tie-break or round-summary action that passes validation is answered
+ * `wrongPhase` until the slice that builds that phase.
  */
 export function applyAction(state: GameState, action: Action): ApplyResult {
   const code = validate(state, action);
@@ -43,6 +55,27 @@ export function applyAction(state: GameState, action: Action): ApplyResult {
     case "roll":
       if (state.phase.kind === "rollOff") {
         return rollOff(state, action.seat, action.values[0]);
+      }
+      if (state.phase.kind === "turn") {
+        return rollInTurn(state, state.phase, action.values, action.reason);
+      }
+      break;
+    case "keep":
+      if (state.phase.kind === "turn") {
+        return keepInTurn(state, state.phase, action.die, action.kept);
+      }
+      break;
+    case "stop":
+      if (state.phase.kind === "turn" && state.phase.dice !== null) {
+        return endTurn(
+          state,
+          state.phase.seat,
+          state.phase.dice,
+          state.phase.rollsUsed,
+          "stop",
+          action.reason,
+          [],
+        );
       }
       break;
   }
@@ -215,4 +248,153 @@ function isDie(value: unknown): value is Die {
   return (
     Number.isInteger(value) && (value as number) >= 1 && (value as number) <= 6
   );
+}
+
+type Turn = Extract<Phase, { kind: "turn" }>;
+
+function roundOf(state: GameState): RoundState {
+  if (!state.round) throw new Error("Corrupt state: a turn with no round");
+  return state.round;
+}
+
+/** A set, not a toggle: a flag already at that value is accepted and changes nothing. */
+function keepInTurn(
+  state: GameState,
+  phase: Turn,
+  die: 0 | 1,
+  kept: boolean,
+): ApplyResult {
+  if (phase.kept[die] === kept) return { ok: true, state, events: [] };
+  const flags: KeptPair =
+    die === 0 ? [kept, phase.kept[1]] : [phase.kept[0], kept];
+  return {
+    ok: true,
+    state: { ...state, phase: { ...phase, kept: flags } },
+    events: [{ type: "keepSet", seat: phase.seat, die, kept }],
+  };
+}
+
+function rollInTurn(
+  state: GameState,
+  phase: Turn,
+  values: readonly Die[],
+  reason: BotReason | null,
+): ApplyResult {
+  const round = roundOf(state);
+  // Kept slots keep their faces; the others take `values` in slot order.
+  let next = 0;
+  const take = (slot: 0 | 1): Die =>
+    phase.dice && phase.kept[slot] ? phase.dice[slot] : values[next++];
+  const dice: DicePair = [take(0), take(1)];
+  const rollsUsed = phase.rollsUsed + 1;
+  const rolled: GameEvent = {
+    type: "rolled",
+    seat: phase.seat,
+    dice,
+    hand: handFromDice(dice),
+    rollNumber: rollsUsed,
+    previous: phase.dice
+      ? { dice: phase.dice, hand: handFromDice(phase.dice) }
+      : null,
+    kept: phase.kept,
+    reason: reason ?? null,
+  };
+  const rolledState: GameState = {
+    ...state,
+    round: { ...round, lastRoller: phase.seat },
+  };
+
+  if (rollsUsed >= (round.rollLimit ?? MAX_ROLLS)) {
+    return endTurn(
+      rolledState,
+      phase.seat,
+      dice,
+      rollsUsed,
+      "noRollsLeft",
+      null,
+      [rolled],
+    );
+  }
+  return {
+    ok: true,
+    state: { ...rolledState, phase: { ...phase, rollsUsed, dice } },
+    events: [rolled],
+  };
+}
+
+/**
+ * Ends the acting seat's turn: `turnEnded`, the starter's `rollLimitSet`,
+ * the pot if the hand is a Mitchi, `worstHandChanged`, then the next seat's
+ * `turnStarted`. The pot is assessed here and nowhere earlier (OQ 4).
+ */
+function endTurn(
+  state: GameState,
+  seat: Seat,
+  dice: DicePair,
+  rollsUsed: number,
+  cause: "stop" | "noRollsLeft",
+  reason: BotReason | null,
+  before: readonly GameEvent[],
+): ApplyResult {
+  const round = roundOf(state);
+  const hand = handFromDice(dice);
+  const events: GameEvent[] = [
+    ...before,
+    { type: "turnEnded", seat, dice, hand, rollsUsed, cause, reason },
+  ];
+  const finished: readonly FinishedHand[] = [
+    ...round.finished,
+    { seat, dice, hand, rollsUsed },
+  ];
+  let { rollLimit, pot } = round;
+
+  if (seat === round.startingSeat) {
+    rollLimit = rollsUsed;
+    events.push({ type: "rollLimitSet", seat, limit: rollsUsed });
+  }
+  if (isMitchi(hand)) {
+    const mitchis = finished.filter((f) => isMitchi(f.hand)).length;
+    events.push({
+      type: "potChanged",
+      pot: 2 * mitchis,
+      previous: pot,
+      cause: "mitchi",
+    });
+    pot = 2 * mitchis;
+  }
+
+  const worstBefore = worstOf(round.finished);
+  const worstAfter = worstOf(finished);
+  if (
+    worstAfter &&
+    (worstBefore?.hand !== worstAfter.hand ||
+      worstBefore.seats.join() !== worstAfter.seats.join())
+  ) {
+    events.push({ type: "worstHandChanged", ...worstAfter });
+  }
+
+  const nextRound: RoundState = { ...round, rollLimit, finished, pot };
+  const nextSeat = round.order[finished.length];
+  if (nextSeat === undefined) return resolveRound();
+
+  events.push({ type: "turnStarted", seat: nextSeat, context: "round" });
+  return {
+    ok: true,
+    state: {
+      ...state,
+      round: nextRound,
+      phase: {
+        kind: "turn",
+        seat: nextSeat,
+        rollsUsed: 0,
+        dice: null,
+        kept: [false, false],
+      },
+    },
+    events,
+  };
+}
+
+function resolveRound(): never {
+  throw new Error("Not yet built: round resolution");
 }

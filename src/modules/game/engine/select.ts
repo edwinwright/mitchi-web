@@ -1,6 +1,6 @@
 import type { HandId } from "@/data/hands";
 import type { AllowedIntents } from "./session";
-import { handFromDice, rankOf } from "./hand-rank";
+import { handFromDice, rankOf, worstOf } from "./hand-rank";
 import {
   MAX_ROLLS,
   type DicePair,
@@ -196,15 +196,6 @@ export function tieBreakNumber(state: GameState): number | null {
 
 function limitOf(state: GameState): number {
   return state.round?.rollLimit ?? MAX_ROLLS;
-}
-
-function worstOf(
-  hands: readonly { seat: Seat; hand: HandId }[],
-): { hand: HandId; seats: readonly Seat[] } | null {
-  if (hands.length === 0) return null;
-  const worst = Math.max(...hands.map((h) => rankOf(h.hand)));
-  const held = hands.filter((h) => rankOf(h.hand) === worst);
-  return { hand: held[0].hand, seats: held.map((h) => h.seat) };
 }
 
 function finishedHand(round: GameState["round"], seat: Seat): SeatHand | null {

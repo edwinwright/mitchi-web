@@ -1,5 +1,5 @@
 import { HANDS, type HandId } from "@/data/hands";
-import type { DicePair } from "./types";
+import type { DicePair, Seat } from "./types";
 
 /**
  * The hand a pair of dice makes, in either order. Reads the pair as higher
@@ -20,4 +20,17 @@ export function rankOf(hand: HandId): number {
 
 export function isMitchi(hand: HandId): boolean {
   return HANDS[rankOf(hand)].group === "mitchi";
+}
+
+/**
+ * The worst of some hands (the highest rank) and the seats holding it, in
+ * the order given. Null for none.
+ */
+export function worstOf(
+  hands: readonly { seat: Seat; hand: HandId }[],
+): { hand: HandId; seats: readonly Seat[] } | null {
+  if (hands.length === 0) return null;
+  const worst = Math.max(...hands.map((h) => rankOf(h.hand)));
+  const held = hands.filter((h) => rankOf(h.hand) === worst);
+  return { hand: held[0].hand, seats: held.map((h) => h.seat) };
 }
