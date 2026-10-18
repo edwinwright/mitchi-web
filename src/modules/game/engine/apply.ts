@@ -1,6 +1,6 @@
 import type { Action, ApplyResult, RejectionCode } from "./actions";
 import type { BotReason, GameEvent } from "./events";
-import { clockwiseFrom } from "./order";
+import { clockwiseFrom, opposite, orderFrom } from "./order";
 import * as select from "./select";
 import { handFromDice, isMitchi, worstOf } from "./hand-rank";
 import {
@@ -41,9 +41,9 @@ export function createGame(config: GameConfig): GameState {
  * Never throws on bad input (ENG-4): a rejection carries the same state
  * reference and no events. It throws only for a corrupt state.
  *
- * Built so far: `newGame`, the roll-off and the main-round turn. A
- * tie-break or round-summary action that passes validation is answered
- * `wrongPhase` until the slice that builds that phase.
+ * Built so far: `newGame`, the roll-off, the main-round turn, round
+ * resolution, tie-breaks and `nextRound`. The game end is not built: a pot
+ * that reaches the point limit throws "Not yet built: game end".
  */
 export function applyAction(state: GameState, action: Action): ApplyResult {
   const code = validate(state, action);
@@ -58,6 +58,14 @@ export function applyAction(state: GameState, action: Action): ApplyResult {
       }
       if (state.phase.kind === "turn") {
         return rollInTurn(state, state.phase, action.values, action.reason);
+      }
+      if (state.phase.kind === "tieBreak") {
+        return rollInTieBreak(state, state.phase, action.values);
+      }
+      break;
+    case "nextRound":
+      if (state.phase.kind === "roundSummary") {
+        return nextRound(state, state.phase.taker);
       }
       break;
     case "keep":
@@ -373,16 +381,18 @@ function endTurn(
     events.push({ type: "worstHandChanged", ...worstAfter });
   }
 
-  const nextRound: RoundState = { ...round, rollLimit, finished, pot };
+  const updated: RoundState = { ...round, rollLimit, finished, pot };
   const nextSeat = round.order[finished.length];
-  if (nextSeat === undefined) return resolveRound();
+  if (nextSeat === undefined) {
+    return resolveRound({ ...state, round: updated }, worstAfter, events);
+  }
 
   events.push({ type: "turnStarted", seat: nextSeat, context: "round" });
   return {
     ok: true,
     state: {
       ...state,
-      round: nextRound,
+      round: updated,
       phase: {
         kind: "turn",
         seat: nextSeat,
@@ -395,6 +405,174 @@ function endTurn(
   };
 }
 
-function resolveRound(): never {
-  throw new Error("Not yet built: round resolution");
+type Worst = NonNullable<ReturnType<typeof worstOf>>;
+type TieBreak = Extract<Phase, { kind: "tieBreak" }>;
+
+/**
+ * Everyone has finished (or a tie-break has been rolled): a unique worst
+ * takes the pot; seats tied on the worst roll again with the pot doubled.
+ */
+function resolveRound(
+  state: GameState,
+  worst: Worst | null,
+  events: GameEvent[],
+): ApplyResult {
+  if (!worst) throw new Error("Corrupt state: a round with no hands");
+  return worst.seats.length === 1
+    ? takePot(state, worst.seats[0], worst.hand, events)
+    : startTieBreak(state, worst, events);
+}
+
+function takePot(
+  state: GameState,
+  seat: Seat,
+  hand: Worst["hand"],
+  events: GameEvent[],
+): ApplyResult {
+  const round = roundOf(state);
+  const points = state.points.map((p, i) => (i === seat ? p + round.pot : p));
+  events.push({
+    type: "potTaken",
+    seat,
+    pot: round.pot,
+    points: points[seat],
+    tieBreaks: round.tieBreaks,
+  });
+  if (points[seat] >= state.config.pointLimit) {
+    throw new Error("Not yet built: game end");
+  }
+  return {
+    ok: true,
+    state: {
+      ...state,
+      points,
+      phase: { kind: "roundSummary", taker: seat, takerHand: hand },
+    },
+    events,
+  };
+}
+
+/**
+ * The pot doubles before anyone rolls. The direction alternates from the
+ * round's clockwise, so tie-break 1 is anticlockwise, and the walk starts
+ * at the last roller.
+ */
+function startTieBreak(
+  state: GameState,
+  tied: Worst,
+  events: GameEvent[],
+): ApplyResult {
+  const round = roundOf(state);
+  if (round.lastRoller === null) {
+    throw new Error("Corrupt state: a tie-break with no last roller");
+  }
+  const number = round.tieBreaks + 1;
+  const direction = opposite(round.lastDirection);
+  const order = orderFrom(
+    state.config.seats,
+    round.lastRoller,
+    direction,
+    tied.seats,
+  );
+  const pot = round.pot * 2;
+  events.push(
+    { type: "potChanged", pot, previous: round.pot, cause: "tieBreak" },
+    {
+      type: "tieBreakStarted",
+      number,
+      seats: order,
+      direction,
+      tiedOn: tied.hand,
+    },
+    { type: "turnStarted", seat: order[0], context: "tieBreak" },
+  );
+  return {
+    ok: true,
+    state: {
+      ...state,
+      round: { ...round, pot, tieBreaks: number, lastDirection: direction },
+      phase: {
+        kind: "tieBreak",
+        direction,
+        tiedOn: tied.hand,
+        order,
+        rolled: [],
+      },
+    },
+    events,
+  };
+}
+
+/** A tie-break roll is the player's whole turn: final as it lands, so a Mitchi adds 2 at once. */
+function rollInTieBreak(
+  state: GameState,
+  phase: TieBreak,
+  values: readonly Die[],
+): ApplyResult {
+  const round = roundOf(state);
+  const seat = phase.order[phase.rolled.length];
+  const dice: DicePair = [values[0], values[1]];
+  const hand = handFromDice(dice);
+  const rolled = [...phase.rolled, { seat, dice, hand }];
+  const events: GameEvent[] = [{ type: "tieBreakRolled", seat, dice, hand }];
+
+  let pot = round.pot;
+  if (isMitchi(hand)) {
+    pot += 2;
+    events.push({
+      type: "potChanged",
+      pot,
+      previous: round.pot,
+      cause: "mitchi",
+    });
+  }
+  const updated: GameState = {
+    ...state,
+    round: { ...round, pot, lastRoller: seat },
+  };
+
+  const next = phase.order[rolled.length];
+  if (next !== undefined) {
+    events.push({ type: "turnStarted", seat: next, context: "tieBreak" });
+    return {
+      ok: true,
+      state: { ...updated, phase: { ...phase, rolled } },
+      events,
+    };
+  }
+  return resolveRound(updated, worstOf(rolled), events);
+}
+
+/** The taker starts. The limit and the pot are fresh; nothing carries over. */
+function nextRound(state: GameState, taker: Seat): ApplyResult {
+  const round = roundOf(state);
+  const number = round.number + 1;
+  return {
+    ok: true,
+    state: {
+      ...state,
+      round: {
+        number,
+        startingSeat: taker,
+        order: clockwiseFrom(state.config.seats, taker),
+        rollLimit: null,
+        finished: [],
+        pot: 1,
+        tieBreaks: 0,
+        lastRoller: null,
+        lastDirection: "clockwise",
+      },
+      phase: {
+        kind: "turn",
+        seat: taker,
+        rollsUsed: 0,
+        dice: null,
+        kept: [false, false],
+      },
+    },
+    events: [
+      { type: "roundStarted", round: number, startingSeat: taker },
+      { type: "turnStarted", seat: taker, context: "round" },
+    ],
+  };
 }

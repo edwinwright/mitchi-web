@@ -2,7 +2,15 @@ import { describe, expect, it } from "vitest";
 import type { Action, RejectionCode } from "./actions";
 import { applyAction, createGame } from "./apply";
 import type { GameEvent } from "./events";
-import type { Die, GameState, Phase, RoundState, Seat } from "./types";
+import * as select from "./select";
+import type {
+  Die,
+  GameConfig,
+  GameState,
+  Phase,
+  RoundState,
+  Seat,
+} from "./types";
 
 const CONFIG = { seats: 4, pointLimit: 5 };
 
@@ -864,5 +872,387 @@ describe("the lastRoller", () => {
     expect(inRound(R(0, 6, 5), S(0), R(1, 4, 6)).state.round?.lastRoller).toBe(
       1,
     );
+  });
+});
+
+// Round resolution and tie-breaks. A roll limit of 1 makes every non-starter's
+// turn a single roll, so a round is five short steps. Seat 0 starts unless noted.
+const NEXT: Action = { type: "nextRound" };
+const BIG = { seats: 4, pointLimit: 25 };
+
+function inGame(config: GameConfig, ...actions: Action[]) {
+  let state = deepFreeze(ok(createGame(config), { type: "newGame" }).state);
+  const events: GameEvent[] = [];
+  const rollOffDice: Die[] = [6, 3, 2, 1];
+  const opening = rollOffDice
+    .slice(0, config.seats)
+    .map((d, seat) => R(seat, d));
+  for (const action of [...opening, ...actions]) {
+    const result = ok(state, action);
+    state = deepFreeze(result.state);
+    events.push(...result.events);
+  }
+  return { state, events };
+}
+
+function inBig(...actions: Action[]) {
+  return inGame(BIG, ...actions);
+}
+
+/** The events of the final action of a sequence, from a 25-point four-seat game. */
+function lastBig(...actions: Action[]) {
+  const before = inBig(...actions.slice(0, -1));
+  return ok(before.state, actions[actions.length - 1]);
+}
+
+/** Round one of a limit-1 round ending with seat 3's 3-2 as the unique worst. */
+const UNIQUE_WORST = [R(0, 6, 5), S(0), R(1, 4, 6), R(2, 3, 3), R(3, 3, 2)];
+/** Seats 0 and 1 tie on 3-1; seats 2 and 3 are better. Seat 3 rolled last. */
+const TIED_NOT_LAST = [R(0, 3, 1), S(0), R(1, 1, 3), R(2, 6, 5), R(3, 6, 4)];
+/** All four on 3-1. */
+const ALL_TIED = [R(0, 3, 1), S(0), R(1, 3, 1), R(2, 3, 1), R(3, 3, 1)];
+
+function tieBreakStarts(events: readonly GameEvent[]) {
+  return events.flatMap((e) => (e.type === "tieBreakStarted" ? [e] : []));
+}
+
+describe("round resolution", () => {
+  it("round: unique worst takes pot and starts next round", () => {
+    const { events, state } = lastBig(...UNIQUE_WORST);
+    expect(types(events)).toStrictEqual([
+      "rolled",
+      "turnEnded",
+      "worstHandChanged",
+      "potTaken",
+    ]);
+    expect(events.at(-1)).toStrictEqual({
+      type: "potTaken",
+      seat: 3,
+      pot: 1,
+      points: 1,
+      tieBreaks: 0,
+    });
+    expect(state.points).toStrictEqual([0, 0, 0, 1]);
+    expect(state.phase).toStrictEqual({
+      kind: "roundSummary",
+      taker: 3,
+      takerHand: "3-2",
+    });
+
+    const next = ok(state, NEXT);
+    expect(next.events).toStrictEqual([
+      { type: "roundStarted", round: 2, startingSeat: 3 },
+      { type: "turnStarted", seat: 3, context: "round" },
+    ]);
+    expect(next.state.round).toStrictEqual({
+      number: 2,
+      startingSeat: 3,
+      order: [3, 0, 1, 2],
+      rollLimit: null,
+      finished: [],
+      pot: 1,
+      tieBreaks: 0,
+      lastRoller: null,
+      lastDirection: "clockwise",
+    });
+    expect(turnPhase(next.state)).toMatchObject({ seat: 3, dice: null });
+    expect(next.state.points).toStrictEqual([0, 0, 0, 1]);
+  });
+
+  it("turn: limit does not carry into the next round", () => {
+    const { state } = inBig(...UNIQUE_WORST);
+    expect(state.round?.rollLimit).toBe(1);
+    const next = ok(state, NEXT).state;
+    expect(select.rollLimit(next).set).toBeNull();
+    expect(select.rollsLeft(next)).toBe(3);
+  });
+
+  it("round: roundSummary awaits nextRound", () => {
+    const { state } = inBig(...UNIQUE_WORST);
+    for (const seat of [0, 1, 2, 3]) {
+      expect(select.allowedIntents(state, seat)).toStrictEqual({
+        roll: false,
+        setKeep: false,
+        stop: false,
+        nextRound: true,
+        newGame: false,
+      });
+    }
+    expectRejected(state, R(3, 3, 4), "wrongPhase");
+    expectRejected(state, S(3), "wrongPhase");
+    expectRejected(state, K(3, 0, true), "wrongPhase");
+    expectRejected(state, { type: "newGame" }, "wrongPhase");
+  });
+
+  it("round: the points add up across rounds", () => {
+    const first = inBig(...UNIQUE_WORST).state;
+    const second = ok(first, NEXT).state;
+    const done = [R(3, 3, 2), S(3), R(0, 6, 5), R(1, 6, 4), R(2, 3, 3)];
+    let state = second;
+    for (const action of done) state = ok(state, action).state;
+    expect(state.points).toStrictEqual([0, 0, 0, 2]);
+  });
+});
+
+describe("tie-breaks", () => {
+  it("pot: rules example A three-way tie gives 2", () => {
+    const config = { seats: 3, pointLimit: 25 };
+    const tie = [R(0, 3, 1), S(0), R(1, 1, 3), R(2, 3, 1)];
+    const before = inGame(config, ...tie.slice(0, -1));
+    const { events, state } = ok(before.state, tie[tie.length - 1]);
+    expect(events).toStrictEqual([
+      expect.objectContaining({ type: "rolled" }),
+      expect.objectContaining({ type: "turnEnded" }),
+      { type: "worstHandChanged", hand: "3-1", seats: [0, 1, 2] },
+      { type: "potChanged", pot: 2, previous: 1, cause: "tieBreak" },
+      {
+        type: "tieBreakStarted",
+        number: 1,
+        seats: [2, 1, 0],
+        direction: "anticlockwise",
+        tiedOn: "3-1",
+      },
+      { type: "turnStarted", seat: 2, context: "tieBreak" },
+    ]);
+    expect(state.points).toStrictEqual([0, 0, 0]);
+
+    // The unique worst in the tie-break takes 2.
+    const rolls = [R(2, 4, 3), R(1, 6, 2), R(0, 5, 4)];
+    let current = state;
+    let last: GameEvent[] = [];
+    for (const roll of rolls) {
+      const result = ok(current, roll);
+      current = result.state;
+      last = [...result.events];
+    }
+    expect(last).toStrictEqual([
+      expect.objectContaining({ type: "tieBreakRolled", seat: 0 }),
+      { type: "potTaken", seat: 2, pot: 2, points: 2, tieBreaks: 1 },
+    ]);
+    expect(current.points).toStrictEqual([0, 0, 2]);
+    expect(current.phase).toStrictEqual({
+      kind: "roundSummary",
+      taker: 2,
+      takerHand: "4-3",
+    });
+  });
+
+  it("pot: rules example B chain 1 2 4 8", () => {
+    const pots: number[] = [];
+    let { state } = inBig(R(0, 6, 5), S(0), R(1, 3, 1), R(2, 1, 3), R(3, 3, 1));
+    pots.push(state.round?.pot ?? 0);
+    expect(state.phase).toMatchObject({ kind: "tieBreak", order: [3, 2, 1] });
+
+    // Tie-break 1: a Mitchi adds 2 as it lands, then 3 and 1 tie on 4-3.
+    const first = ok(state, R(3, 4, 3));
+    expect(types(first.events)).toStrictEqual([
+      "tieBreakRolled",
+      "turnStarted",
+    ]);
+    const mitchi = ok(first.state, R(2, 2, 1));
+    expect(mitchi.events).toStrictEqual([
+      expect.objectContaining({ type: "tieBreakRolled", seat: 2 }),
+      { type: "potChanged", pot: 4, previous: 2, cause: "mitchi" },
+      { type: "turnStarted", seat: 1, context: "tieBreak" },
+    ]);
+    pots.push(mitchi.state.round?.pot ?? 0);
+    const tiedAgain = ok(mitchi.state, R(1, 3, 4));
+    expect(tiedAgain.events).toStrictEqual([
+      expect.objectContaining({ type: "tieBreakRolled", seat: 1 }),
+      { type: "potChanged", pot: 8, previous: 4, cause: "tieBreak" },
+      {
+        type: "tieBreakStarted",
+        number: 2,
+        seats: [1, 3],
+        direction: "clockwise",
+        tiedOn: "4-3",
+      },
+      { type: "turnStarted", seat: 1, context: "tieBreak" },
+    ]);
+    state = tiedAgain.state;
+    pots.push(state.round?.pot ?? 0);
+
+    // Tie-break 2: the unique worst takes 8.
+    state = ok(state, R(1, 5, 4)).state;
+    const last = ok(state, R(3, 3, 2));
+    expect(last.events.at(-1)).toStrictEqual({
+      type: "potTaken",
+      seat: 3,
+      pot: 8,
+      points: 8,
+      tieBreaks: 2,
+    });
+    expect(pots).toStrictEqual([2, 4, 8]);
+    expect(last.state.points).toStrictEqual([0, 0, 0, 8]);
+  });
+
+  it("tie-break direction alternates", () => {
+    const { events } = inBig(
+      ...ALL_TIED,
+      ...[3, 2, 1, 0].map((s) => R(s, 3, 1)),
+      ...[0, 1, 2, 3].map((s) => R(s, 3, 1)),
+    );
+    expect(tieBreakStarts(events).map((e) => e.direction)).toStrictEqual([
+      "anticlockwise",
+      "clockwise",
+      "anticlockwise",
+    ]);
+  });
+
+  it("tie-break: four-seat worked example", () => {
+    // Seat 2 starts (order 2, 3, 0, 1), so seat 1 rolls last. 0, 1 and 3 tie.
+    let state = deepFreeze(started());
+    const events: GameEvent[] = [];
+    for (const action of [
+      R(0, 3),
+      R(1, 2),
+      R(2, 6),
+      R(3, 1),
+      R(2, 6, 5),
+      S(2),
+      R(3, 3, 1),
+      R(0, 3, 1),
+      R(1, 3, 1),
+      // Tie-break 1 runs [1, 0, 3]: 1 and 3 tie on 4-3.
+      R(1, 4, 3),
+      R(0, 6, 2),
+      R(3, 4, 3),
+      // Tie-break 2 runs [3, 1].
+    ]) {
+      const result = ok(state, action);
+      state = deepFreeze(result.state);
+      events.push(...result.events);
+    }
+    expect(
+      tieBreakStarts(events).map((e) => [e.number, e.seats, e.direction]),
+    ).toStrictEqual([
+      [1, [1, 0, 3], "anticlockwise"],
+      [2, [3, 1], "clockwise"],
+    ]);
+    expect(state.phase).toMatchObject({ kind: "tieBreak", order: [3, 1] });
+  });
+
+  it("tie-break: last roller not in tie-break", () => {
+    const { state, events } = inBig(...TIED_NOT_LAST);
+    expect(state.round?.lastRoller).toBe(3);
+    expect(tieBreakStarts(events)[0]).toMatchObject({
+      number: 1,
+      seats: [1, 0],
+      direction: "anticlockwise",
+    });
+    expect(select.inContest(state, 2)).toBe(false);
+    expect(select.inContest(state, 1)).toBe(true);
+    expect(select.actingSeat(state)).toBe(1);
+  });
+
+  it("tie-break: keep and stop rejected", () => {
+    const { state } = inBig(...TIED_NOT_LAST);
+    expectRejected(state, K(1, 0, true), "wrongPhase");
+    expectRejected(state, S(1), "wrongPhase");
+    expectRejected(state, R(1, 3), "wrongDiceCount");
+    expectRejected(state, R(1, 3, 4, 5), "wrongDiceCount");
+    expectRejected(state, R(1), "wrongDiceCount");
+    expectRejected(state, R(0, 3, 4), "notYourTurn");
+    expectRejected(state, R(2, 3, 4), "notYourTurn");
+    expect(select.allowedIntents(state, 1)).toMatchObject({
+      roll: true,
+      setKeep: false,
+      stop: false,
+    });
+  });
+
+  it("tie-break: three consecutive with all four tied", () => {
+    const { state, events } = inBig(
+      ...ALL_TIED,
+      ...[3, 2, 1, 0].map((s) => R(s, 3, 1)),
+      ...[0, 1, 2, 3].map((s) => R(s, 3, 1)),
+      // Tie-break 3 runs [3, 2, 1, 0]: seat 2 is the unique worst.
+      R(3, 6, 5),
+      R(2, 3, 1),
+      R(1, 6, 5),
+      R(0, 6, 5),
+    );
+    expect(tieBreakStarts(events).map((e) => e.direction)).toStrictEqual([
+      "anticlockwise",
+      "clockwise",
+      "anticlockwise",
+    ]);
+    expect(
+      events.flatMap((e) =>
+        e.type === "potChanged" && e.cause === "tieBreak" ? [e.pot] : [],
+      ),
+    ).toStrictEqual([2, 4, 8]);
+    expect(events.at(-1)).toStrictEqual({
+      type: "potTaken",
+      seat: 2,
+      pot: 8,
+      points: 8,
+      tieBreaks: 3,
+    });
+    expect(state.points).toStrictEqual([0, 0, 8, 0]);
+  });
+
+  it("tie-break: all tied players roll Mitchi tie again", () => {
+    const { state } = inBig(...TIED_NOT_LAST);
+    expect(state.round?.pot).toBe(2);
+    const first = ok(state, R(1, 2, 1));
+    expect(first.state.round?.pot).toBe(4);
+    const second = ok(first.state, R(0, 1, 2));
+    expect(second.events).toStrictEqual([
+      expect.objectContaining({ type: "tieBreakRolled", seat: 0 }),
+      { type: "potChanged", pot: 6, previous: 4, cause: "mitchi" },
+      { type: "potChanged", pot: 12, previous: 6, cause: "tieBreak" },
+      expect.objectContaining({
+        type: "tieBreakStarted",
+        number: 2,
+        tiedOn: "2-1",
+      }),
+      { type: "turnStarted", seat: 0, context: "tieBreak" },
+    ]);
+    expect(second.state.round?.pot).toBe(12);
+    expect(second.state.points).toStrictEqual([0, 0, 0, 0]);
+  });
+
+  it("pot: all four Mitchis tie then double", () => {
+    const mitchis = [R(0, 2, 1), S(0), R(1, 2, 1), R(2, 2, 1)];
+    expect(inBig(...mitchis).state.round?.pot).toBe(6);
+    const { events, state } = lastBig(...mitchis, R(3, 2, 1));
+    expect(events).toStrictEqual([
+      expect.objectContaining({ type: "rolled" }),
+      expect.objectContaining({ type: "turnEnded" }),
+      { type: "potChanged", pot: 8, previous: 6, cause: "mitchi" },
+      { type: "worstHandChanged", hand: "2-1", seats: [0, 1, 2, 3] },
+      { type: "potChanged", pot: 16, previous: 8, cause: "tieBreak" },
+      expect.objectContaining({ type: "tieBreakStarted", number: 1 }),
+      { type: "turnStarted", seat: 3, context: "tieBreak" },
+    ]);
+    expect(state.round?.pot).toBe(16);
+    expect(state.points).toStrictEqual([0, 0, 0, 0]);
+  });
+
+  it("events: a tie-break Mitchi gives tieBreakRolled then potChanged", () => {
+    const { state } = inBig(...TIED_NOT_LAST);
+    const { events } = ok(state, R(1, 1, 2));
+    expect(types(events).slice(0, 2)).toStrictEqual([
+      "tieBreakRolled",
+      "potChanged",
+    ]);
+  });
+
+  it("events: turnStarted is the last event of a tie-break step that hands over", () => {
+    const { state } = inBig(...ALL_TIED);
+    const { events } = ok(state, R(3, 4, 3));
+    expect(events.at(-1)).toStrictEqual({
+      type: "turnStarted",
+      seat: 2,
+      context: "tieBreak",
+    });
+  });
+
+  it("a tie-break stays pure: the input state is not changed", () => {
+    const { state } = inBig(...ALL_TIED);
+    const snapshot = JSON.stringify(state);
+    ok(state, R(3, 4, 3));
+    expect(JSON.stringify(state)).toBe(snapshot);
   });
 });
