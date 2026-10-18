@@ -3,7 +3,6 @@ import { useTranslations } from "next-intl";
 import { Container } from "@/components/container";
 import { CtaLink } from "@/components/cta-link";
 import { tags } from "@/i18n/rich-text";
-import { DiceHeroOverlay } from "@/components/dice-hero-overlay";
 import { Heading } from "./heading";
 
 export function HomeHero() {
@@ -62,14 +61,6 @@ export function HomeHero() {
               className="object-cover"
             />
           </div>
-          {/* <DiceHeroOverlay
-            size={64}
-            className="absolute left-5 -top-8 md:hidden"
-          />
-          <DiceHeroOverlay
-            size={104}
-            className="absolute hidden md:flex md:-left-14 md:top-20"
-          /> */}
         </div>
       </div>
       <div className="md:hidden bg-foreground text-white">
