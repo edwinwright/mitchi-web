@@ -25,7 +25,7 @@ Everything lives in `.storybook/`.
 
 **Brand.** The sidebar image is capped at 150 by 100 pixels. `public/brand/mitchi-wordmark.svg` still reads at that size. The full lockup is wider, so the same cap shrinks the dice. The manager stays on the light theme, so the mark is the ink wordmark, served from `staticDirs`.
 
-**Sidebar.** Stories are grouped by role, from primitives up to pages: Foundations (type and brand), Page blocks, Rules content, Site chrome, Home. The group order is `storySort` in `preview.tsx`, and stories inside a group are alphabetical. A story's title is `Group/ComponentName`. A new group must be added to the `order` list, or it sorts after the listed ones.
+**Sidebar.** Stories are grouped by role, from primitives up to pages: Foundations (type and brand), Page blocks, Rules content, Site chrome, Home, Practice game. The group order is `storySort` in `preview.tsx`, and stories inside a group are alphabetical. A story's title is `Group/ComponentName`. A new group must be added to the `order` list, or it sorts after the listed ones.
 
 **Provider and locale toolbar.** Every story is wrapped in `NextIntlClientProvider`, given the messages for the locale chosen in the toolbar. The toolbar has one entry per `routing.locales`, titled by `Intl.DisplayNames`. The messages are static imports in a map typed `satisfies Record<Locale, unknown>`, so adding a locale to `routing` fails `tsc` until its file is imported in `preview.tsx`.
 
@@ -34,6 +34,19 @@ Everything lives in `.storybook/`.
 **Fonts.** The site puts the four font `variable` classes on `<html>`. Storybook has no `<html>` of its own, so the decorator puts them on a wrapper div, together with `font-sans`. `globals.css` sets `body { font-family: var(--font-sans) }`, and a custom property resolves where it is declared, so without `font-sans` on the wrapper, text would inherit the fallback stack. The root 404 solves the same problem the same way. The wrapper also carries `lang` for the current locale.
 
 In the Vite framework `next/font/google` is not self-hosted: the font files are fetched from Google's CDN at runtime. That applies to Storybook only. The site's fonts are still self-hosted at build, as `tech-stack.md` says.
+
+## Practice game stories
+
+The practice game (`src/modules/game/`, WO-0016) has its own group, **Practice game**, after Home. Its stories sit inside the module, beside each component in `src/modules/game/ui/*.stories.tsx`. The existing `src/**` glob finds them; `main.ts` does not change.
+
+A panel story renders a real game state without running the engine:
+
+- `fixtureSession(fixture, options)` from `../testing` builds a `GameSession` whose intents do nothing. The named fixtures (`viewerToRoll`, `botMidTurn`, `roundSummary`, `gameOverDraw` and the rest) were made by running the real engine, so every state on screen is one the game can reach.
+- `sliceSession(session)` turns that session into the props a panel takes, so a story passes the same data the page does.
+
+**The stories exception.** Production code never imports `../testing`; stories and tests may, and `.dependency-cruiser.cjs` enforces it. `select` (from `../engine`) is the one engine value the UI imports, and stories use it the same way; that one is held in review, not by lint.
+
+Copy rules are unchanged: every visible string comes from a real `play.*` key through `useTranslations`, and the toolbar switches locale, so there are no per-locale stories.
 
 ## Navigation
 

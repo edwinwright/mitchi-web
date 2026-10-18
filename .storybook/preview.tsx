@@ -79,6 +79,7 @@ const preview: Preview = {
           "Rules content",
           "Site chrome",
           "Home",
+          "Practice game",
         ],
       },
     },
