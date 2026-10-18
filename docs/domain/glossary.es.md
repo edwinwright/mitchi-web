@@ -31,6 +31,7 @@ Variety: European Spanish, informal.
 | Take the pot                   | llevarse el bote         |                                                                                                                                                         |
 | Tie-break                      | el desempate             | Verb: `desempatar`                                                                                                                                      |
 | Tied                           | empatado/a               | From `empatar`, "to tie". Pairs with `desempate`/`desempatar`                                                                                           |
+| Draw                           | compartir la victoria    | `empate` is already Tied, so a draw is written as a shared win: `comparten la victoria`                                                                 |
 | Points                         | los puntos               |                                                                                                                                                         |
 | Point limit                    | el límite de puntos      |                                                                                                                                                         |
 

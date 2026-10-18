@@ -171,7 +171,7 @@
     "winning": {
       "heading": "Kto wygrywa",
       "gameEnds": "Gra kończy się, gdy którykolwiek gracz osiągnie limit punktów. Wygrywa gracz z najmniejszą liczbą punktów.",
-      "tiedOnFewest": "Przy remisie na najmniejszą liczbę punktów ci gracze rzucają po jednym razie i wygrywa najlepszy układ."
+      "tiedOnFewest": "Przy remisie na najmniejszą liczbę punktów ci gracze dzielą się zwycięstwem."
     },
     "vocabulary": {
       "heading": "Słowniczek"
@@ -200,7 +200,7 @@
     },
     "pointLimit": {
       "heading": "Limit punktów",
-      "summary": "Gra kończy się, gdy którykolwiek gracz osiągnie limit punktów, zwykle 25. Wygrywa ten, kto ma najmniej punktów. Przy remisie na najmniejszą liczbę punktów ci gracze rzucają po jednym razie i wygrywa najlepszy układ."
+      "summary": "Gra kończy się, gdy którykolwiek gracz osiągnie limit punktów, zwykle 25. Wygrywa ten, kto ma najmniej punktów. Przy remisie na najmniejszą liczbę punktów gracze dzielą się zwycięstwem."
     }
   },
   "about": {
