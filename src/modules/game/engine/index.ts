@@ -8,3 +8,4 @@ export { applyAction, createGame } from "./apply";
 export * as select from "./select";
 export { completeAction, type Spare } from "./dice";
 export { appendEvents } from "./log";
+export { botStep, STARTER_STOPS_AT, type BotStep } from "./bots";
