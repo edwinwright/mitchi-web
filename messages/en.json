@@ -171,7 +171,7 @@
     "winning": {
       "heading": "Winning the game",
       "gameEnds": "The game ends when any player reaches the point limit. The player with the fewest points wins.",
-      "tiedOnFewest": "If players are tied on the fewest points, they roll once each, and the best hand wins."
+      "tiedOnFewest": "If two or more players are tied on the fewest points, they share the win."
     },
     "vocabulary": {
       "heading": "Game vocabulary"
@@ -200,7 +200,7 @@
     },
     "pointLimit": {
       "heading": "Point limit",
-      "summary": "The game ends when any player reaches the point limit, usually 25. The fewest points wins. If players are tied on the fewest points, they roll once each and the best hand wins."
+      "summary": "The game ends when any player reaches the point limit, usually 25. The fewest points wins. Tied on the fewest is a shared win."
     }
   },
   "about": {

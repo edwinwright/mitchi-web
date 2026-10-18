@@ -171,7 +171,7 @@
     "winning": {
       "heading": "Ganar la partida",
       "gameEnds": "La partida termina en cuanto un jugador alcanza el límite de puntos. Gana el jugador con menos puntos.",
-      "tiedOnFewest": "Si hay empate a menos puntos, cada jugador tira una vez, y gana la mejor mano."
+      "tiedOnFewest": "Si dos o más jugadores empatan a menos puntos, comparten la victoria."
     },
     "vocabulary": {
       "heading": "Vocabulario del juego"
@@ -200,7 +200,7 @@
     },
     "pointLimit": {
       "heading": "Límite de puntos",
-      "summary": "La partida termina en cuanto un jugador alcanza el límite de puntos, normalmente 25. Gana quien tenga menos puntos. Si hay empate a menos puntos, cada jugador tira una vez y gana la mejor mano."
+      "summary": "La partida termina en cuanto un jugador alcanza el límite de puntos, normalmente 25. Gana quien tenga menos puntos. Si hay empate a menos puntos, se comparte la victoria."
     }
   },
   "about": {
