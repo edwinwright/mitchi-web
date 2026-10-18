@@ -14,6 +14,7 @@ import {
   type Phase,
   type RoundState,
   type Seat,
+  type Winners,
 } from "./types";
 
 const ACTION_TYPES = ["roll", "keep", "stop", "newGame", "nextRound"] as const;
@@ -41,9 +42,8 @@ export function createGame(config: GameConfig): GameState {
  * Never throws on bad input (ENG-4): a rejection carries the same state
  * reference and no events. It throws only for a corrupt state.
  *
- * Built so far: `newGame`, the roll-off, the main-round turn, round
- * resolution, tie-breaks and `nextRound`. The game end is not built: a pot
- * that reaches the point limit throws "Not yet built: game end".
+ * A pot that takes a player to the point limit or past it ends the game
+ * at once: no `roundSummary`, and no extra roll.
  */
 export function applyAction(state: GameState, action: Action): ApplyResult {
   const code = validate(state, action);
@@ -248,6 +248,10 @@ function rollOff(state: GameState, seat: Seat, die: Die): ApplyResult {
   };
 }
 
+function isWinners(seats: readonly Seat[]): seats is Winners {
+  return seats.length > 0;
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
@@ -439,7 +443,17 @@ function takePot(
     tieBreaks: round.tieBreaks,
   });
   if (points[seat] >= state.config.pointLimit) {
-    throw new Error("Not yet built: game end");
+    // Points are uncapped. Every seat on the fewest wins; two or more is a
+    // draw. The taker cannot be among them: everyone else was under the limit.
+    const fewest = Math.min(...points);
+    const winners = points.flatMap((p, i) => (p === fewest ? [i] : []));
+    if (!isWinners(winners)) throw new Error("Corrupt state: no winners");
+    events.push({ type: "gameEnded", winners, points });
+    return {
+      ok: true,
+      state: { ...state, points, phase: { kind: "gameOver", winners } },
+      events,
+    };
   }
   return {
     ok: true,

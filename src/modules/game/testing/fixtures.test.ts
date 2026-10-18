@@ -18,11 +18,17 @@ describe("fixtures", () => {
       [
         "botKept",
         "botMidTurn",
+        "gameOverDraw",
+        "gameOverUnique",
         "mitchiInRound",
         "notStarted",
         "rollOff",
         "rollOffReroll",
+        "roundSummary",
+        "secondTieBreak",
         "starterLimitSet",
+        "tieBreakRunning",
+        "tieBreakViewerToRoll",
         "viewerKeptBoth",
         "viewerKeptOne",
         "viewerRolledKeepable",
@@ -120,6 +126,85 @@ describe("the states fixtures show", () => {
   it("mitchiInRound: the pot is 2 and the limit 1", () => {
     const { state } = fixtures.mitchiInRound;
     expect(state.round).toMatchObject({ pot: 2, rollLimit: 1 });
+  });
+});
+
+describe("the later fixtures", () => {
+  it("roundSummary: seat 3 took the pot and the next round awaits", () => {
+    const { state } = fixtures.roundSummary;
+    expect(state.phase).toStrictEqual({
+      kind: "roundSummary",
+      taker: 3,
+      takerHand: "3-2",
+    });
+    expect(state.points).toStrictEqual([0, 0, 0, 1]);
+    expect(fixtureSession(fixtures.roundSummary).allowed.nextRound).toBe(true);
+  });
+
+  it("tieBreakRunning: seat 1 is to roll, the viewer is in the tie-break, tied on 3-1", () => {
+    const { state } = fixtures.tieBreakRunning;
+    expect(state.phase).toMatchObject({
+      kind: "tieBreak",
+      order: [1, 0],
+      tiedOn: "3-1",
+      direction: "anticlockwise",
+    });
+    expect(select.actingSeat(state)).toBe(1);
+    expect(select.inContest(state, 0)).toBe(true);
+    expect(select.inContest(state, 2)).toBe(false);
+    expect(state.round?.pot).toBe(2);
+  });
+
+  it("tieBreakViewerToRoll: the viewer rolls next and may only roll", () => {
+    const { state } = fixtures.tieBreakViewerToRoll;
+    expect(select.actingSeat(state)).toBe(0);
+    expect(select.worstHandSoFar(state)).toStrictEqual({
+      hand: "4-3",
+      seats: [1],
+    });
+    const { allowed } = fixtureSession(fixtures.tieBreakViewerToRoll);
+    expect(allowed).toMatchObject({ roll: true, setKeep: false, stop: false });
+  });
+
+  it("secondTieBreak: clockwise from the viewer, pot 4", () => {
+    const { state } = fixtures.secondTieBreak;
+    expect(state.phase).toMatchObject({
+      kind: "tieBreak",
+      order: [0, 1],
+      direction: "clockwise",
+    });
+    expect(select.tieBreakNumber(state)).toBe(2);
+    expect(state.round?.pot).toBe(4);
+  });
+
+  it("gameOverUnique: one winner, the final taker on 5", () => {
+    const { state } = fixtures.gameOverUnique;
+    expect(state.points).toStrictEqual([0, 1, 1, 5]);
+    expect(state.phase).toStrictEqual({ kind: "gameOver", winners: [0] });
+    expect(fixtures.gameOverUnique.events.at(-1)).toMatchObject({
+      type: "gameEnded",
+      winners: [0],
+    });
+  });
+
+  it("gameOverDraw: seats 0 and 2 share the win", () => {
+    const { state } = fixtures.gameOverDraw;
+    expect(state.points).toStrictEqual([0, 1, 0, 5]);
+    expect(state.phase).toStrictEqual({ kind: "gameOver", winners: [0, 2] });
+    expect(fixtureSession(fixtures.gameOverDraw).allowed.newGame).toBe(true);
+  });
+
+  it("a game-over log starts at the final round: the earlier rounds were trimmed", () => {
+    for (const [fixture, rounds] of [
+      [fixtures.gameOverUnique, 7],
+      [fixtures.gameOverDraw, 6],
+    ] as const) {
+      expect(fixture.events[0]).toMatchObject({
+        type: "roundStarted",
+        round: rounds,
+      });
+      expect(fixture.events.at(-1)?.type).toBe("gameEnded");
+    }
   });
 });
 

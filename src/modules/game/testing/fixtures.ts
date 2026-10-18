@@ -129,6 +129,77 @@ export const mitchiInRound: Fixture = build([
   stop(0),
 ]);
 
+/** Round one of a limit-1 round that ends with seat 3's 3-2 as the unique worst. */
+const seat3Loses = [
+  roll(0, 6, 5),
+  stop(0),
+  roll(1, 4, 6),
+  roll(2, 3, 3),
+  roll(3, 3, 2),
+];
+
+export const roundSummary: Fixture = build([...viewerStarts, ...seat3Loses]);
+
+/** Seats 0 and 1 tie on 3-1 and seat 3 rolled last: tie-break 1 runs [1, 0]. */
+const tieOnThreeOne = [
+  ...viewerStarts,
+  roll(0, 3, 1),
+  stop(0),
+  roll(1, 1, 3),
+  roll(2, 6, 5),
+  roll(3, 6, 4),
+];
+
+/** Tie-break 1 has just started: seat 1 is to roll. */
+export const tieBreakRunning: Fixture = build(tieOnThreeOne);
+
+/** Seat 1 has rolled 4-3; the viewer is to roll. */
+export const tieBreakViewerToRoll: Fixture = build([
+  ...tieOnThreeOne,
+  roll(1, 4, 3),
+]);
+
+/** The viewer matched 4-3: tie-break 2 runs clockwise, [0, 1], pot 4. */
+export const secondTieBreak: Fixture = build([
+  ...tieOnThreeOne,
+  roll(1, 4, 3),
+  roll(0, 3, 4),
+]);
+
+/**
+ * Limit-1 rounds, each lost by a different seat in turn. The loser of a
+ * round starts the next, so the starter is read from the previous loser.
+ * Every round has a unique worst, so each loser takes 1 point.
+ */
+function lossRounds(losers: readonly Seat[]): Action[] {
+  let starter: Seat = FIXTURE_VIEWER;
+  return losers.flatMap((loser, index) => {
+    const order = [0, 1, 2, 3].map((n) => (starter + n) % 4);
+    const hands = order.flatMap((seat): Action[] => {
+      const lose = seat === loser;
+      if (seat === starter) {
+        return [lose ? roll(seat, 3, 2) : roll(seat, 6, 5), stop(seat)];
+      }
+      return [lose ? roll(seat, 3, 2) : roll(seat, 6, 4)];
+    });
+    starter = loser;
+    return [...(index > 0 ? [nextRound] : []), ...hands];
+  });
+}
+const nextRound: Action = { type: "nextRound" };
+
+/** Seat 3 reaches 5; seat 0 has none: one winner. */
+export const gameOverUnique: Fixture = build([
+  ...[newGame, roll(0, 6), roll(1, 3), roll(2, 2), roll(3, 1)],
+  ...lossRounds([3, 3, 1, 3, 2, 3, 3]),
+]);
+
+/** Seat 3 reaches 5; seats 0 and 2 are tied on none: a draw. */
+export const gameOverDraw: Fixture = build([
+  ...[newGame, roll(0, 6), roll(1, 3), roll(2, 2), roll(3, 1)],
+  ...lossRounds([3, 3, 3, 3, 1, 3]),
+]);
+
 export type SessionOptions = {
   readonly pending?: boolean;
   readonly viewerSeat?: Seat;

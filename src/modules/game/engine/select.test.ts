@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
+import * as fixtures from "../testing";
 import { applyAction, createGame } from "./apply";
+import { completeAction } from "./dice";
 import * as select from "./select";
 import type { DicePair, GameState, Phase, RoundState } from "./types";
 
@@ -396,5 +398,45 @@ describe("tieBreakNumber", () => {
     const s = state(TIE_BREAK.phase, { tieBreaks: 2 });
     expect(select.tieBreakNumber(s)).toBe(2);
     expect(select.tieBreakNumber(turn(0, 0, null))).toBeNull();
+  });
+});
+
+describe("allowedIntents against the engine", () => {
+  const SEATS = [0, 1, 2, 3];
+
+  it("allowedIntents agrees with applyAction for every fixture", () => {
+    const named = Object.entries(fixtures).filter(
+      (entry): entry is [string, fixtures.Fixture] =>
+        typeof entry[1] === "object" &&
+        "events" in entry[1] &&
+        "state" in entry[1],
+    );
+    expect(named.length).toBeGreaterThanOrEqual(17);
+
+    for (const [name, { state }] of named) {
+      for (const seat of SEATS) {
+        const allowed = select.allowedIntents(state, seat);
+        const accepted = {
+          roll: applyAction(
+            state,
+            completeAction(state, { type: "roll", seat }, [3, 4]),
+          ).ok,
+          setKeep: applyAction(state, {
+            type: "keep",
+            seat,
+            die: 0,
+            kept: true,
+          }).ok,
+          stop: applyAction(state, { type: "stop", seat, reason: null }).ok,
+          nextRound: applyAction(state, { type: "nextRound" }).ok,
+          newGame: applyAction(state, { type: "newGame" }).ok,
+        };
+        expect({ name, seat, ...accepted }).toStrictEqual({
+          name,
+          seat,
+          ...allowed,
+        });
+      }
+    }
   });
 });
