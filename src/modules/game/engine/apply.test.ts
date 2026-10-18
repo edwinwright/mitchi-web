@@ -1357,3 +1357,49 @@ describe("game end", () => {
     ]);
   });
 });
+
+describe("purity", () => {
+  // A full scripted round with a tie-break, then the game end.
+  const SCRIPT: Action[] = [...TIED_NOT_LAST, R(1, 4, 3), R(0, 6, 2)];
+
+  function replay(freeze: boolean) {
+    let state: GameState = ok(createGame(BIG), { type: "newGame" }).state;
+    const results = [];
+    const actions: Action[] = [
+      ...[6, 3, 2, 1].map((d, seat) => R(seat, d as Die)),
+      ...SCRIPT,
+    ];
+    for (const action of actions) {
+      const input = freeze ? deepFreeze(structuredClone(state)) : state;
+      const result = applyAction(
+        input,
+        freeze ? deepFreeze(structuredClone(action)) : action,
+      );
+      results.push(result);
+      if (!result.ok) throw new Error("Rejected");
+      state = result.state;
+    }
+    return results;
+  }
+
+  it("purity: same inputs same result", () => {
+    expect(replay(false)).toStrictEqual(replay(false));
+    const state = deepFreeze(started());
+    expect(applyAction(state, R(0, 4))).toStrictEqual(
+      applyAction(state, R(0, 4)),
+    );
+    expect(applyAction(state, R(0, 9 as never))).toStrictEqual(
+      applyAction(state, R(0, 9 as never)),
+    );
+  });
+
+  it("purity: input state is not mutated", () => {
+    // Frozen state and frozen action: any write throws in strict mode.
+    expect(() => replay(true)).not.toThrow();
+    const state = deepFreeze(started());
+    const before = JSON.stringify(state);
+    applyAction(state, R(0, 4));
+    applyAction(state, R(5, 4));
+    expect(JSON.stringify(state)).toBe(before);
+  });
+});
