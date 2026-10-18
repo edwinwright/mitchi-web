@@ -354,5 +354,132 @@
       "name": "Point limit",
       "definition": "The score that ends the game. Usually 25."
     }
+  },
+  "play": {
+    "title": "Practice game",
+    "intro": "Play a short game against three other players. Roll, keep and stop as you would at a table.",
+    "controls": {
+      "start": "Start",
+      "roll": "Roll",
+      "keep": "Keep",
+      "stop": "Stop",
+      "keepDie": "Keep the {face}",
+      "nextRound": "Next round",
+      "playAgain": "Play again"
+    },
+    "dice": {
+      "heading": "Dice",
+      "notRolled": "Not rolled yet",
+      "yourTurn": "Your turn"
+    },
+    "pacing": {
+      "heading": "Pace",
+      "pause": "Pause",
+      "resume": "Resume",
+      "step": "Step",
+      "speed": "Speed",
+      "normal": "Normal",
+      "fast": "Fast"
+    },
+    "rolls": {
+      "none": "None",
+      "one": "One",
+      "two": "Two",
+      "three": "Three"
+    },
+    "rolledIn": {
+      "one": "in one",
+      "two": "in two",
+      "three": "in three"
+    },
+    "players": {
+      "heading": "Players",
+      "you": "You",
+      "player1": "Player 1",
+      "player2": "Player 2",
+      "player3": "Player 3",
+      "player4": "Player 4",
+      "points": "Points",
+      "starting": "Starting player",
+      "rollingNow": "Rolling now",
+      "holdsWorst": "Worst hand so far",
+      "outOfTieBreak": "Not in this tie-break",
+      "waiting": "Waiting"
+    },
+    "game": {
+      "heading": "Game",
+      "pointLimit": "Point limit",
+      "usuallyTo25": "Real games are usually played to 25.",
+      "nearestLimit": "Nearest the limit",
+      "nearestNone": "No points yet"
+    },
+    "round": {
+      "heading": "Round",
+      "round": "Round",
+      "tieBreak": "Tie-break",
+      "tiedOn": "Tied on",
+      "rollLimit": "Roll limit",
+      "rollLimitUnset": "Not set yet: up to three",
+      "rollsLeft": "Rolls left",
+      "worstHandSoFar": "Worst hand so far",
+      "worstHandNone": "None yet",
+      "pot": "The pot",
+      "standing": {
+        "beats": "Your hand beats it",
+        "ties": "Your hand ties it",
+        "worse": "Your hand is worse"
+      }
+    },
+    "commentary": {
+      "heading": "What happened",
+      "empty": "Nothing yet",
+      "you": {
+        "turn": "Your turn",
+        "stop": "You stop",
+        "noRollsLeft": "You have no rolls left",
+        "rolls": "You roll",
+        "rollsToStart": "You roll to start",
+        "startsRound": "You start the round",
+        "takesPot": "You take the pot: {pot}",
+        "wins": "You win"
+      },
+      "player": {
+        "stop": "Stops",
+        "noRollsLeft": "Has no rolls left",
+        "rollAgainBoth": "Rolls both dice again",
+        "rollAgainKeeping": "Rolls again, keeping one die",
+        "rolls": "Rolls",
+        "rollsToStart": "Rolls to start",
+        "startsRound": "Starts the round",
+        "takesPot": "Takes the pot: {pot}",
+        "wins": "Wins"
+      },
+      "reason": {
+        "beatsWorstHandSoFar": "Beats the worst hand so far",
+        "goodEnough": "Good enough to stop",
+        "keepingHighDie": "Trying to improve, keeping a high die",
+        "rerollingBoth": "Trying to improve, no die worth keeping"
+      },
+      "notice": {
+        "round": "Round {number}",
+        "rollLimit": {
+          "one": "Roll limit: one",
+          "two": "Roll limit: two",
+          "three": "Roll limit: three"
+        },
+        "tieBreakAnticlockwise": "Tie-break {number}, anticlockwise",
+        "tieBreakClockwise": "Tie-break {number}, clockwise",
+        "potMitchi": "A Mitchi raises the pot to {pot}",
+        "potDoubled": "The pot doubles to {pot}",
+        "tiedOnFewest": "Tied on the fewest points",
+        "draw": "The game is a draw.",
+        "gameOver": "Game over"
+      }
+    },
+    "end": {
+      "heading": "Game over",
+      "standings": "Final points",
+      "winner": "Winner"
+    }
   }
 }

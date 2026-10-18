@@ -354,5 +354,132 @@
       "name": "Limit punktów",
       "definition": "Wynik, przy którym gra się kończy. Zwykle 25."
     }
+  },
+  "play": {
+    "title": "[PL] Practice game",
+    "intro": "[PL] Play a short game against three other players. Roll, keep and stop as you would at a table.",
+    "controls": {
+      "start": "[PL] Start",
+      "roll": "[PL] Roll",
+      "keep": "[PL] Keep",
+      "stop": "[PL] Stop",
+      "keepDie": "[PL] Keep the {face}",
+      "nextRound": "[PL] Next round",
+      "playAgain": "[PL] Play again"
+    },
+    "dice": {
+      "heading": "[PL] Dice",
+      "notRolled": "[PL] Not rolled yet",
+      "yourTurn": "[PL] Your turn"
+    },
+    "pacing": {
+      "heading": "[PL] Pace",
+      "pause": "[PL] Pause",
+      "resume": "[PL] Resume",
+      "step": "[PL] Step",
+      "speed": "[PL] Speed",
+      "normal": "[PL] Normal",
+      "fast": "[PL] Fast"
+    },
+    "rolls": {
+      "none": "[PL] None",
+      "one": "[PL] One",
+      "two": "[PL] Two",
+      "three": "[PL] Three"
+    },
+    "rolledIn": {
+      "one": "[PL] in one",
+      "two": "[PL] in two",
+      "three": "[PL] in three"
+    },
+    "players": {
+      "heading": "[PL] Players",
+      "you": "[PL] You",
+      "player1": "[PL] Player 1",
+      "player2": "[PL] Player 2",
+      "player3": "[PL] Player 3",
+      "player4": "[PL] Player 4",
+      "points": "[PL] Points",
+      "starting": "[PL] Starting player",
+      "rollingNow": "[PL] Rolling now",
+      "holdsWorst": "[PL] Worst hand so far",
+      "outOfTieBreak": "[PL] Not in this tie-break",
+      "waiting": "[PL] Waiting"
+    },
+    "game": {
+      "heading": "[PL] Game",
+      "pointLimit": "[PL] Point limit",
+      "usuallyTo25": "[PL] Real games are usually played to 25.",
+      "nearestLimit": "[PL] Nearest the limit",
+      "nearestNone": "[PL] No points yet"
+    },
+    "round": {
+      "heading": "[PL] Round",
+      "round": "[PL] Round",
+      "tieBreak": "[PL] Tie-break",
+      "tiedOn": "[PL] Tied on",
+      "rollLimit": "[PL] Roll limit",
+      "rollLimitUnset": "[PL] Not set yet: up to three",
+      "rollsLeft": "[PL] Rolls left",
+      "worstHandSoFar": "[PL] Worst hand so far",
+      "worstHandNone": "[PL] None yet",
+      "pot": "[PL] The pot",
+      "standing": {
+        "beats": "[PL] Your hand beats it",
+        "ties": "[PL] Your hand ties it",
+        "worse": "[PL] Your hand is worse"
+      }
+    },
+    "commentary": {
+      "heading": "[PL] What happened",
+      "empty": "[PL] Nothing yet",
+      "you": {
+        "turn": "[PL] Your turn",
+        "stop": "[PL] You stop",
+        "noRollsLeft": "[PL] You have no rolls left",
+        "rolls": "[PL] You roll",
+        "rollsToStart": "[PL] You roll to start",
+        "startsRound": "[PL] You start the round",
+        "takesPot": "[PL] You take the pot: {pot}",
+        "wins": "[PL] You win"
+      },
+      "player": {
+        "stop": "[PL] Stops",
+        "noRollsLeft": "[PL] Has no rolls left",
+        "rollAgainBoth": "[PL] Rolls both dice again",
+        "rollAgainKeeping": "[PL] Rolls again, keeping one die",
+        "rolls": "[PL] Rolls",
+        "rollsToStart": "[PL] Rolls to start",
+        "startsRound": "[PL] Starts the round",
+        "takesPot": "[PL] Takes the pot: {pot}",
+        "wins": "[PL] Wins"
+      },
+      "reason": {
+        "beatsWorstHandSoFar": "[PL] Beats the worst hand so far",
+        "goodEnough": "[PL] Good enough to stop",
+        "keepingHighDie": "[PL] Trying to improve, keeping a high die",
+        "rerollingBoth": "[PL] Trying to improve, no die worth keeping"
+      },
+      "notice": {
+        "round": "[PL] Round {number}",
+        "rollLimit": {
+          "one": "[PL] Roll limit: one",
+          "two": "[PL] Roll limit: two",
+          "three": "[PL] Roll limit: three"
+        },
+        "tieBreakAnticlockwise": "[PL] Tie-break {number}, anticlockwise",
+        "tieBreakClockwise": "[PL] Tie-break {number}, clockwise",
+        "potMitchi": "[PL] A Mitchi raises the pot to {pot}",
+        "potDoubled": "[PL] The pot doubles to {pot}",
+        "tiedOnFewest": "[PL] Tied on the fewest points",
+        "draw": "[PL] The game is a draw.",
+        "gameOver": "[PL] Game over"
+      }
+    },
+    "end": {
+      "heading": "[PL] Game over",
+      "standings": "[PL] Final points",
+      "winner": "[PL] Winner"
+    }
   }
 }

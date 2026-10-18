@@ -354,5 +354,132 @@
       "name": "Límite de puntos",
       "definition": "La puntuación que termina la partida en cuanto un jugador la alcanza. Normalmente 25."
     }
+  },
+  "play": {
+    "title": "[ES] Practice game",
+    "intro": "[ES] Play a short game against three other players. Roll, keep and stop as you would at a table.",
+    "controls": {
+      "start": "[ES] Start",
+      "roll": "[ES] Roll",
+      "keep": "[ES] Keep",
+      "stop": "[ES] Stop",
+      "keepDie": "[ES] Keep the {face}",
+      "nextRound": "[ES] Next round",
+      "playAgain": "[ES] Play again"
+    },
+    "dice": {
+      "heading": "[ES] Dice",
+      "notRolled": "[ES] Not rolled yet",
+      "yourTurn": "[ES] Your turn"
+    },
+    "pacing": {
+      "heading": "[ES] Pace",
+      "pause": "[ES] Pause",
+      "resume": "[ES] Resume",
+      "step": "[ES] Step",
+      "speed": "[ES] Speed",
+      "normal": "[ES] Normal",
+      "fast": "[ES] Fast"
+    },
+    "rolls": {
+      "none": "[ES] None",
+      "one": "[ES] One",
+      "two": "[ES] Two",
+      "three": "[ES] Three"
+    },
+    "rolledIn": {
+      "one": "[ES] in one",
+      "two": "[ES] in two",
+      "three": "[ES] in three"
+    },
+    "players": {
+      "heading": "[ES] Players",
+      "you": "[ES] You",
+      "player1": "[ES] Player 1",
+      "player2": "[ES] Player 2",
+      "player3": "[ES] Player 3",
+      "player4": "[ES] Player 4",
+      "points": "[ES] Points",
+      "starting": "[ES] Starting player",
+      "rollingNow": "[ES] Rolling now",
+      "holdsWorst": "[ES] Worst hand so far",
+      "outOfTieBreak": "[ES] Not in this tie-break",
+      "waiting": "[ES] Waiting"
+    },
+    "game": {
+      "heading": "[ES] Game",
+      "pointLimit": "[ES] Point limit",
+      "usuallyTo25": "[ES] Real games are usually played to 25.",
+      "nearestLimit": "[ES] Nearest the limit",
+      "nearestNone": "[ES] No points yet"
+    },
+    "round": {
+      "heading": "[ES] Round",
+      "round": "[ES] Round",
+      "tieBreak": "[ES] Tie-break",
+      "tiedOn": "[ES] Tied on",
+      "rollLimit": "[ES] Roll limit",
+      "rollLimitUnset": "[ES] Not set yet: up to three",
+      "rollsLeft": "[ES] Rolls left",
+      "worstHandSoFar": "[ES] Worst hand so far",
+      "worstHandNone": "[ES] None yet",
+      "pot": "[ES] The pot",
+      "standing": {
+        "beats": "[ES] Your hand beats it",
+        "ties": "[ES] Your hand ties it",
+        "worse": "[ES] Your hand is worse"
+      }
+    },
+    "commentary": {
+      "heading": "[ES] What happened",
+      "empty": "[ES] Nothing yet",
+      "you": {
+        "turn": "[ES] Your turn",
+        "stop": "[ES] You stop",
+        "noRollsLeft": "[ES] You have no rolls left",
+        "rolls": "[ES] You roll",
+        "rollsToStart": "[ES] You roll to start",
+        "startsRound": "[ES] You start the round",
+        "takesPot": "[ES] You take the pot: {pot}",
+        "wins": "[ES] You win"
+      },
+      "player": {
+        "stop": "[ES] Stops",
+        "noRollsLeft": "[ES] Has no rolls left",
+        "rollAgainBoth": "[ES] Rolls both dice again",
+        "rollAgainKeeping": "[ES] Rolls again, keeping one die",
+        "rolls": "[ES] Rolls",
+        "rollsToStart": "[ES] Rolls to start",
+        "startsRound": "[ES] Starts the round",
+        "takesPot": "[ES] Takes the pot: {pot}",
+        "wins": "[ES] Wins"
+      },
+      "reason": {
+        "beatsWorstHandSoFar": "[ES] Beats the worst hand so far",
+        "goodEnough": "[ES] Good enough to stop",
+        "keepingHighDie": "[ES] Trying to improve, keeping a high die",
+        "rerollingBoth": "[ES] Trying to improve, no die worth keeping"
+      },
+      "notice": {
+        "round": "[ES] Round {number}",
+        "rollLimit": {
+          "one": "[ES] Roll limit: one",
+          "two": "[ES] Roll limit: two",
+          "three": "[ES] Roll limit: three"
+        },
+        "tieBreakAnticlockwise": "[ES] Tie-break {number}, anticlockwise",
+        "tieBreakClockwise": "[ES] Tie-break {number}, clockwise",
+        "potMitchi": "[ES] A Mitchi raises the pot to {pot}",
+        "potDoubled": "[ES] The pot doubles to {pot}",
+        "tiedOnFewest": "[ES] Tied on the fewest points",
+        "draw": "[ES] The game is a draw.",
+        "gameOver": "[ES] Game over"
+      }
+    },
+    "end": {
+      "heading": "[ES] Game over",
+      "standings": "[ES] Final points",
+      "winner": "[ES] Winner"
+    }
   }
 }
