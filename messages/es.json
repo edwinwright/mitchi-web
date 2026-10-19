@@ -12,6 +12,10 @@
       "title": "Referencia rápida de Mitchi",
       "description": "La clasificación de las manos y la puntuación en una sola pantalla, para consultar durante la partida."
     },
+    "play": {
+      "title": "[ES] Mitchi practice game",
+      "description": "[ES] Play a short game of Mitchi against three other players and see how the roll limit, the worst hand and the pot work."
+    },
     "about": {
       "title": "Acerca de Mitchi",
       "description": "Mitchi es un juego de dados rápido para dos o más jugadores. Qué es, de dónde viene y otros juegos parecidos."
@@ -40,6 +44,10 @@
       "label": "Las reglas completas",
       "summary": "Todo lo que necesitas para jugar, desde la preparación hasta el final de la partida."
     },
+    "play": {
+      "label": "[ES] Practice game",
+      "summary": "[ES] Play a short game against three other players."
+    },
     "reference": {
       "label": "Referencia rápida",
       "summary": "La clasificación de las manos y la puntuación en una sola pantalla."
@@ -57,6 +65,7 @@
     "youNeed": "<strong>Necesitas:</strong> dos dados, papel y bolígrafo, y al menos otro jugador.",
     "links": {
       "rules": "Leer las reglas",
+      "play": "[ES] Play a practice game",
       "reference": "Referencia rápida"
     },
     "quickStart": {

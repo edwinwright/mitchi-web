@@ -26,7 +26,7 @@ export function HomeHero() {
               </div>
             </header>
             <footer className="flex flex-col gap-4">
-              <nav className="flex flex-col gap-2.5 md:flex-row md:gap-3 w-full md:w-auto">
+              <nav className="flex flex-col gap-2.5 md:flex-row md:flex-wrap md:gap-3 w-full md:w-auto">
                 <CtaLink
                   className="w-full md:w-auto"
                   href="/rules"
@@ -34,6 +34,14 @@ export function HomeHero() {
                   inverse
                 >
                   {t("links.rules")}
+                </CtaLink>
+                <CtaLink
+                  className="w-full md:w-auto"
+                  href="/play"
+                  variant="secondary"
+                  inverse
+                >
+                  {t("links.play")}
                 </CtaLink>
                 <CtaLink
                   className="w-full md:w-auto"

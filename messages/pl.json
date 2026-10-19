@@ -12,6 +12,10 @@
       "title": "Ściągawka Mitchi",
       "description": "Ranking układów i punktacja na jednym ekranie, do zajrzenia w trakcie gry."
     },
+    "play": {
+      "title": "[PL] Mitchi practice game",
+      "description": "[PL] Play a short game of Mitchi against three other players and see how the roll limit, the worst hand and the pot work."
+    },
     "about": {
       "title": "O Mitchi",
       "description": "Mitchi to szybka gra w kości dla dwóch lub więcej graczy. Czym jest, skąd pochodzi i podobne gry."
@@ -40,6 +44,10 @@
       "label": "Pełne zasady",
       "summary": "Wszystko, czego potrzebujesz, żeby zagrać: od przygotowania po koniec gry."
     },
+    "play": {
+      "label": "[PL] Practice game",
+      "summary": "[PL] Play a short game against three other players."
+    },
     "reference": {
       "label": "Ściągawka",
       "summary": "Ranking układów i punktacja na jednym ekranie."
@@ -57,6 +65,7 @@
     "youNeed": "<strong>Potrzebujesz:</strong> dwóch kości, kartki i długopisu oraz co najmniej jednego innego gracza.",
     "links": {
       "rules": "Przeczytaj zasady",
+      "play": "[PL] Play a practice game",
       "reference": "Ściągawka"
     },
     "quickStart": {

@@ -7,6 +7,7 @@ export const PAGES = {
   home: "/",
   rules: "/rules",
   reference: "/reference",
+  play: "/play",
   about: "/about",
 } as const;
 

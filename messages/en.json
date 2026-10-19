@@ -12,6 +12,10 @@
       "title": "Mitchi quick reference",
       "description": "Hand ranking and scoring on one screen, for use mid-game."
     },
+    "play": {
+      "title": "Mitchi practice game",
+      "description": "Play a short game of Mitchi against three other players and see how the roll limit, the worst hand and the pot work."
+    },
     "about": {
       "title": "About Mitchi",
       "description": "Mitchi is a fast dice game for two or more players. What it is, where it came from, and games like it."
@@ -40,6 +44,10 @@
       "label": "The full rules",
       "summary": "Everything you need to play, from setup to the end of the game."
     },
+    "play": {
+      "label": "Practice game",
+      "summary": "Play a short game against three other players."
+    },
     "reference": {
       "label": "Quick reference",
       "summary": "Hand ranking and scoring on one screen."
@@ -57,6 +65,7 @@
     "youNeed": "<strong>You need:</strong> two dice, a pen and paper, and at least one other player.",
     "links": {
       "rules": "Read the rules",
+      "play": "Play a practice game",
       "reference": "Quick reference"
     },
     "quickStart": {
