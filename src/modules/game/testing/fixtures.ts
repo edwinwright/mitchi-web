@@ -188,6 +188,12 @@ function lossRounds(losers: readonly Seat[]): Action[] {
 }
 const nextRound: Action = { type: "nextRound" };
 
+/** Between rounds: seat 3 on 3 points, close to the limit; seat 1 on 2, not. */
+export const closeToLimit: Fixture = build([
+  ...[newGame, roll(0, 6), roll(1, 3), roll(2, 2), roll(3, 1)],
+  ...lossRounds([3, 3, 3, 1, 1]),
+]);
+
 /** Seat 3 reaches 5; seat 0 has none: one winner. */
 export const gameOverUnique: Fixture = build([
   ...[newGame, roll(0, 6), roll(1, 3), roll(2, 2), roll(3, 1)],
