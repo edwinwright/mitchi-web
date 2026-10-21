@@ -159,13 +159,18 @@ const PRIMARY: Record<
   gameOver: { action: "playAgain", intent: "newGame" },
 };
 
-/** The seq of the most recent roll of any kind, or null before one. */
+/**
+ * The seq of the most recent roll of any kind or turn end, or null before
+ * one. The dice hold restarts on each, so a turn that ends on a Stop is held
+ * from the Stop, not from its last roll.
+ */
 export function latestRollSeq(events: SessionView["events"]): number | null {
   const roll = events.findLast(
     (event) =>
       event.type === "rolled" ||
       event.type === "tieBreakRolled" ||
-      event.type === "rollOffRolled",
+      event.type === "rollOffRolled" ||
+      event.type === "turnEnded",
   );
   return roll?.seq ?? null;
 }

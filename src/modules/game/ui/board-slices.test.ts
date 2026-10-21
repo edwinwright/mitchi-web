@@ -101,9 +101,11 @@ describe("shownRoll", () => {
 });
 
 describe("latestRollSeq", () => {
-  it("is the seq of the most recent roll of any kind", () => {
+  it("is the seq of the most recent roll of any kind or turn end", () => {
     const { events } = tieBreakViewerToRoll;
-    const last = events.findLast((event) => event.type === "tieBreakRolled");
+    const last = events.findLast(
+      (event) => event.type === "tieBreakRolled" || event.type === "turnEnded",
+    );
     expect(latestRollSeq(events)).toBe(last?.seq);
     expect(latestRollSeq(rollOff.events)).toBe(
       rollOff.events.find((event) => event.type === "rollOffRolled")?.seq,

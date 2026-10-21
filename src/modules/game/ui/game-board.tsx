@@ -21,8 +21,8 @@ export function GameBoard({ session }: { session: GameSession }) {
   const { view, intents, pacing } = session;
   const { viewerSeat } = view;
 
-  // The dice hold: the most recent roll stays on screen for one bot step,
-  // then each turn shows placeholders. Display only: no intent waits for it.
+  // The dice hold: the most recent roll stays on screen once its turn has
+  // ended (hold.ts), then each turn shows placeholders. Display only: no intent waits for it.
   // The engine ends one turn and starts the next in a single step, so the gap
   // can only live here.
   const lastRoll = latestRollSeq(view.events);

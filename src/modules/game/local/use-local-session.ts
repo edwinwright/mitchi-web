@@ -17,7 +17,7 @@ import {
   type Speed,
 } from "../engine";
 import { VIEWER_SEAT } from "./config";
-import { DELAY_MS, ROLL_LOCK_MS } from "./pacing";
+import { botDelay, ROLL_LOCK_MS } from "./pacing";
 import { rollSpare } from "./random";
 import { initStore, storeReducer } from "./store";
 
@@ -50,10 +50,11 @@ export function useLocalSession(): GameSession {
     if (!botDue || paused) return;
     const id = setTimeout(
       () => dispatch({ type: "botStep", atSeq: store.seq, spare: rollSpare() }),
-      DELAY_MS[speed],
+      botDelay(store.log, speed),
     );
     return () => clearTimeout(id);
-  }, [store.seq, botDue, paused, speed]);
+    // store.seq changes exactly when store.log does.
+  }, [store.seq, store.log, botDue, paused, speed]);
 
   useEffect(() => {
     if (!locked) return;
