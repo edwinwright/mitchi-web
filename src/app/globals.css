@@ -40,6 +40,15 @@
   --color-blue-900: #1b2f6f;
   --color-blue-950: #121f43;
 
+  /* gold: fewest points (the trophy and the row) */
+  --color-gold-50: #fef6dc; /* row fill */
+  --color-gold-600: #b7891a; /* row border, 3:1 on white */
+  --color-gold-700: #9a6f00; /* trophy fill */
+  --color-gold-800: #7a5a00; /* trophy stroke */
+
+  --color-orange-600: #d9650b;
+  --color-orange-50: #fff1e3;
+
   /* stone — warm neutrals. Every stop but 400 is a brand sheet or Home
      canvas colour: page, linen, rule, dashed, muted-on-dark, slate, the two
      prose greys, the Home prose grey, ink. */
