@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { GameSession, GameState } from "../engine";
-import { sliceSession } from "./board-slices";
+import { latestRollSeq, sliceSession } from "./board-slices";
 import { CommentaryPanel } from "./commentary-panel";
 import { commentaryRows } from "./commentary-rows";
 import { DiceCard } from "./dice-card";
 import { GamePanel } from "./game-panel";
+import { HOLD_MS } from "./hold";
 import { PacingControls } from "./pacing-controls";
 import { PlayersPanel } from "./players-panel";
 import { RoundPanel } from "./round-panel";
@@ -19,7 +20,25 @@ import { RoundPanel } from "./round-panel";
 export function GameBoard({ session }: { session: GameSession }) {
   const { view, intents, pacing } = session;
   const { viewerSeat } = view;
-  const slices = sliceSession(session);
+
+  // The dice hold: the most recent roll stays on screen for one bot step,
+  // then each turn shows placeholders. Display only: no intent waits for it.
+  // The engine ends one turn and starts the next in a single step, so the gap
+  // can only live here.
+  const lastRoll = latestRollSeq(view.events);
+  const speed = pacing?.speed ?? "normal";
+  const [heldOver, setHeldOver] = useState<number | null>(null);
+  useEffect(() => {
+    if (lastRoll === null) return;
+    // The one timer outside the session (WO-0017): display timing, not pacing.
+    // eslint-disable-next-line no-restricted-globals -- the dice hold
+    const id = setTimeout(() => setHeldOver(lastRoll), HOLD_MS[speed]);
+    // eslint-disable-next-line no-restricted-globals -- the dice hold
+    return () => clearTimeout(id);
+  }, [lastRoll, speed]);
+  const holding = lastRoll !== null && heldOver !== lastRoll;
+
+  const slices = sliceSession(session, { holding });
   const rows = useMemo(
     () => commentaryRows(view.events, viewerSeat),
     [view.events, viewerSeat],

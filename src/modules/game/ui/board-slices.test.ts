@@ -19,9 +19,10 @@ import {
   viewerToRoll,
   type Fixture,
 } from "../testing";
-import { shownRoll, sliceSession } from "./board-slices";
+import { latestRollSeq, shownRoll, sliceSession } from "./board-slices";
 
-const shown = (fixture: Fixture) => shownRoll(fixtureSession(fixture).view);
+const shown = (fixture: Fixture, holding = false) =>
+  shownRoll(fixtureSession(fixture).view, holding);
 const slices = (fixture: Fixture) => sliceSession(fixtureSession(fixture));
 /** Seats for which `field` is true, from a slice's rows. */
 const seatsWhere = <Row extends { seat: number }>(
@@ -56,37 +57,61 @@ describe("shownRoll", () => {
     expect(shown(notStarted)).toBeNull();
   });
 
-  it("shows the roll-off die while the roll-off runs", () => {
-    expect(shown(rollOff)).toEqual({ kind: "die", seat: 0, face: 4 });
+  it("shows the roll-off die while its hold runs, then nothing", () => {
+    expect(shown(rollOff, true)).toEqual({ kind: "die", seat: 0, face: 4 });
+    expect(shown(rollOff)).toBeNull();
   });
 
   it("shows nothing at the start of round 1: roll-off dice do not carry over", () => {
-    expect(shown(viewerToRoll)).toBeNull();
+    expect(shown(viewerToRoll, true)).toBeNull();
   });
 
-  it("keeps the last roll on screen until the next seat rolls, with no keep flags", () => {
-    // Seat 1 is to roll; the viewer's final 6-3 is still the roll on the table.
-    expect(shown(starterLimitSet)).toEqual({
+  it("keeps the last roll on screen until the hold ends or the next seat rolls, with no keep flags", () => {
+    // Seat 1 is to roll; the viewer's final 6-3 is held.
+    expect(shown(starterLimitSet, true)).toEqual({
       kind: "hand",
       seat: 0,
       dice: [6, 3],
       hand: "6-3",
       kept: null,
     });
-    // A bot's one-roll turn stays shown after it ends.
-    expect(shown(roundSummary)).toMatchObject({
+    expect(shown(starterLimitSet)).toBeNull();
+    // A bot's one-roll turn stays shown after it ends, between rounds too.
+    expect(shown(roundSummary, true)).toMatchObject({
       seat: 3,
       dice: [3, 2],
       kept: null,
     });
+    expect(shown(roundSummary)).toBeNull();
   });
 
-  it("shows the last tie-break roll until the next seat rolls", () => {
-    expect(shown(tieBreakViewerToRoll)).toMatchObject({
+  it("holds the last tie-break roll, then shows nothing until the next seat rolls", () => {
+    expect(shown(tieBreakViewerToRoll, true)).toMatchObject({
       seat: 1,
       dice: [4, 3],
       kept: null,
     });
+    expect(shown(tieBreakViewerToRoll)).toBeNull();
+  });
+
+  it("shows the acting seat's own dice whether or not a hold runs", () => {
+    expect(shown(botMidTurn, true)).toMatchObject({ seat: 1, dice: [4, 2] });
+    expect(shown(botMidTurn, false)).toMatchObject({ seat: 1, dice: [4, 2] });
+  });
+});
+
+describe("latestRollSeq", () => {
+  it("is the seq of the most recent roll of any kind", () => {
+    const { events } = tieBreakViewerToRoll;
+    const last = events.findLast((event) => event.type === "tieBreakRolled");
+    expect(latestRollSeq(events)).toBe(last?.seq);
+    expect(latestRollSeq(rollOff.events)).toBe(
+      rollOff.events.find((event) => event.type === "rollOffRolled")?.seq,
+    );
+  });
+
+  it("is null before anyone has rolled", () => {
+    expect(latestRollSeq(notStarted.events)).toBeNull();
   });
 });
 

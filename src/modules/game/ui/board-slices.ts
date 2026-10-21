@@ -186,13 +186,28 @@ const PRIMARY: Record<
   gameOver: { action: "playAgain", intent: "newGame" },
 };
 
+/** The seq of the most recent roll of any kind, or null before one. */
+export function latestRollSeq(events: SessionView["events"]): number | null {
+  const roll = events.findLast(
+    (event) =>
+      event.type === "rolled" ||
+      event.type === "tieBreakRolled" ||
+      event.type === "rollOffRolled",
+  );
+  return roll?.seq ?? null;
+}
+
 /**
  * The roll on the table. The acting seat's dice once they have rolled this
- * turn, with their keep flags. Otherwise the most recent roll event, so a
- * bot's one-roll turn stays on screen until the next seat rolls. Otherwise
- * nothing. Roll-off dice count only while the roll-off is running.
+ * turn, with their keep flags. Otherwise, while `holding`, the most recent
+ * roll event, so a turn that ends on its own roll is seen at all. Otherwise
+ * nothing: each turn starts with placeholders. Roll-off dice count only
+ * while the roll-off is running.
  */
-export function shownRoll(view: SessionView): ShownRoll | null {
+export function shownRoll(
+  view: SessionView,
+  holding: boolean,
+): ShownRoll | null {
   const { state, events } = view;
 
   const acting = select.actingSeat(state);
@@ -209,6 +224,7 @@ export function shownRoll(view: SessionView): ShownRoll | null {
       };
     }
   }
+  if (!holding) return null;
 
   for (const event of events.toReversed()) {
     switch (event.type) {
@@ -231,7 +247,14 @@ export function shownRoll(view: SessionView): ShownRoll | null {
   return null;
 }
 
-export function sliceSession(session: GameSession): BoardSlices {
+/**
+ * `holding`: the most recent roll is still within its hold (`hold.ts`). The
+ * board times it; without one, nothing is held.
+ */
+export function sliceSession(
+  session: GameSession,
+  { holding = false }: { holding?: boolean } = {},
+): BoardSlices {
   const { view, allowed } = session;
   const { state, viewerSeat, pending } = view;
   const { phase, round } = state;
@@ -240,7 +263,7 @@ export function sliceSession(session: GameSession): BoardSlices {
   const worst = select.worstHandSoFar(state);
   const toRoll = select.toRoll(state);
   const tieBreak = select.tieBreakNumber(state);
-  const shown = shownRoll(view);
+  const shown = shownRoll(view, holding);
   const primary = PRIMARY[phase.kind];
 
   return {
