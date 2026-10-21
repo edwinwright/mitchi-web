@@ -80,6 +80,11 @@ export type RollsRowData = { available: number; used: number };
 
 export type TrayData = {
   shown: ShownRoll | null;
+  /**
+   * The roll on show is a finished one, held after its turn (or a roll-off
+   * die): the tray names who rolled it, since the header names who is next.
+   */
+  held: boolean;
   /** The acting seat against the hand to beat, in a main-round turn only. */
   comparison: "beats" | "ties" | "worse" | null;
   /** The shown dice are the viewer's: only then do Keep buttons name a face. */
@@ -237,6 +242,8 @@ export function sliceSession(
     header: headerOf(state, viewerSeat),
     tray: {
       shown,
+      // Only the acting seat mid-turn has keep flags; any other roll is past.
+      held: shown !== null && (shown.kind === "die" || shown.kept === null),
       comparison:
         acting === null ? null : select.standingAgainstWorst(state, acting),
       ownDice: shown?.seat === viewerSeat,

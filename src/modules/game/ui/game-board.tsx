@@ -27,15 +27,17 @@ export function GameBoard({ session }: { session: GameSession }) {
   // can only live here.
   const lastRoll = latestRollSeq(view.events);
   const speed = pacing?.speed ?? "normal";
+  // Paused, no bot step is coming, so a held roll stays until play resumes.
+  const paused = pacing?.paused ?? false;
   const [heldOver, setHeldOver] = useState<number | null>(null);
   useEffect(() => {
-    if (lastRoll === null) return;
+    if (lastRoll === null || paused) return;
     // The one timer outside the session (WO-0017): display timing, not pacing.
     // eslint-disable-next-line no-restricted-globals -- the dice hold
     const id = setTimeout(() => setHeldOver(lastRoll), HOLD_MS[speed]);
     // eslint-disable-next-line no-restricted-globals -- the dice hold
     return () => clearTimeout(id);
-  }, [lastRoll, speed]);
+  }, [lastRoll, speed, paused]);
   const holding = lastRoll !== null && heldOver !== lastRoll;
 
   const slices = sliceSession(session, { holding });

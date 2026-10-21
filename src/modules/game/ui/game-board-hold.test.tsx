@@ -115,6 +115,33 @@ describe("the dice hold", () => {
     expect(keepsShowDice()).toBe(false);
   });
 
+  it("paused: a held roll stays until play resumes", () => {
+    const paused = { ...fast, speed: "normal" as const, paused: true };
+    const { rerender } = render(
+      board(fixtureSession(tieBreakViewerToRoll, { pacing: paused })),
+    );
+    advance(HOLD_MS.normal * 5);
+    expect(keepsShowDice()).toBe(true);
+
+    rerender(
+      board(
+        fixtureSession(tieBreakViewerToRoll, {
+          pacing: { ...paused, paused: false },
+        }),
+      ),
+    );
+    advance(HOLD_MS.normal);
+    expect(keepsShowDice()).toBe(false);
+  });
+
+  it("names who rolled the held dice, since the header names who is next", () => {
+    render(board(fixtureSession(tieBreakViewerToRoll)));
+    const rows = screen
+      .getAllByText("four-three")
+      .map((element) => element.closest("p")?.textContent);
+    expect(rows).toContain("Player 2, four-three");
+  });
+
   it("clears its timer on unmount", () => {
     const { unmount } = render(board(fixtureSession(tieBreakViewerToRoll)));
     expect(vi.getTimerCount()).toBe(1);

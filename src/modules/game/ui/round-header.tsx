@@ -94,8 +94,10 @@ function useCells(header: HeaderData, viewerSeat: Seat): Cells {
           t("header.round", { number: header.number }),
           t("header.endOfRound"),
         ],
+        // The viewer's line is fixed, so it is one whole string; another
+        // seat's label and phrase stay separate cells.
         heading: header.viewer
-          ? [t("players.you"), t("header.youTakePot")]
+          ? [t("header.youTakePot")]
           : [seat(header.taker), t("header.takesPot")],
         pot: header.pot,
         hand: { label: t("header.worstHand"), hand: header.worstHand },

@@ -158,13 +158,20 @@ export function DiceTray(props: DiceTrayProps) {
   const { tray, controls, stage, onPrimary, onStop, rollRef } = props;
   const t = useTranslations("play");
   const hands = useTranslations("hands");
-  const shown =
-    tray.shown?.kind === "hand" && stage !== "gameOver" ? tray.shown : null;
+  // Game over shows the result, not dice.
+  const onShow = stage === "gameOver" ? null : tray.shown;
+  const shown = onShow?.kind === "hand" ? onShow : null;
   const { action, available } = controls.primary;
 
   return (
     <div className="flex flex-col items-center px-[18px] pt-6 pb-5">
-      <p className="flex h-[34px] items-center gap-2.5">
+      <p className="flex min-h-[34px] flex-wrap items-center justify-center gap-x-2.5">
+        {onShow && tray.held ? (
+          <span className="text-base font-semibold text-stone-700">
+            <SeatLabel seat={onShow.seat} viewerSeat={props.viewerSeat} />
+            {shown ? <span className="sr-only">, </span> : null}
+          </span>
+        ) : null}
         {shown ? (
           <>
             <span className="text-[26px] font-extrabold">

@@ -418,7 +418,6 @@
       "highestDieStarts": "Highest die starts"
     },
     "game": {
-      "heading": "Game",
       "pointLimit": "Point limit",
       "usuallyTo25": "Real games are usually played to 25.",
       "fewestPoints": "Fewest points",
@@ -426,11 +425,9 @@
       "reachedLimit": "Reached the point limit"
     },
     "round": {
-      "tieBreak": "Tie-break",
       "tiedOn": "Tied on",
       "rollLimit": "Roll limit",
       "rollsLeft": "Rolls left",
-      "worstHandSoFar": "Worst hand so far",
       "worstHandNone": "None yet",
       "pot": "The pot",
       "standing": {
@@ -497,7 +494,7 @@
       "endOfRound": "End of round",
       "handToBeat": "Hand to beat",
       "worstHand": "Worst hand",
-      "youTakePot": "Take the pot",
+      "youTakePot": "You take the pot",
       "takesPot": "Takes the pot",
       "wins": "Wins"
     },

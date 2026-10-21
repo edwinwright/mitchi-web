@@ -73,13 +73,10 @@ function shownCells(
       </span>,
     ];
   }
+  // High die first, as everywhere a hand is named, not the rolled order.
+  const { high, low } = handById(shown.hand);
   return [
-    <MitchiHand
-      key="dice"
-      high={shown.dice[0]}
-      low={shown.dice[1]}
-      size={20}
-    />,
+    <MitchiHand key="dice" high={high} low={low} size={20} />,
     <span key="hand" className="inline-flex items-center gap-2">
       {/* Decorative: the hand name is already text. */}
       {handById(shown.hand).group === "mitchi" ? <Mark name="mitchi" /> : null}

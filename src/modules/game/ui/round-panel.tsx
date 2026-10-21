@@ -61,10 +61,13 @@ function Dice({ row, single }: { row: RoundRowData; single: boolean }) {
   const hands = useTranslations("hands");
   const { hand } = row;
   if (hand?.kind === "hand") {
+    // High die first, as everywhere a hand is named; the rolled order is the
+    // tray's, where each die is its own Keep button.
+    const { high, low } = handById(hand.hand);
     return (
       <>
         <span aria-hidden className="flex">
-          <MitchiHand high={hand.dice[0]} low={hand.dice[1]} size={DIE_SIZE} />
+          <MitchiHand high={high} low={low} size={DIE_SIZE} />
         </span>
         <span className="sr-only">{hands(hand.hand)}</span>
       </>

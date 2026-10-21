@@ -308,6 +308,18 @@ describe("tray", () => {
     expect(slices(roundSummary).tray.comparison).toBeNull();
   });
 
+  it("marks a past roll on show as held, never the acting seat's own", () => {
+    const held = (fixture: Fixture) =>
+      sliceSession(fixtureSession(fixture), { holding: true }).tray.held;
+    expect(held(tieBreakViewerToRoll)).toBe(true);
+    expect(held(roundSummary)).toBe(true);
+    expect(held(rollOff)).toBe(true);
+    expect(held(botMidTurn)).toBe(false);
+    expect(held(viewerRolledKeepable)).toBe(false);
+    // Nothing on show, nothing held.
+    expect(slices(tieBreakViewerToRoll).tray.held).toBe(false);
+  });
+
   it("has the winners at game over only", () => {
     expect(slices(gameOverDraw).tray.winners).toEqual([0, 2]);
     expect(slices(roundSummary).tray.winners).toBeNull();
