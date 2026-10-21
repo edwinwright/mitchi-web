@@ -1,3 +1,6 @@
+"use client";
+
+import { useState, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import { MitchiDie } from "@/components/mitchi-die";
 import { MitchiHand } from "@/components/mitchi-hand";
@@ -7,7 +10,8 @@ import type { Seat } from "../engine";
 import type { RoundBarData, RoundRowData } from "./board-slices";
 import { DiePlaceholder } from "./die-placeholder";
 import { Legend } from "./legend";
-import { Mark } from "./marks";
+import { Icon, Mark } from "./marks";
+import { RoundByHand } from "./round-by-hand";
 import { SeatLabel } from "./seat-label";
 
 const DIE_SIZE = 22;
@@ -186,32 +190,112 @@ function Row({
   );
 }
 
-/** This round, by player: who is rolling, what each seat holds. */
+export type RoundView = "byPlayer" | "byHand";
+
+function ListIcon() {
+  return (
+    <Icon
+      px={16}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+    >
+      <path d="M9 6h11M9 12h11M9 18h11" />
+      <circle cx="4.5" cy="6" r="1.2" fill="currentColor" />
+      <circle cx="4.5" cy="12" r="1.2" fill="currentColor" />
+      <circle cx="4.5" cy="18" r="1.2" fill="currentColor" />
+    </Icon>
+  );
+}
+
+function RankingIcon() {
+  return (
+    <Icon
+      px={16}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+    >
+      <path d="M4 6h16M4 12h11M4 18h6" />
+    </Icon>
+  );
+}
+
+/**
+ * This round, read by player (who is rolling, what each seat holds) or by
+ * hand (every hand, best first, with its holders). The view is the user's:
+ * local state, and switching never moves focus.
+ */
 export function RoundPanel({
   bar,
   rows,
   viewerSeat,
+  defaultView = "byPlayer",
 }: {
   bar: RoundBarData | null;
   rows: readonly RoundRowData[];
   viewerSeat: Seat;
+  /** The view on first render only, like `defaultValue`. */
+  defaultView?: RoundView;
 }) {
+  const t = useTranslations("play.players");
+  const [view, setView] = useState<RoundView>(defaultView);
+
+  const option = (value: RoundView, label: string, icon: ReactNode) => (
+    <button
+      type="button"
+      aria-pressed={view === value}
+      onClick={() => setView(value)}
+      className={cn(
+        "focus-ring inline-flex min-h-11 items-center gap-1.5 px-1.5 text-[13px] font-semibold",
+        view === value
+          ? "text-foreground underline decoration-2 underline-offset-[5px]"
+          : "text-stone-600",
+      )}
+    >
+      {icon}
+      {label}
+    </button>
+  );
+
   return (
     <div className="flex flex-col gap-1.5">
-      <RoundBar bar={bar} />
-      <ol className="flex flex-col gap-1.5">
-        {rows.map((row) => (
-          <Row
-            key={row.seat}
-            row={row}
-            viewerSeat={viewerSeat}
-            rollOff={bar?.kind === "rollOff"}
-          />
-        ))}
-      </ol>
-      <div className="mt-1.5">
-        <Legend items={["rollingNow", "starting", "holdsWorst", "mitchi"]} />
+      <div className="flex h-11 items-center gap-0.5 self-end">
+        {option("byPlayer", t("byPlayer"), <ListIcon />)}
+        <span aria-hidden className="h-4 w-px bg-stone-300" />
+        {option("byHand", t("byHand"), <RankingIcon />)}
       </div>
+      <RoundBar bar={bar} />
+      {view === "byPlayer" ? (
+        <>
+          <ol className="flex flex-col gap-1.5">
+            {rows.map((row) => (
+              <Row
+                key={row.seat}
+                row={row}
+                viewerSeat={viewerSeat}
+                rollOff={bar?.kind === "rollOff"}
+              />
+            ))}
+          </ol>
+          <div className="mt-1.5">
+            <Legend
+              items={["rollingNow", "starting", "holdsWorst", "mitchi"]}
+            />
+          </div>
+        </>
+      ) : (
+        <>
+          <RoundByHand rows={rows} viewerSeat={viewerSeat} />
+          <div className="mt-1.5">
+            <Legend items={["rollingNow", "holdsWorst", "mitchi"]} />
+          </div>
+        </>
+      )}
     </div>
   );
 }

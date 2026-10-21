@@ -13,14 +13,16 @@ import {
   type Fixture,
 } from "../testing";
 import { sliceSession } from "./board-slices";
-import { RoundPanel } from "./round-panel";
+import { RoundPanel, type RoundView } from "./round-panel";
 
 function Showcase({
   fixture,
   viewerSeat,
+  defaultView,
 }: {
   fixture: Fixture;
   viewerSeat?: number;
+  defaultView?: RoundView;
 }) {
   const session = fixtureSession(fixture, { viewerSeat });
   const { roundBar, roundRows } = sliceSession(session);
@@ -30,6 +32,7 @@ function Showcase({
         bar={roundBar}
         rows={roundRows}
         viewerSeat={session.view.viewerSeat}
+        defaultView={defaultView}
       />
     </div>
   );
@@ -57,3 +60,5 @@ export const RoundSummary: Story = { args: { fixture: roundSummary } };
 export const GameOver: Story = { args: { fixture: gameOverUnique } };
 // "You" and the rest follow the viewer's seat, not seat 0.
 export const ViewedFromSeat2: Story = { args: { viewerSeat: 2 } };
+/** Opens on By hand; Tab to the switch and press By player to go back. */
+export const ByHand: Story = { args: { defaultView: "byHand" } };
