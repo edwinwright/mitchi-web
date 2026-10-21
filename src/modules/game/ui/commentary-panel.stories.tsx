@@ -28,7 +28,7 @@ function longLog(): LoggedEvent[] {
 
 function Showcase({ events }: { events: readonly LoggedEvent[] }) {
   return (
-    <div className="max-w-sm">
+    <div className="max-w-xl">
       <CommentaryPanel
         rows={commentaryRows(events, VIEWER)}
         viewerSeat={VIEWER}
@@ -46,6 +46,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+/** Below 1280px: collapsed to the latest row; press the heading to open. */
 export const Default: Story = {};
 export const Empty: Story = { args: { events: notStarted.events } };
 export const SecondTieBreak: Story = {
@@ -53,3 +54,9 @@ export const SecondTieBreak: Story = {
 };
 // Focus the log and scroll up to read: nothing should jump.
 export const ManyRows: Story = { args: { events: longLog() } };
+
+/** From 1280px: always open, no heading button. */
+export const Desktop: Story = {
+  args: { events: longLog() },
+  globals: { viewport: { value: "desktop", isRotated: false } },
+};

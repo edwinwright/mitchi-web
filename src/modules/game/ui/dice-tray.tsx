@@ -28,7 +28,7 @@ const PRIMARY_LABEL_KEYS = {
 } as const satisfies Record<PrimaryAction, string>;
 
 const BIG_BUTTON =
-  "h-[52px] flex-1 rounded-xl border-2 px-6 text-[17px] font-bold";
+  "min-h-[52px] flex-1 rounded-xl border-2 px-3 py-1 text-[17px] leading-tight font-bold";
 
 export type DiceTrayProps = {
   tray: TrayData;
@@ -69,7 +69,7 @@ function KeepButtons({
           // Unavailable keeps its dashed style; the tick and the faded face say kept.
           kept &&
             controls.keep &&
-            "border-stone-600 bg-stone-200 text-stone-800 shadow-[inset_0_3px_6px_rgb(20_20_26/0.14)]",
+            "border-stone-600 bg-stone-200 text-stone-800 shadow-[inset_0_3px_6px_color-mix(in_srgb,var(--color-stone-950)_14%,transparent)]",
         )}
       >
         <span aria-hidden className={cn("block", kept && "opacity-[0.62]")}>
@@ -193,7 +193,7 @@ export function DiceTray(props: DiceTrayProps) {
         {tray.rolls ? <RollBoxes {...tray.rolls} /> : null}
       </div>
 
-      <div className="flex h-[52px] w-full gap-2.5">
+      <div className="flex min-h-[52px] w-full gap-2.5">
         <ControlButton
           ref={rollRef}
           unavailable={!available}

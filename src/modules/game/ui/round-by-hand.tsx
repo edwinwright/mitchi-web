@@ -14,7 +14,7 @@ const Comma = () => <span className="sr-only">, </span>;
 // Decorative: the order of the list and the labelled worst row already say
 // which hands are below the worst so far.
 const HATCH =
-  "repeating-linear-gradient(135deg, var(--color-stone-100) 0 6px, var(--color-white, #fff) 6px 12px)";
+  "repeating-linear-gradient(135deg, var(--color-stone-100) 0 6px, white 6px 12px)";
 
 /**
  * This round, by hand: all 21 hands in their groups, best first, with who

@@ -38,7 +38,7 @@ export function PlayersCard({
       className={cn(
         "focus-ring min-h-11 flex-1 rounded-[10px] text-[15px]",
         view === value
-          ? "bg-white font-bold text-foreground shadow-[0_1px_3px_rgb(20_20_26/0.15)]"
+          ? "bg-white font-bold text-foreground shadow-[0_1px_3px_color-mix(in_srgb,var(--color-stone-950)_15%,transparent)]"
           : "font-semibold text-stone-700",
       )}
     >

@@ -76,6 +76,8 @@ describe("focus handoff", () => {
     expect(document.activeElement).toBe(button("Roll"));
 
     // The reader moves on. Further bot steps must leave focus where it is.
+    // jsdom is narrow, so the log starts collapsed: open it to focus it.
+    fireEvent.click(button("What happened"));
     const log = screen.getByRole("log");
     log.focus();
     rerender(board(fixtureSession(botKept)));
@@ -214,5 +216,37 @@ describe("the players card", () => {
     points.focus();
     fireEvent.click(points);
     expect(document.activeElement).toBe(points);
+  });
+});
+
+describe("the collapsed log", () => {
+  it("collapsed log: not a tab stop, still the live region, latest row shown once", () => {
+    const { rerender } = render(board(fixtureSession(viewerToRoll)));
+    const heading = button("What happened");
+    expect(heading.getAttribute("aria-expanded")).toBe("false");
+
+    const log = screen.getByRole("log");
+    expect(log.hasAttribute("tabindex")).toBe(false);
+    const before = log.querySelectorAll("li").length;
+
+    // A bot step adds rows to the mounted log, so they are announced.
+    rerender(board(fixtureSession(botMidTurn)));
+    expect(screen.getByRole("log")).toBe(log);
+    expect(log.querySelectorAll("li").length).toBeGreaterThan(before);
+
+    // The visible copy of the latest row is hidden from screen readers.
+    const latest = log.parentElement?.querySelector("p[aria-hidden]");
+    expect(latest?.textContent).toBe(
+      log.querySelector("li:last-child")?.textContent,
+    );
+  });
+
+  it("collapsed log opens on its heading button and becomes a tab stop", () => {
+    render(board(fixtureSession(botMidTurn)));
+    const heading = button("What happened");
+    fireEvent.click(heading);
+    expect(heading.getAttribute("aria-expanded")).toBe("true");
+    expect(screen.getByRole("log").getAttribute("tabindex")).toBe("0");
+    expect(document.activeElement).not.toBe(screen.getByRole("log"));
   });
 });

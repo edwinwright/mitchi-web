@@ -145,8 +145,9 @@ function HandDice({ hand }: { hand: HandId | null }) {
 }
 
 /**
- * The dice card's ink header: fixed height, so nothing below it moves. A
- * field that does not apply keeps its space but is not shown.
+ * The dice card's ink header: 128px, so nothing below it moves. A field that
+ * does not apply keeps its space but is not shown. The heights are minimums:
+ * at 320px a long translation grows the header rather than being clipped.
  */
 export function RoundHeader({
   header,
@@ -160,8 +161,8 @@ export function RoundHeader({
   const [name, after] = cells.heading;
 
   return (
-    <div className="flex h-32 flex-col bg-stone-950 px-[18px] pt-3 text-white">
-      <div className="flex h-[52px] items-center justify-between gap-3">
+    <div className="flex min-h-32 flex-col bg-stone-950 px-[18px] pt-3 text-white">
+      <div className="flex min-h-[52px] items-center justify-between gap-3">
         <div className="flex min-w-0 flex-col gap-0.5">
           <span className={cn(LABEL, "min-h-4", !cells.label && "invisible")}>
             {cells.label ? <Joined cells={cells.label} visible=" · " /> : null}
@@ -195,7 +196,7 @@ export function RoundHeader({
 
       <dl
         className={cn(
-          "mt-2.5 flex h-[54px] items-center gap-3 border-t border-stone-800",
+          "mt-2.5 flex min-h-[54px] items-center gap-3 border-t border-stone-800",
           !cells.hand && "invisible",
         )}
       >

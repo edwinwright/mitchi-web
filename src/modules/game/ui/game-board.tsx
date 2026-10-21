@@ -11,9 +11,11 @@ import { PacingControls } from "./pacing-controls";
 import { PlayersCard } from "./players-card";
 
 /**
- * The only component that receives the session. DOM order is the 320px
- * order (dice card, pacing, players card, log); on desktop each panel is
- * placed explicitly, never with `order`.
+ * The only component that receives the session. DOM order is dice card,
+ * pacing bar, players card, log, at every width. Below `xl` that is one
+ * column; from `xl` the same order fills three columns left to right, so
+ * visual order is DOM order and the tab order needs no exception. No
+ * `order`, no grid areas.
  */
 export function GameBoard({ session }: { session: GameSession }) {
   const { view, intents, pacing } = session;
@@ -65,8 +67,8 @@ export function GameBoard({ session }: { session: GameSession }) {
   };
 
   return (
-    <div className="grid min-w-0 gap-8 md:grid-cols-2">
-      <div className="flex min-w-0 flex-col gap-4 md:col-start-1 md:row-start-1">
+    <div className="grid min-w-0 gap-6 xl:grid-cols-[420px_370px_minmax(0,1fr)] xl:items-start xl:gap-8">
+      <div className="flex min-w-0 flex-col gap-4">
         <DiceCard
           slices={slices}
           viewerSeat={viewerSeat}
@@ -82,10 +84,10 @@ export function GameBoard({ session }: { session: GameSession }) {
         />
         {pacing ? <PacingControls pacing={pacing} /> : null}
       </div>
-      <div className="min-w-0 md:col-start-2 md:row-start-1">
+      <div className="min-w-0">
         <PlayersCard slices={slices} viewerSeat={viewerSeat} />
       </div>
-      <div className="min-w-0 md:col-span-2 md:row-start-2">
+      <div className="min-w-0">
         <CommentaryPanel rows={rows} viewerSeat={viewerSeat} />
       </div>
     </div>

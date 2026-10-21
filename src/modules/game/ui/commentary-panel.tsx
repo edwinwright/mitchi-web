@@ -1,15 +1,50 @@
 "use client";
 
-import { Fragment, useEffect, useId, useRef, type ReactNode } from "react";
+import {
+  Fragment,
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  type ReactNode,
+} from "react";
 import { useTranslations } from "next-intl";
 import { MitchiDie } from "@/components/mitchi-die";
 import { MitchiHand } from "@/components/mitchi-hand";
+import { handById } from "@/data/hands";
+import { cn } from "@/lib/utils";
 import type { Seat } from "../engine";
 import type { CommentaryRow, Shown } from "./commentary-rows";
+import { Icon, Mark } from "./marks";
 import { SeatLabel } from "./seat-label";
 
 /** The reader counts as "at the bottom" within this many pixels. */
 const STUCK_PX = 24;
+
+/** Tailwind's `xl`: from here the log is always open. */
+const WIDE = "(min-width: 80rem)";
+
+function subscribeWide(onChange: () => void) {
+  if (typeof matchMedia !== "function") return () => {};
+  const query = matchMedia(WIDE);
+  query.addEventListener("change", onChange);
+  return () => query.removeEventListener("change", onChange);
+}
+
+/**
+ * Whether the log has the wide layout. A tab stop cannot be set by CSS, so
+ * the panel has to know. The server snapshot is "narrow", so the prerendered
+ * HTML and the first render agree; jsdom has no `matchMedia`, so tests are
+ * narrow too.
+ */
+function useWide() {
+  return useSyncExternalStore(
+    subscribeWide,
+    () => typeof matchMedia === "function" && matchMedia(WIDE).matches,
+    () => false,
+  );
+}
 const LIMIT_KEYS = [null, "one", "two", "three"] as const;
 
 /**
@@ -45,7 +80,11 @@ function shownCells(
       low={shown.dice[1]}
       size={20}
     />,
-    <span key="hand">{hands(shown.hand)}</span>,
+    <span key="hand" className="inline-flex items-center gap-2">
+      {/* Decorative: the hand name is already text. */}
+      {handById(shown.hand).group === "mitchi" ? <Mark name="mitchi" /> : null}
+      {hands(shown.hand)}
+    </span>,
   ];
 }
 
@@ -140,10 +179,32 @@ function Row({ row, viewerSeat }: { row: CommentaryRow; viewerSeat: Seat }) {
   }
 }
 
+function Chevron({ open }: { open: boolean }) {
+  return (
+    <Icon px={20} viewBox="0 0 20 20">
+      <path
+        d={open ? "M5 12l5-5 5 5" : "M5 8l5 5 5-5"}
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </Icon>
+  );
+}
+
+const ROW = "flex flex-wrap items-center gap-x-2 gap-y-1";
+
 /**
  * The page's only live region. Rows are cells, never sentences with a name
  * inside. New rows scroll into view only if the reader was already at the
  * bottom, so scrolling up to read is never undone.
+ *
+ * Below `xl` it is collapsed under its heading, showing the latest row. The
+ * full log stays mounted, visually hidden, so every row is still announced;
+ * the visible latest row is hidden from screen readers so it is not read
+ * twice, and the hidden log is not a tab stop. From `xl` it is always open.
  */
 export function CommentaryPanel({
   rows,
@@ -154,38 +215,76 @@ export function CommentaryPanel({
 }) {
   const t = useTranslations("play.commentary");
   const headingId = useId();
+  const logId = useId();
   const logRef = useRef<HTMLOListElement>(null);
   const stuck = useRef(true);
+  const wide = useWide();
+  const [expanded, setExpanded] = useState(false);
+  const open = wide || expanded;
+  const latest = rows.at(-1);
 
   useEffect(() => {
     const log = logRef.current;
     if (log && stuck.current) log.scrollTop = log.scrollHeight;
-  }, [rows]);
+  }, [rows, open]);
 
   return (
-    <section className="flex min-w-0 flex-col gap-4">
-      <h2 id={headingId} className="text-xl font-semibold">
-        {t("heading")}
+    <section
+      className={cn(
+        "flex min-w-0 flex-col",
+        wide
+          ? "gap-3 rounded-2xl border border-stone-200 bg-stone-50 p-4"
+          : "gap-1 border-t border-stone-200 pt-1",
+      )}
+    >
+      <h2
+        id={headingId}
+        className={cn("font-bold", wide ? "text-[17px]" : "text-[19px]")}
+      >
+        {wide ? (
+          t("heading")
+        ) : (
+          <button
+            type="button"
+            aria-expanded={expanded}
+            aria-controls={logId}
+            onClick={() => setExpanded((value) => !value)}
+            className="focus-ring flex min-h-12 w-full items-center justify-between text-left"
+          >
+            {t("heading")}
+            <Chevron open={expanded} />
+          </button>
+        )}
       </h2>
       {rows.length === 0 ? <p className="text-muted">{t("empty")}</p> : null}
+      {!open && latest ? (
+        <p
+          aria-hidden
+          className={cn(ROW, "min-h-6 text-[15px] text-stone-700")}
+        >
+          <Row row={latest} viewerSeat={viewerSeat} />
+        </p>
+      ) : null}
       <ol
         ref={logRef}
+        id={logId}
         role="log"
         aria-labelledby={headingId}
         aria-relevant="additions"
-        tabIndex={0}
+        tabIndex={open ? 0 : undefined}
         onScroll={(event) => {
           const log = event.currentTarget;
           stuck.current =
             log.scrollHeight - log.scrollTop - log.clientHeight <= STUCK_PX;
         }}
-        className="focus-ring flex max-h-72 flex-col gap-2 overflow-y-auto md:max-h-[32rem]"
+        className={cn(
+          open
+            ? "focus-ring flex max-h-72 flex-col gap-2 overflow-y-auto xl:max-h-[40rem]"
+            : "sr-only",
+        )}
       >
         {rows.map((row) => (
-          <li
-            key={row.key}
-            className="flex flex-wrap items-center gap-x-2 gap-y-1"
-          >
+          <li key={row.key} className={ROW}>
             <Row row={row} viewerSeat={viewerSeat} />
           </li>
         ))}
