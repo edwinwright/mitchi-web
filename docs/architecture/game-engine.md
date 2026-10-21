@@ -24,7 +24,7 @@ The action and event types and the `GameSession` interface are the contract a fu
 8. Bots are pure functions of state. A decision has at most one reason, on the `roll` or `stop` that completes it.
 9. Seats are numbers. No names, "you" or avatars in the engine. The UI compares against `view.viewerSeat`, never `0`.
 10. Control actions (`newGame`, `nextRound`) carry no seat. Player actions do.
-11. Dice stay in the slot they were rolled into. `DicePair` is positional: slot 0 is shown on the left, slot 1 on the right, and `die` in a keep action is a slot. Hand lookup reads the pair as higher die, then lower, and never writes that order back. Hand names read highest first.
+11. Dice stay in the slot they were rolled into. `DicePair` is positional: slot 0 is shown on the left, slot 1 on the right, and `die` in a keep action is a slot. Hand lookup reads the pair as higher die, then lower, and never writes that order back. Hand names read highest first. Wherever a hand is shown as two dice, it is drawn higher die first too; only the Keep buttons, one per slot, show the rolled order.
 
 ## Session rules (SES)
 
