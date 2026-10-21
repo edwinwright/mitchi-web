@@ -136,11 +136,34 @@ describe("sliceSession", () => {
     expect(controls).toMatchObject({ roll: true, keep: true, stop: true });
   });
 
-  it("has no round panel before round 1, and offers a new game at game over", () => {
-    expect(sliceSession(fixtureSession(notStarted)).round).toBeNull();
+  it("offers a new game at game over", () => {
     expect(sliceSession(fixtureSession(gameOverDraw)).controls.newGame).toBe(
       true,
     );
+  });
+});
+
+describe("roundBar", () => {
+  it("is hidden before start and says how the roll to start works", () => {
+    expect(slices(notStarted).roundBar).toBeNull();
+    expect(slices(rollOff).roundBar).toEqual({ kind: "rollOff" });
+  });
+
+  it("names the round, or the tie-break and the hand tied on", () => {
+    expect(slices(botMidTurn).roundBar).toEqual({ kind: "round", number: 1 });
+    expect(slices(tieBreakRunning).roundBar).toEqual({
+      kind: "tieBreak",
+      number: 1,
+      tiedOn: "3-1",
+    });
+  });
+
+  it("names the round just played between rounds and at game over", () => {
+    expect(slices(roundSummary).roundBar).toEqual({ kind: "round", number: 1 });
+    expect(slices(gameOverUnique).roundBar).toEqual({
+      kind: "round",
+      number: 7,
+    });
   });
 });
 

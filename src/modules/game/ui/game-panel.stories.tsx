@@ -1,9 +1,11 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import {
+  closeToLimit,
   fixtureSession,
   gameOverDraw,
+  gameOverUnique,
+  notStarted,
   roundSummary,
-  viewerToRoll,
   type Fixture,
 } from "../testing";
 import { sliceSession } from "./board-slices";
@@ -11,10 +13,10 @@ import { GamePanel } from "./game-panel";
 
 function Showcase({ fixture }: { fixture: Fixture }) {
   const session = fixtureSession(fixture);
-  const { game } = sliceSession(session);
+  const { points } = sliceSession(session);
   return (
-    <div className="max-w-sm">
-      <GamePanel data={game} viewerSeat={session.view.viewerSeat} />
+    <div className="max-w-[370px]">
+      <GamePanel data={points} viewerSeat={session.view.viewerSeat} />
     </div>
   );
 }
@@ -22,24 +24,16 @@ function Showcase({ fixture }: { fixture: Fixture }) {
 const meta = {
   title: "Practice game/Game panel",
   component: Showcase,
-  args: { fixture: viewerToRoll },
+  args: { fixture: notStarted },
 } satisfies Meta<typeof Showcase>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const NoPoints: Story = {};
-export const OneNearest: Story = { args: { fixture: roundSummary } };
-
-// Two seats level on the most points. No fixture reaches this state, so the
-// points are set by hand on a reachable one.
-export const TiedNearest: Story = {
-  args: {
-    fixture: {
-      ...roundSummary,
-      state: { ...roundSummary.state, points: [0, 1, 0, 1] },
-    },
-  },
-};
-
-export const GameOver: Story = { args: { fixture: gameOverDraw } };
+/** Every seat on 0: nobody is gold. */
+export const NotStarted: Story = {};
+export const AfterOneRound: Story = { args: { fixture: roundSummary } };
+/** Seat 3 on 3 of 5 is close; seat 1 on 2 is not. */
+export const CloseToLimit: Story = { args: { fixture: closeToLimit } };
+export const GameOverWin: Story = { args: { fixture: gameOverUnique } };
+export const GameOverDraw: Story = { args: { fixture: gameOverDraw } };

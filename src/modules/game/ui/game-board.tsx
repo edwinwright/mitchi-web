@@ -6,16 +6,14 @@ import { latestRollSeq, sliceSession } from "./board-slices";
 import { CommentaryPanel } from "./commentary-panel";
 import { commentaryRows } from "./commentary-rows";
 import { DiceCard } from "./dice-card";
-import { GamePanel } from "./game-panel";
 import { HOLD_MS } from "./hold";
 import { PacingControls } from "./pacing-controls";
-import { PlayersPanel } from "./players-panel";
-import { RoundPanel } from "./round-panel";
+import { PlayersCard } from "./players-card";
 
 /**
  * The only component that receives the session. DOM order is the 320px
- * order (dice card, pacing, round, players, commentary, game); on desktop
- * each panel is placed explicitly, never with `order`.
+ * order (dice card, pacing, players card, log); on desktop each panel is
+ * placed explicitly, never with `order`.
  */
 export function GameBoard({ session }: { session: GameSession }) {
   const { view, intents, pacing } = session;
@@ -85,16 +83,10 @@ export function GameBoard({ session }: { session: GameSession }) {
         {pacing ? <PacingControls pacing={pacing} /> : null}
       </div>
       <div className="min-w-0 md:col-start-2 md:row-start-1">
-        {slices.round ? <RoundPanel data={slices.round} /> : null}
+        <PlayersCard slices={slices} viewerSeat={viewerSeat} />
       </div>
-      <div className="min-w-0 md:col-start-1 md:row-start-2">
-        <PlayersPanel data={slices.players} />
-      </div>
-      <div className="min-w-0 md:col-start-2 md:row-span-2 md:row-start-2">
+      <div className="min-w-0 md:col-span-2 md:row-start-2">
         <CommentaryPanel rows={rows} viewerSeat={viewerSeat} />
-      </div>
-      <div className="min-w-0 md:col-start-1 md:row-start-3">
-        <GamePanel data={slices.game} viewerSeat={viewerSeat} />
       </div>
     </div>
   );

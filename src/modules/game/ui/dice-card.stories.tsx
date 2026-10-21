@@ -61,7 +61,7 @@ export const RollOff: Story = { args: { fixture: rollOff } };
 export const RollOffReroll: Story = { args: { fixture: rollOffReroll } };
 /** The starter mid-turn, one die kept: no roll limit yet, three boxes. */
 export const StarterTurn: Story = { args: { fixture: viewerKeptOne } };
-/** The limit is set; a bot is to roll, the viewer's 6-3 still on show. */
+/** The limit is set; a bot is to roll. The viewer's 6-3 has gone: no hold runs here. */
 export const LimitSet: Story = { args: { fixture: starterLimitSet } };
 export const BotMidTurn: Story = { args: { fixture: botMidTurn } };
 export const TieBreak: Story = { args: { fixture: tieBreakViewerToRoll } };

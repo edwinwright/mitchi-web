@@ -39,42 +39,12 @@ export type ControlsData = {
   busy: boolean;
 };
 
-export type RoundPanelData = {
-  number: number;
-  /** null until the starter's turn ends. */
-  rollLimit: number | null;
-  worst: { hand: HandId; seats: readonly Seat[] } | null;
-  pot: number;
-  tieBreak: { number: number; tiedOn: HandId } | null;
-  /** The acting seat in a main-round turn only. */
-  rollsLeft: number | null;
-  /** The viewer's hand against the worst so far, if they have one. */
-  standing: "beats" | "ties" | "worse" | null;
-};
-
-export type PlayerRowData = {
-  seat: Seat;
-  points: number;
-  starting: boolean;
-  /** Rolling now. Nobody is current in the roll-off. */
-  current: boolean;
-  /** Roll-off only: still to roll this pass. */
-  waiting: boolean;
-  hand: SeatHand | null;
-  holdsWorst: boolean;
-  /** False only for non-participants in a tie-break. */
-  inContest: boolean;
-};
-
-export type PlayersPanelData = {
-  viewerSeat: Seat;
-  players: readonly PlayerRowData[];
-};
-
-export type GamePanelData = {
-  pointLimit: number;
-  nearest: { seats: readonly Seat[]; points: number } | null;
-};
+/** The This round header bar. */
+export type RoundBarData =
+  | { kind: "rollOff" }
+  /** Between rounds and at game over too: the round just played. */
+  | { kind: "round"; number: number }
+  | { kind: "tieBreak"; number: number; tiedOn: HandId };
 
 /** The dice card's header, by stage. */
 export type HeaderData =
@@ -160,12 +130,10 @@ export type BoardSlices = {
   controls: ControlsData & {
     primary: { action: PrimaryAction; available: boolean };
   };
-  /** null before round 1. */
-  round: RoundPanelData | null;
-  players: PlayersPanelData;
-  game: GamePanelData;
   header: HeaderData;
   tray: TrayData;
+  /** null before start. */
+  roundBar: RoundBarData | null;
   roundRows: readonly RoundRowData[];
   points: PointsData;
 };
@@ -262,7 +230,6 @@ export function sliceSession(
   const acting = select.actingSeat(state);
   const worst = select.worstHandSoFar(state);
   const toRoll = select.toRoll(state);
-  const tieBreak = select.tieBreakNumber(state);
   const shown = shownRoll(view, holding);
   const primary = PRIMARY[phase.kind];
 
@@ -302,38 +269,18 @@ export function sliceSession(
         available: allowed[primary.intent] && !pending,
       },
     },
-    round: round
-      ? {
-          number: round.number,
-          rollLimit: select.rollLimit(state).set,
-          worst,
-          pot: round.pot,
-          tieBreak:
-            tieBreak !== null && phase.kind === "tieBreak"
-              ? { number: tieBreak, tiedOn: phase.tiedOn }
-              : null,
-          rollsLeft: select.rollsLeft(state),
-          standing: select.standingAgainstWorst(state, viewerSeat),
-        }
-      : null,
-    players: {
-      viewerSeat,
-      players: state.points.map((points, seat) => ({
-        seat,
-        points,
-        starting: round?.startingSeat === seat,
-        current: acting === seat,
-        waiting: phase.kind === "rollOff" && toRoll.includes(seat),
-        hand: select.seatHand(state, seat),
-        holdsWorst: worst?.seats.includes(seat) ?? false,
-        inContest: select.inContest(state, seat),
-      })),
-    },
-    game: {
-      pointLimit: state.config.pointLimit,
-      nearest: select.nearestLimit(state),
-    },
+    roundBar: roundBarOf(state),
   };
+}
+
+function roundBarOf(state: GameState): RoundBarData | null {
+  const { phase, round } = state;
+  if (phase.kind === "rollOff") return { kind: "rollOff" };
+  if (!round) return null;
+  const tieBreak = select.tieBreakNumber(state);
+  return tieBreak !== null && phase.kind === "tieBreak"
+    ? { kind: "tieBreak", number: tieBreak, tiedOn: phase.tiedOn }
+    : { kind: "round", number: round.number };
 }
 
 function headerOf(state: GameState, viewerSeat: Seat): HeaderData {
