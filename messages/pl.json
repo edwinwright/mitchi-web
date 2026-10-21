@@ -413,14 +413,21 @@
       "rollingNow": "[PL] Rolling now",
       "holdsWorst": "[PL] Worst hand so far",
       "outOfTieBreak": "[PL] Not in this tie-break",
-      "waiting": "[PL] Waiting"
+      "waiting": "[PL] Waiting",
+      "thisRound": "[PL] This round",
+      "byPlayer": "[PL] By player",
+      "byHand": "[PL] By hand",
+      "highestDieStarts": "[PL] Highest die starts"
     },
     "game": {
       "heading": "[PL] Game",
       "pointLimit": "[PL] Point limit",
       "usuallyTo25": "[PL] Real games are usually played to 25.",
       "nearestLimit": "[PL] Nearest the limit",
-      "nearestNone": "[PL] No points yet"
+      "nearestNone": "[PL] No points yet",
+      "fewestPoints": "[PL] Fewest points",
+      "closeToLimit": "[PL] Close to the point limit",
+      "reachedLimit": "[PL] Reached the point limit"
     },
     "round": {
       "heading": "[PL] Round",
@@ -489,6 +496,21 @@
       "heading": "[PL] Game over",
       "standings": "[PL] Final points",
       "winner": "[PL] Winner"
+    },
+    "header": {
+      "readyToPlay": "[PL] Ready to play",
+      "round": "[PL] Round {number}",
+      "tieBreak": "[PL] Tie-break {number}",
+      "endOfRound": "[PL] End of round",
+      "handToBeat": "[PL] Hand to beat",
+      "worstHand": "[PL] Worst hand",
+      "youTakePot": "[PL] Take the pot",
+      "takesPot": "[PL] Takes the pot",
+      "wins": "[PL] Wins"
+    },
+    "tray": {
+      "intro": "[PL] Play a practice game against three other players. Press Start to begin.",
+      "rollsLeft": "[PL] rolls left"
     }
   }
 }
