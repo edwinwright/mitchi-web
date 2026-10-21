@@ -107,18 +107,15 @@ describe("sliceSession", () => {
   });
 
   it("offers Roll, Keep and Stop on the viewer's turn", () => {
-    const { controls, dice } = sliceSession(
-      fixtureSession(viewerRolledKeepable),
-    );
+    const { controls } = sliceSession(fixtureSession(viewerRolledKeepable));
     expect(controls).toMatchObject({ roll: true, keep: true, stop: true });
-    expect(dice.yourTurn).toBe(true);
   });
 
-  it("has no round panel before round 1 and an end screen at game over", () => {
+  it("has no round panel before round 1, and offers a new game at game over", () => {
     expect(sliceSession(fixtureSession(notStarted)).round).toBeNull();
-    const over = sliceSession(fixtureSession(gameOverDraw));
-    expect(over.end?.winners.length).toBeGreaterThanOrEqual(2);
-    expect(over.controls.newGame).toBe(true);
+    expect(sliceSession(fixtureSession(gameOverDraw)).controls.newGame).toBe(
+      true,
+    );
   });
 });
 

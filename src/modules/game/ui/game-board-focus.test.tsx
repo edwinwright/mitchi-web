@@ -11,6 +11,9 @@ import {
   gameOverUnique,
   notStarted,
   roundSummary,
+  tieBreakRunning,
+  tieBreakViewerToRoll,
+  viewerRolledKeepable,
   viewerToRoll,
   type Fixture,
 } from "../testing";
@@ -111,5 +114,77 @@ describe("focus handoff", () => {
     fireEvent.click(roll);
     expect(intents.roll).not.toHaveBeenCalled();
     expect(document.activeElement).toBe(roll);
+  });
+});
+
+describe("the Roll and Stop nodes", () => {
+  it("Last roll ends the round: focus stays on the same node, now Next round", () => {
+    const { rerender } = render(board(fixtureSession(viewerRolledKeepable)));
+    const roll = button("Roll");
+    roll.focus();
+    rerender(board(fixtureSession(roundSummary)));
+    expect(document.activeElement).toBe(roll);
+    expect(button("Next round")).toBe(roll);
+  });
+
+  it("Stop ends the game: focus stays on Stop, which then does nothing", () => {
+    const { rerender } = render(board(fixtureSession(viewerRolledKeepable)));
+    const stop = button("Stop");
+    stop.focus();
+    const over = spied(gameOverUnique);
+    rerender(board(over.session));
+    expect(document.activeElement).toBe(stop);
+    expect(stop.getAttribute("aria-disabled")).toBe("true");
+    // A double press must not turn into Play again and wipe the result.
+    fireEvent.click(stop);
+    for (const intent of Object.values(over.intents)) {
+      expect(intent).not.toHaveBeenCalled();
+    }
+  });
+
+  it("The game ends in a tie-break: the Roll node becomes Play again", () => {
+    const { rerender } = render(board(fixtureSession(tieBreakViewerToRoll)));
+    const roll = button("Roll");
+    roll.focus();
+    rerender(board(fixtureSession(gameOverUnique)));
+    expect(document.activeElement).toBe(roll);
+    expect(button("Play again")).toBe(roll);
+  });
+
+  it("Node identity: the same two elements in every phase, never disabled", () => {
+    const phases: [Fixture, string][] = [
+      [notStarted, "Start"],
+      [viewerToRoll, "Roll"],
+      [botMidTurn, "Roll"],
+      [tieBreakRunning, "Roll"],
+      [roundSummary, "Next round"],
+      [gameOverUnique, "Play again"],
+    ];
+    const { rerender } = render(board(fixtureSession(notStarted)));
+    const roll = button("Start");
+    const stop = button("Stop");
+    for (const [fixture, label] of phases) {
+      rerender(board(fixtureSession(fixture)));
+      expect(button(label)).toBe(roll);
+      expect(button("Stop")).toBe(stop);
+      expect(roll.hasAttribute("disabled")).toBe(false);
+      expect(stop.hasAttribute("disabled")).toBe(false);
+    }
+  });
+
+  it("bot dice: the Keep buttons are named Keep, not by face, and unavailable", () => {
+    render(board(fixtureSession(botMidTurn)));
+    const keeps = screen.getAllByRole("button", { name: "Keep" });
+    expect(keeps).toHaveLength(2);
+    for (const keep of keeps) {
+      expect(keep.getAttribute("aria-disabled")).toBe("true");
+    }
+    expect(screen.queryByRole("button", { name: /^Keep the/ })).toBeNull();
+  });
+
+  it("the viewer's own dice name their faces", () => {
+    render(board(fixtureSession(viewerRolledKeepable)));
+    expect(button("Keep the 5")).toBeTruthy();
+    expect(button("Keep the 2")).toBeTruthy();
   });
 });

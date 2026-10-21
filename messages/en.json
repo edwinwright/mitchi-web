@@ -377,8 +377,6 @@
       "playAgain": "Play again"
     },
     "dice": {
-      "heading": "Dice",
-      "notRolled": "Not rolled yet",
       "yourTurn": "Your turn"
     },
     "pacing": {

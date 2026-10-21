@@ -29,14 +29,6 @@ export type ShownRoll =
     }
   | { kind: "die"; seat: Seat; face: Die }; // roll-off
 
-export type DicePanelData = {
-  phase: Phase["kind"];
-  viewerSeat: Seat;
-  shown: ShownRoll | null;
-  /** The viewer holds a roll now: show the "Your turn" status line. */
-  yourTurn: boolean;
-};
-
 /** Each flag is `allowed.x && !pending`. `busy` is `pending`. */
 export type ControlsData = {
   roll: boolean;
@@ -82,12 +74,6 @@ export type PlayersPanelData = {
 export type GamePanelData = {
   pointLimit: number;
   nearest: { seats: readonly Seat[]; points: number } | null;
-};
-
-export type EndScreenData = {
-  /** One seat is a win; two or more is a draw. */
-  winners: Winners;
-  points: readonly number[];
 };
 
 /** The dice card's header, by stage. */
@@ -171,7 +157,6 @@ export type PointsData = {
 };
 
 export type BoardSlices = {
-  dice: DicePanelData;
   controls: ControlsData & {
     primary: { action: PrimaryAction; available: boolean };
   };
@@ -179,8 +164,6 @@ export type BoardSlices = {
   round: RoundPanelData | null;
   players: PlayersPanelData;
   game: GamePanelData;
-  /** Set at gameOver; takes the Round panel's slot. */
-  end: EndScreenData | null;
   header: HeaderData;
   tray: TrayData;
   roundRows: readonly RoundRowData[];
@@ -284,12 +267,6 @@ export function sliceSession(session: GameSession): BoardSlices {
       };
     }),
     points: pointsOf(state),
-    dice: {
-      phase: phase.kind,
-      viewerSeat,
-      shown,
-      yourTurn: toRoll.includes(viewerSeat),
-    },
     controls: {
       roll: allowed.roll && !pending,
       keep: allowed.setKeep && !pending,
@@ -333,10 +310,6 @@ export function sliceSession(session: GameSession): BoardSlices {
       pointLimit: state.config.pointLimit,
       nearest: select.nearestLimit(state),
     },
-    end:
-      phase.kind === "gameOver"
-        ? { winners: phase.winners, points: state.points }
-        : null,
   };
 }
 

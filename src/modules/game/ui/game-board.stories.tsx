@@ -43,7 +43,7 @@ export const Pending: Story = {
 };
 export const TieBreak: Story = { args: { fixture: tieBreakViewerToRoll } };
 export const RoundSummary: Story = { args: { fixture: roundSummary } };
-export const EndScreen: Story = { args: { fixture: gameOverDraw } };
+export const GameOverDraw: Story = { args: { fixture: gameOverDraw } };
 export const ViewerWins: Story = { args: { fixture: gameOverUnique } };
 export const OnlineNoPacing: Story = {
   args: { fixture: botMidTurn, options: { pacing: null } },
