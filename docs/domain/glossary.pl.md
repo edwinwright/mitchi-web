@@ -25,6 +25,7 @@ Polish nouns change ending by grammatical role (seven cases, three genders, two 
 | Roll limit                                 | limit rzutów                                                         | limit rzutów, limitu rzutów, do limitu rzutów                   | Masculine inanimate: nominative equals accusative                                                                                                                                                        |
 | In one, in two, in three                   | w jednym, w dwóch, w trzech                                          |                                                                 | Locative, "in one (roll)": `sześć-trzy w dwóch`. Each strip note is a whole string, so the form is written per sentence, never selected by a count                                                       |
 | Stop                                       | zatrzymać się                                                        | zatrzymuje się, zatrzymaj się                                   | Plain verb, no game idiom needed                                                                                                                                                                         |
+| Keep (a die)                               | zostawić                                                             | zostawiasz, zostawia, zostaw                                    | `zostaw 5`. Button: `Zostaw`. See the section on the practice game                                                                                                                                       |
 | Round                                      | runda                                                                | runda, rundy, rundę, w rundzie                                  |                                                                                                                                                                                                          |
 | Turn                                       | tura                                                                 | tura, tury, turę, w turze                                       | Standard board game word                                                                                                                                                                                 |
 | Starting player                            | gracz rozpoczynający                                                 | gracz rozpoczynający, gracza rozpoczynającego                   | Standard rulebook phrase. Person nouns are masculine animate, so accusative equals genitive, unlike `układ`: `przez gracza rozpoczynającego`                                                             |
@@ -37,6 +38,7 @@ Polish nouns change ending by grammatical role (seven cases, three genders, two 
 | Tie-break                                  | dogrywka                                                             | dogrywka, dogrywki, dogrywkę, w dogrywce                        | Standard sports and games word for a play-off                                                                                                                                                            |
 | Tied                                       | remis / remisować                                                    | remisują, mają remis, mają ten sam układ                        | "Tied on the worst hand" phrases as "have the same worst hand": `mają ten sam najgorszy układ`                                                                                                           |
 | Draw                                       | dzielić się zwycięstwem                                              | dzielą się zwycięstwem                                          | `remis` is already Tied, so a draw is written as a shared win                                                                                                                                            |
+| Fewest points                              | najmniej punktów                                                     | najmniej punktów                                                | A UI label on the Points panel. Genitive after the adverb                                                                                                                                                |
 | Points                                     | punkty                                                               | punkt, punkty, punktów                                          | Three plural forms. See below                                                                                                                                                                            |
 | Point limit                                | limit punktów                                                        | limit punktów, limitu punktów                                   |                                                                                                                                                                                                          |
 
@@ -113,3 +115,29 @@ Informal second person singular, present tense, for prose addressed to the reade
 About is first person, the author speaking: `nauczyłem się Mitchi od kuzyna`.
 
 Contractions do not exist in Polish, so the English contractions on Home and About have nothing to mirror; the informality is carried by `ty` and word choice instead.
+
+## The practice game
+
+The commentary log in `/pl/zagraj` is a column of rows. A row is cells: a player label, an action phrase, and sometimes a hand name. The action phrase has two whole strings, one for the viewer (`commentary.you.*`, second person singular, `ty`) and one for every other player (`commentary.player.*`, third person, read after the player's label). Player labels are masculine (`Gracz 2`), so the third-person forms are masculine. Controls use the imperative, as the site's other links do (`Przeczytaj zasady`).
+
+| Action                   | Viewer (`ty`)           | Another player                      |
+| ------------------------ | ----------------------- | ----------------------------------- |
+| Stop                     | `Zatrzymujesz się`      | `Zatrzymuje się`                    |
+| Has no rolls left        | `Nie masz już rzutów`   | `Nie ma już rzutów`                 |
+| Rolls (the result)       | `Wyrzucasz`             | `Wyrzuca`                           |
+| Rolls to start           | `Rzucasz, by zacząć`    | `Rzuca, by zacząć`                  |
+| Starts the round         | `Zaczynasz rundę`       | `Zaczyna rundę`                     |
+| Takes the pot            | `Zgarniasz pulę: {pot}` | `Zgarnia pulę: {pot}`               |
+| Wins                     | `Wygrywasz`             | `Wygrywa`                           |
+| Rolls both dice again    | (not shown)             | `Przerzuca obie kości`              |
+| Rolls again, keeping one | (not shown)             | `Przerzuca, zostawiając jedną kość` |
+
+`Wyrzucasz` and `Wyrzuca` stand before a hand name in the next cell, so they use the outcome verb. `Rzucasz, by zacząć` is the act, so it uses `rzucać`. See "Why 'roll' takes three verbs".
+
+**Keep.** `zostawić` ("leave, keep") is the everyday verb: `zostaw szóstkę, przerzuć drugą kość`. `odłożyć` ("set aside") is the nearest to the English definition but reads as putting a die down. `zatrzymać` was rejected because Stop is `zatrzymać się`. **Reviewer: `zostawić` versus `odłożyć`.**
+
+**Not `pasować`.** `pasujesz` and `pasuje` were given as example forms when this was specified, but `pasować` is "to fold" in poker, which would read as giving up the turn. The glossary form of Stop, `zatrzymać się`, is used for the commentary row.
+
+**Draw.** `Dzielą się zwycięstwem` stands alone as a sentence. `remis` is already Tied.
+
+**Slugs.** `/pl/zagraj` conflicts with nothing in `translation-rationale.pl.md` (section 4 lists `zasady`, `sciagawka`, `o-grze`). It is the imperative of `zagrać`, in the style of `zasady`; it has no diacritics.

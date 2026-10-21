@@ -13,8 +13,8 @@
       "description": "Ranking układów i punktacja na jednym ekranie, do zajrzenia w trakcie gry."
     },
     "play": {
-      "title": "[PL] Mitchi practice game",
-      "description": "[PL] Play a short game of Mitchi against three other players and see how the roll limit, the worst hand and the pot work."
+      "title": "Gra treningowa Mitchi",
+      "description": "Zagraj w krótką grę Mitchi przeciwko trzem innym graczom i zobacz, jak działają limit rzutów, najgorszy układ i pula."
     },
     "about": {
       "title": "O Mitchi",
@@ -45,8 +45,8 @@
       "summary": "Wszystko, czego potrzebujesz, żeby zagrać: od przygotowania po koniec gry."
     },
     "play": {
-      "label": "[PL] Practice game",
-      "summary": "[PL] Play a short game against three other players."
+      "label": "Gra treningowa",
+      "summary": "Zagraj w krótką grę przeciwko trzem innym graczom."
     },
     "reference": {
       "label": "Ściągawka",
@@ -65,7 +65,7 @@
     "youNeed": "<strong>Potrzebujesz:</strong> dwóch kości, kartki i długopisu oraz co najmniej jednego innego gracza.",
     "links": {
       "rules": "Przeczytaj zasady",
-      "play": "[PL] Play a practice game",
+      "play": "Zagraj w grę treningową",
       "reference": "Ściągawka"
     },
     "quickStart": {
@@ -365,142 +365,142 @@
     }
   },
   "play": {
-    "title": "[PL] Practice game",
-    "intro": "[PL] Play a short game against three other players. Roll, keep and stop as you would at a table.",
+    "title": "Gra treningowa",
+    "intro": "Zagraj w krótką grę przeciwko trzem innym graczom. Rzucaj, zostawiaj kości i zatrzymuj się tak, jak przy stole.",
     "controls": {
-      "start": "[PL] Start",
-      "roll": "[PL] Roll",
-      "keep": "[PL] Keep",
-      "stop": "[PL] Stop",
-      "keepDie": "[PL] Keep the {face}",
-      "nextRound": "[PL] Next round",
-      "playAgain": "[PL] Play again"
+      "start": "Zacznij",
+      "roll": "Rzuć",
+      "keep": "Zostaw",
+      "stop": "Zatrzymaj się",
+      "keepDie": "Zostaw {face}",
+      "nextRound": "Następna runda",
+      "playAgain": "Zagraj ponownie"
     },
     "dice": {
-      "yourTurn": "[PL] Your turn"
+      "yourTurn": "Twoja tura"
     },
     "pacing": {
-      "heading": "[PL] Pace",
-      "pause": "[PL] Pause",
-      "resume": "[PL] Resume",
-      "step": "[PL] Step",
-      "speed": "[PL] Speed",
-      "normal": "[PL] Normal",
-      "fast": "[PL] Fast"
+      "heading": "Tempo",
+      "pause": "Pauza",
+      "resume": "Wznów",
+      "step": "Krok",
+      "speed": "Szybkość",
+      "normal": "Normalna",
+      "fast": "Szybka"
     },
     "rolls": {
-      "none": "[PL] None",
-      "one": "[PL] One",
-      "two": "[PL] Two",
-      "three": "[PL] Three"
+      "none": "Brak",
+      "one": "Jeden",
+      "two": "Dwa",
+      "three": "Trzy"
     },
     "rolledIn": {
-      "one": "[PL] in one",
-      "two": "[PL] in two",
-      "three": "[PL] in three"
+      "one": "w jednym",
+      "two": "w dwóch",
+      "three": "w trzech"
     },
     "players": {
-      "heading": "[PL] Players",
-      "you": "[PL] You",
-      "player1": "[PL] Player 1",
-      "player2": "[PL] Player 2",
-      "player3": "[PL] Player 3",
-      "player4": "[PL] Player 4",
-      "points": "[PL] Points",
-      "starting": "[PL] Starting player",
-      "rollingNow": "[PL] Rolling now",
-      "holdsWorst": "[PL] Worst hand so far",
-      "outOfTieBreak": "[PL] Not in this tie-break",
-      "waiting": "[PL] Waiting",
-      "thisRound": "[PL] This round",
-      "byPlayer": "[PL] By player",
-      "byHand": "[PL] By hand",
-      "highestDieStarts": "[PL] Highest die starts"
+      "heading": "Gracze",
+      "you": "Ty",
+      "player1": "Gracz 1",
+      "player2": "Gracz 2",
+      "player3": "Gracz 3",
+      "player4": "Gracz 4",
+      "points": "Punkty",
+      "starting": "Gracz rozpoczynający",
+      "rollingNow": "Rzuca teraz",
+      "holdsWorst": "Najgorszy jak dotąd układ",
+      "outOfTieBreak": "Poza tą dogrywką",
+      "waiting": "Czeka",
+      "thisRound": "Ta runda",
+      "byPlayer": "Według graczy",
+      "byHand": "Według układów",
+      "highestDieStarts": "Zaczyna najwyższa kość"
     },
     "game": {
-      "pointLimit": "[PL] Point limit",
-      "usuallyTo25": "[PL] Real games are usually played to 25.",
-      "fewestPoints": "[PL] Fewest points",
-      "closeToLimit": "[PL] Close to the point limit",
-      "reachedLimit": "[PL] Reached the point limit"
+      "pointLimit": "Limit punktów",
+      "usuallyTo25": "Prawdziwe gry zwykle toczą się do 25 punktów.",
+      "fewestPoints": "Najmniej punktów",
+      "closeToLimit": "Blisko limitu punktów",
+      "reachedLimit": "Osiągnięty limit punktów"
     },
     "round": {
-      "tiedOn": "[PL] Tied on",
-      "rollLimit": "[PL] Roll limit",
-      "rollsLeft": "[PL] Rolls left",
-      "worstHandNone": "[PL] None yet",
-      "pot": "[PL] The pot",
+      "tiedOn": "Remis na układzie",
+      "rollLimit": "Limit rzutów",
+      "rollsLeft": "Pozostałe rzuty",
+      "worstHandNone": "Jeszcze brak",
+      "pot": "Pula",
       "standing": {
-        "beats": "[PL] Your hand beats it",
-        "ties": "[PL] Your hand ties it",
-        "worse": "[PL] Your hand is worse"
+        "beats": "Twój układ go pobija",
+        "ties": "Twój układ remisuje z nim",
+        "worse": "Twój układ jest gorszy"
       }
     },
     "commentary": {
-      "heading": "[PL] What happened",
-      "empty": "[PL] Nothing yet",
+      "heading": "Co się wydarzyło",
+      "empty": "Jeszcze nic",
       "you": {
-        "turn": "[PL] Your turn",
-        "stop": "[PL] You stop",
-        "noRollsLeft": "[PL] You have no rolls left",
-        "rolls": "[PL] You roll",
-        "rollsToStart": "[PL] You roll to start",
-        "startsRound": "[PL] You start the round",
-        "takesPot": "[PL] You take the pot: {pot}",
-        "wins": "[PL] You win"
+        "turn": "Twoja tura",
+        "stop": "Zatrzymujesz się",
+        "noRollsLeft": "Nie masz już rzutów",
+        "rolls": "Wyrzucasz",
+        "rollsToStart": "Rzucasz, by zacząć",
+        "startsRound": "Zaczynasz rundę",
+        "takesPot": "Zgarniasz pulę: {pot}",
+        "wins": "Wygrywasz"
       },
       "player": {
-        "stop": "[PL] Stops",
-        "noRollsLeft": "[PL] Has no rolls left",
-        "rollAgainBoth": "[PL] Rolls both dice again",
-        "rollAgainKeeping": "[PL] Rolls again, keeping one die",
-        "rolls": "[PL] Rolls",
-        "rollsToStart": "[PL] Rolls to start",
-        "startsRound": "[PL] Starts the round",
-        "takesPot": "[PL] Takes the pot: {pot}",
-        "wins": "[PL] Wins"
+        "stop": "Zatrzymuje się",
+        "noRollsLeft": "Nie ma już rzutów",
+        "rollAgainBoth": "Przerzuca obie kości",
+        "rollAgainKeeping": "Przerzuca, zostawiając jedną kość",
+        "rolls": "Wyrzuca",
+        "rollsToStart": "Rzuca, by zacząć",
+        "startsRound": "Zaczyna rundę",
+        "takesPot": "Zgarnia pulę: {pot}",
+        "wins": "Wygrywa"
       },
       "reason": {
-        "beatsWorstHandSoFar": "[PL] Beats the worst hand so far",
-        "goodEnough": "[PL] Good enough to stop",
-        "keepingHighDie": "[PL] Trying to improve, keeping a high die",
-        "rerollingBoth": "[PL] Trying to improve, no die worth keeping"
+        "beatsWorstHandSoFar": "Pobija najgorszy jak dotąd układ",
+        "goodEnough": "Wystarczająco dobry, by się zatrzymać",
+        "keepingHighDie": "Próbuje poprawić układ, zostawiając wysoką kość",
+        "rerollingBoth": "Próbuje poprawić układ, żadna kość nie jest warta zostawienia"
       },
       "notice": {
-        "round": "[PL] Round {number}",
+        "round": "Runda {number}",
         "rollLimit": {
-          "one": "[PL] Roll limit: one",
-          "two": "[PL] Roll limit: two",
-          "three": "[PL] Roll limit: three"
+          "one": "Limit rzutów: jeden",
+          "two": "Limit rzutów: dwa",
+          "three": "Limit rzutów: trzy"
         },
-        "tieBreakAnticlockwise": "[PL] Tie-break {number}, anticlockwise",
-        "tieBreakClockwise": "[PL] Tie-break {number}, clockwise",
-        "potMitchi": "[PL] A Mitchi raises the pot to {pot}",
-        "potDoubled": "[PL] The pot doubles to {pot}",
-        "tiedOnFewest": "[PL] Tied on the fewest points",
-        "draw": "[PL] The game is a draw.",
-        "gameOver": "[PL] Game over"
+        "tieBreakAnticlockwise": "Dogrywka {number}, przeciwnie do ruchu wskazówek zegara",
+        "tieBreakClockwise": "Dogrywka {number}, zgodnie z ruchem wskazówek zegara",
+        "potMitchi": "Mitchi podnosi pulę do {pot}",
+        "potDoubled": "Pula podwaja się do {pot}",
+        "tiedOnFewest": "Remis przy najmniejszej liczbie punktów",
+        "draw": "Dzielą się zwycięstwem.",
+        "gameOver": "Koniec gry"
       }
     },
     "end": {
-      "heading": "[PL] Game over",
-      "standings": "[PL] Final points",
-      "winner": "[PL] Winner"
+      "heading": "Koniec gry",
+      "standings": "Punkty końcowe",
+      "winner": "Zwycięzca"
     },
     "header": {
-      "readyToPlay": "[PL] Ready to play",
-      "round": "[PL] Round {number}",
-      "tieBreak": "[PL] Tie-break {number}",
-      "endOfRound": "[PL] End of round",
-      "handToBeat": "[PL] Hand to beat",
-      "worstHand": "[PL] Worst hand",
-      "youTakePot": "[PL] You take the pot",
-      "takesPot": "[PL] Takes the pot",
-      "wins": "[PL] Wins"
+      "readyToPlay": "Gotowe do gry",
+      "round": "Runda {number}",
+      "tieBreak": "Dogrywka {number}",
+      "endOfRound": "Koniec rundy",
+      "handToBeat": "Układ do pobicia",
+      "worstHand": "Najgorszy układ",
+      "youTakePot": "Zgarniasz pulę",
+      "takesPot": "Zgarnia pulę",
+      "wins": "Wygrywa"
     },
     "tray": {
-      "intro": "[PL] Play a practice game against three other players. Press Start to begin.",
-      "rollsLeft": "[PL] rolls left"
+      "intro": "Zagraj w grę treningową przeciwko trzem innym graczom. Naciśnij Zacznij, aby rozpocząć.",
+      "rollsLeft": "pozostałe rzuty"
     }
   }
 }

@@ -13,8 +13,8 @@
       "description": "La clasificación de las manos y la puntuación en una sola pantalla, para consultar durante la partida."
     },
     "play": {
-      "title": "[ES] Mitchi practice game",
-      "description": "[ES] Play a short game of Mitchi against three other players and see how the roll limit, the worst hand and the pot work."
+      "title": "Partida de práctica de Mitchi",
+      "description": "Juega una partida corta de Mitchi contra otros tres jugadores y comprueba cómo funcionan el límite de tiradas, la peor mano y el bote."
     },
     "about": {
       "title": "Acerca de Mitchi",
@@ -45,8 +45,8 @@
       "summary": "Todo lo que necesitas para jugar, desde la preparación hasta el final de la partida."
     },
     "play": {
-      "label": "[ES] Practice game",
-      "summary": "[ES] Play a short game against three other players."
+      "label": "Partida de práctica",
+      "summary": "Juega una partida corta contra otros tres jugadores."
     },
     "reference": {
       "label": "Referencia rápida",
@@ -65,7 +65,7 @@
     "youNeed": "<strong>Necesitas:</strong> dos dados, papel y bolígrafo, y al menos otro jugador.",
     "links": {
       "rules": "Leer las reglas",
-      "play": "[ES] Play a practice game",
+      "play": "Jugar una partida de práctica",
       "reference": "Referencia rápida"
     },
     "quickStart": {
@@ -365,142 +365,142 @@
     }
   },
   "play": {
-    "title": "[ES] Practice game",
-    "intro": "[ES] Play a short game against three other players. Roll, keep and stop as you would at a table.",
+    "title": "Partida de práctica",
+    "intro": "Juega una partida corta contra otros tres jugadores. Tira, conserva y plántate como lo harías en una mesa.",
     "controls": {
-      "start": "[ES] Start",
-      "roll": "[ES] Roll",
-      "keep": "[ES] Keep",
-      "stop": "[ES] Stop",
-      "keepDie": "[ES] Keep the {face}",
-      "nextRound": "[ES] Next round",
-      "playAgain": "[ES] Play again"
+      "start": "Empezar",
+      "roll": "Tirar",
+      "keep": "Conservar",
+      "stop": "Plantarse",
+      "keepDie": "Conservar el {face}",
+      "nextRound": "Siguiente ronda",
+      "playAgain": "Jugar otra vez"
     },
     "dice": {
-      "yourTurn": "[ES] Your turn"
+      "yourTurn": "Tu turno"
     },
     "pacing": {
-      "heading": "[ES] Pace",
-      "pause": "[ES] Pause",
-      "resume": "[ES] Resume",
-      "step": "[ES] Step",
-      "speed": "[ES] Speed",
-      "normal": "[ES] Normal",
-      "fast": "[ES] Fast"
+      "heading": "Ritmo",
+      "pause": "Pausa",
+      "resume": "Reanudar",
+      "step": "Paso",
+      "speed": "Velocidad",
+      "normal": "Normal",
+      "fast": "Rápida"
     },
     "rolls": {
-      "none": "[ES] None",
-      "one": "[ES] One",
-      "two": "[ES] Two",
-      "three": "[ES] Three"
+      "none": "Ninguna",
+      "one": "Una",
+      "two": "Dos",
+      "three": "Tres"
     },
     "rolledIn": {
-      "one": "[ES] in one",
-      "two": "[ES] in two",
-      "three": "[ES] in three"
+      "one": "en una",
+      "two": "en dos",
+      "three": "en tres"
     },
     "players": {
-      "heading": "[ES] Players",
-      "you": "[ES] You",
-      "player1": "[ES] Player 1",
-      "player2": "[ES] Player 2",
-      "player3": "[ES] Player 3",
-      "player4": "[ES] Player 4",
-      "points": "[ES] Points",
-      "starting": "[ES] Starting player",
-      "rollingNow": "[ES] Rolling now",
-      "holdsWorst": "[ES] Worst hand so far",
-      "outOfTieBreak": "[ES] Not in this tie-break",
-      "waiting": "[ES] Waiting",
-      "thisRound": "[ES] This round",
-      "byPlayer": "[ES] By player",
-      "byHand": "[ES] By hand",
-      "highestDieStarts": "[ES] Highest die starts"
+      "heading": "Jugadores",
+      "you": "Tú",
+      "player1": "Jugador 1",
+      "player2": "Jugador 2",
+      "player3": "Jugador 3",
+      "player4": "Jugador 4",
+      "points": "Puntos",
+      "starting": "Jugador inicial",
+      "rollingNow": "Tira ahora",
+      "holdsWorst": "Peor mano hasta ahora",
+      "outOfTieBreak": "No está en este desempate",
+      "waiting": "Esperando",
+      "thisRound": "Esta ronda",
+      "byPlayer": "Por jugador",
+      "byHand": "Por mano",
+      "highestDieStarts": "Empieza el dado más alto"
     },
     "game": {
-      "pointLimit": "[ES] Point limit",
-      "usuallyTo25": "[ES] Real games are usually played to 25.",
-      "fewestPoints": "[ES] Fewest points",
-      "closeToLimit": "[ES] Close to the point limit",
-      "reachedLimit": "[ES] Reached the point limit"
+      "pointLimit": "Límite de puntos",
+      "usuallyTo25": "Las partidas reales suelen jugarse a 25.",
+      "fewestPoints": "Menos puntos",
+      "closeToLimit": "Cerca del límite de puntos",
+      "reachedLimit": "Límite de puntos alcanzado"
     },
     "round": {
-      "tiedOn": "[ES] Tied on",
-      "rollLimit": "[ES] Roll limit",
-      "rollsLeft": "[ES] Rolls left",
-      "worstHandNone": "[ES] None yet",
-      "pot": "[ES] The pot",
+      "tiedOn": "Empatados con",
+      "rollLimit": "Límite de tiradas",
+      "rollsLeft": "Tiradas restantes",
+      "worstHandNone": "Todavía ninguna",
+      "pot": "El bote",
       "standing": {
-        "beats": "[ES] Your hand beats it",
-        "ties": "[ES] Your hand ties it",
-        "worse": "[ES] Your hand is worse"
+        "beats": "Tu mano la supera",
+        "ties": "Tu mano empata con ella",
+        "worse": "Tu mano es peor"
       }
     },
     "commentary": {
-      "heading": "[ES] What happened",
-      "empty": "[ES] Nothing yet",
+      "heading": "Qué ha pasado",
+      "empty": "Todavía nada",
       "you": {
-        "turn": "[ES] Your turn",
-        "stop": "[ES] You stop",
-        "noRollsLeft": "[ES] You have no rolls left",
-        "rolls": "[ES] You roll",
-        "rollsToStart": "[ES] You roll to start",
-        "startsRound": "[ES] You start the round",
-        "takesPot": "[ES] You take the pot: {pot}",
-        "wins": "[ES] You win"
+        "turn": "Tu turno",
+        "stop": "Te plantas",
+        "noRollsLeft": "No te quedan tiradas",
+        "rolls": "Sacas",
+        "rollsToStart": "Tiras para empezar",
+        "startsRound": "Empiezas la ronda",
+        "takesPot": "Te llevas el bote: {pot}",
+        "wins": "Ganas"
       },
       "player": {
-        "stop": "[ES] Stops",
-        "noRollsLeft": "[ES] Has no rolls left",
-        "rollAgainBoth": "[ES] Rolls both dice again",
-        "rollAgainKeeping": "[ES] Rolls again, keeping one die",
-        "rolls": "[ES] Rolls",
-        "rollsToStart": "[ES] Rolls to start",
-        "startsRound": "[ES] Starts the round",
-        "takesPot": "[ES] Takes the pot: {pot}",
-        "wins": "[ES] Wins"
+        "stop": "Se planta",
+        "noRollsLeft": "No le quedan tiradas",
+        "rollAgainBoth": "Vuelve a tirar los dos dados",
+        "rollAgainKeeping": "Vuelve a tirar, conservando un dado",
+        "rolls": "Saca",
+        "rollsToStart": "Tira para empezar",
+        "startsRound": "Empieza la ronda",
+        "takesPot": "Se lleva el bote: {pot}",
+        "wins": "Gana"
       },
       "reason": {
-        "beatsWorstHandSoFar": "[ES] Beats the worst hand so far",
-        "goodEnough": "[ES] Good enough to stop",
-        "keepingHighDie": "[ES] Trying to improve, keeping a high die",
-        "rerollingBoth": "[ES] Trying to improve, no die worth keeping"
+        "beatsWorstHandSoFar": "Supera la peor mano hasta ahora",
+        "goodEnough": "Lo bastante buena para plantarse",
+        "keepingHighDie": "Intenta mejorar, conservando un dado alto",
+        "rerollingBoth": "Intenta mejorar, ningún dado merece conservarse"
       },
       "notice": {
-        "round": "[ES] Round {number}",
+        "round": "Ronda {number}",
         "rollLimit": {
-          "one": "[ES] Roll limit: one",
-          "two": "[ES] Roll limit: two",
-          "three": "[ES] Roll limit: three"
+          "one": "Límite de tiradas: una",
+          "two": "Límite de tiradas: dos",
+          "three": "Límite de tiradas: tres"
         },
-        "tieBreakAnticlockwise": "[ES] Tie-break {number}, anticlockwise",
-        "tieBreakClockwise": "[ES] Tie-break {number}, clockwise",
-        "potMitchi": "[ES] A Mitchi raises the pot to {pot}",
-        "potDoubled": "[ES] The pot doubles to {pot}",
-        "tiedOnFewest": "[ES] Tied on the fewest points",
-        "draw": "[ES] The game is a draw.",
-        "gameOver": "[ES] Game over"
+        "tieBreakAnticlockwise": "Desempate {number}, en sentido antihorario",
+        "tieBreakClockwise": "Desempate {number}, en sentido horario",
+        "potMitchi": "Mitchi sube el bote a {pot}",
+        "potDoubled": "El bote se dobla a {pot}",
+        "tiedOnFewest": "Empatados con menos puntos",
+        "draw": "Comparten la victoria.",
+        "gameOver": "Fin de la partida"
       }
     },
     "end": {
-      "heading": "[ES] Game over",
-      "standings": "[ES] Final points",
-      "winner": "[ES] Winner"
+      "heading": "Fin de la partida",
+      "standings": "Puntos finales",
+      "winner": "Ganador"
     },
     "header": {
-      "readyToPlay": "[ES] Ready to play",
-      "round": "[ES] Round {number}",
-      "tieBreak": "[ES] Tie-break {number}",
-      "endOfRound": "[ES] End of round",
-      "handToBeat": "[ES] Hand to beat",
-      "worstHand": "[ES] Worst hand",
-      "youTakePot": "[ES] You take the pot",
-      "takesPot": "[ES] Takes the pot",
-      "wins": "[ES] Wins"
+      "readyToPlay": "Listo para jugar",
+      "round": "Ronda {number}",
+      "tieBreak": "Desempate {number}",
+      "endOfRound": "Fin de la ronda",
+      "handToBeat": "Mano a superar",
+      "worstHand": "Peor mano",
+      "youTakePot": "Te llevas el bote",
+      "takesPot": "Se lleva el bote",
+      "wins": "Gana"
     },
     "tray": {
-      "intro": "[ES] Play a practice game against three other players. Press Start to begin.",
-      "rollsLeft": "[ES] rolls left"
+      "intro": "Juega una partida de práctica contra otros tres jugadores. Pulsa Empezar para comenzar.",
+      "rollsLeft": "tiradas restantes"
     }
   }
 }
