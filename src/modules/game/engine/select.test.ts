@@ -2,8 +2,9 @@ import { describe, expect, it } from "vitest";
 import * as fixtures from "../testing";
 import { applyAction, createGame } from "./apply";
 import { completeAction } from "./dice";
+import { applyEvent } from "./evolve";
 import * as select from "./select";
-import type { DicePair, GameState, Phase, RoundState } from "./types";
+import type { DicePair, GameState, Phase, RoundState, Seat } from "./types";
 
 const CONFIG = { seats: 4, pointLimit: 5 };
 
@@ -29,7 +30,16 @@ function state(
     points,
     round: round && { ...ROUND, ...round },
     phase,
+    acting: actingIn(phase),
   };
+}
+
+/** The acting seat an authoritative state has in this phase (null in the roll-off). */
+function actingIn(phase: Phase): Seat | null {
+  if (phase.kind === "turn") return phase.seat;
+  if (phase.kind === "tieBreak")
+    return phase.order[phase.rolled.length] ?? null;
+  return null;
 }
 
 function turn(
@@ -437,6 +447,48 @@ describe("allowedIntents against the engine", () => {
           ...allowed,
         });
       }
+    }
+  });
+});
+
+describe("selectors on acting null mid-turn", () => {
+  // The viewer stops on 5-2; only turnEnded is folded, so nobody is acting yet.
+  const before = fixtures.viewerRolledKeepable.state;
+  const result = applyAction(before, { type: "stop", seat: 0, reason: null });
+  if (!result.ok) throw new Error("stop rejected");
+  const [ended] = result.events;
+  const between = applyEvent(before, ended);
+
+  it("folds to a turn with nobody acting", () => {
+    expect(ended.type).toBe("turnEnded");
+    expect(between.phase.kind).toBe("turn");
+    expect(between.acting).toBeNull();
+    expect(select.actingSeat(between)).toBeNull();
+    expect(select.toRoll(between)).toStrictEqual([]);
+  });
+
+  it("shows no in-progress turn", () => {
+    expect(select.rollsLeft(between)).toBeNull();
+    expect(select.kept(between, 0)).toBeNull();
+    expect(select.standingAgainstWorst(between, 0)).toBeNull();
+  });
+
+  it("shows the finished seat's final hand", () => {
+    expect(select.seatHand(between, 0)).toStrictEqual({
+      kind: "hand",
+      dice: [5, 2],
+      hand: "5-2",
+      rollsUsed: 1,
+      final: true,
+      kept: null,
+    });
+  });
+
+  it("allows nothing for any seat", () => {
+    for (const seat of [0, 1, 2, 3]) {
+      expect(Object.values(select.allowedIntents(between, seat))).toStrictEqual(
+        [false, false, false, false, false],
+      );
     }
   });
 });

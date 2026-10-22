@@ -32,7 +32,16 @@ function state(
       lastDirection: "clockwise",
     },
     phase,
+    acting: actingIn(phase),
   };
+}
+
+/** The acting seat an authoritative state has in this phase (null in the roll-off). */
+function actingIn(phase: Phase): Seat | null {
+  if (phase.kind === "turn") return phase.seat;
+  if (phase.kind === "tieBreak")
+    return phase.order[phase.rolled.length] ?? null;
+  return null;
 }
 
 /** The starter (seat 0) holding `dice` after `rollsUsed` rolls. */

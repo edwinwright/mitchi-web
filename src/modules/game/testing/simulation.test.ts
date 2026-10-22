@@ -1,6 +1,7 @@
 import { beforeAll, describe, expect, it } from "vitest";
 import {
   applyAction,
+  applyEvent,
   completeAction,
   isMitchi,
   select,
@@ -72,6 +73,12 @@ function checker(seed: number) {
         return;
       }
       const next = result.state;
+
+      // State is the fold of events: replaying them reproduces the engine's state.
+      const folded = result.events.reduce(applyEvent, state);
+      if (JSON.stringify(folded) !== JSON.stringify(next)) {
+        fail("fold differs", { action, events: result.events });
+      }
 
       // Points are integers, never decrease, and change only by the pot taken.
       next.points.forEach((p, seat) => {
@@ -183,6 +190,7 @@ describe("simulation", () => {
       r.failures.filter(
         (f) =>
           !f.includes("allowedIntents") &&
+          !f.includes("fold differs") &&
           !f.includes("winner") &&
           !f.includes("final taker"),
       ),
@@ -201,6 +209,15 @@ describe("simulation", () => {
       expect(result.winners).not.toBeNull();
       expect(result.winners).not.toContain(result.finalTaker);
     }
+  });
+
+  describe("fold equivalence", () => {
+    it("events.reduce(applyEvent, state) deep-equals result.state for every accepted action (2,000 games)", () => {
+      const failures = RUN.flatMap((r) =>
+        r.failures.filter((f) => f.includes("fold differs")),
+      );
+      expect(failures.slice(0, 5)).toStrictEqual([]);
+    });
   });
 
   it("only the four reason codes are emitted", () => {

@@ -113,6 +113,8 @@ export type GameEvent =
       /** The taker's new total, uncapped. */
       readonly points: number;
       readonly tieBreaks: number;
+      /** The worst hand, the one that took the pot. */
+      readonly hand: HandId;
     }
   | {
       readonly type: "gameEnded";

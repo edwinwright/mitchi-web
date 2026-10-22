@@ -87,6 +87,7 @@ function turn(
       kept: [false, false],
       ...overrides,
     },
+    acting: overrides.seat ?? 0,
   });
 }
 
@@ -97,6 +98,7 @@ describe("createGame", () => {
       points: [0, 0, 0, 0],
       round: null,
       phase: { kind: "notStarted" },
+      acting: null,
     });
   });
 
@@ -127,6 +129,7 @@ describe("newGame", () => {
       points: [5, 1, 2, 3],
       round: ROUND,
       phase: { kind: "gameOver", winners: [1] },
+      acting: null,
     });
     const result = ok(over, { type: "newGame" });
     expect(result.state.points).toStrictEqual([0, 0, 0, 0]);
@@ -359,6 +362,7 @@ describe("rejections", () => {
         order: [1, 0],
         rolled: [],
       },
+      acting: 1,
     });
     expectRejected(
       tieBreak,
@@ -375,6 +379,7 @@ describe("rejections", () => {
       points: [1, 0, 0, 0],
       round: ROUND,
       phase: { kind: "roundSummary", taker: 0, takerHand: "3-1" },
+      acting: null,
     });
     expectRejected(summary, roll(0, 3), "wrongPhase");
   });
@@ -396,6 +401,7 @@ describe("rejections", () => {
         order: [1, 0],
         rolled: [],
       },
+      acting: 1,
     });
     expectRejected(
       tieBreak,
@@ -931,6 +937,7 @@ describe("round resolution", () => {
       pot: 1,
       points: 1,
       tieBreaks: 0,
+      hand: "3-2",
     });
     expect(state.points).toStrictEqual([0, 0, 0, 1]);
     expect(state.phase).toStrictEqual({
@@ -994,6 +1001,26 @@ describe("round resolution", () => {
   });
 });
 
+describe("potTaken", () => {
+  it("carries the hand of the pot taker", () => {
+    const unique = inBig(...UNIQUE_WORST);
+    expect(unique.events.at(-1)).toMatchObject({
+      type: "potTaken",
+      seat: 3,
+      hand: "3-2",
+    });
+
+    // Tie-break 1 runs [1, 0]: seat 0's 3-2 is the unique worst.
+    const tieBreak = inBig(...TIED_NOT_LAST, R(1, 6, 5), R(0, 3, 2));
+    expect(tieBreak.events.at(-1)).toMatchObject({
+      type: "potTaken",
+      seat: 0,
+      tieBreaks: 1,
+      hand: "3-2",
+    });
+  });
+});
+
 describe("tie-breaks", () => {
   it("pot: rules example A three-way tie gives 2", () => {
     const config = { seats: 3, pointLimit: 25 };
@@ -1027,7 +1054,14 @@ describe("tie-breaks", () => {
     }
     expect(last).toStrictEqual([
       expect.objectContaining({ type: "tieBreakRolled", seat: 0 }),
-      { type: "potTaken", seat: 2, pot: 2, points: 2, tieBreaks: 1 },
+      {
+        type: "potTaken",
+        seat: 2,
+        pot: 2,
+        points: 2,
+        tieBreaks: 1,
+        hand: "4-3",
+      },
     ]);
     expect(current.points).toStrictEqual([0, 0, 2]);
     expect(current.phase).toStrictEqual({
@@ -1081,6 +1115,7 @@ describe("tie-breaks", () => {
       pot: 8,
       points: 8,
       tieBreaks: 2,
+      hand: "3-2",
     });
     expect(pots).toStrictEqual([2, 4, 8]);
     expect(last.state.points).toStrictEqual([0, 0, 0, 8]);
@@ -1188,6 +1223,7 @@ describe("tie-breaks", () => {
       pot: 8,
       points: 8,
       tieBreaks: 3,
+      hand: "3-1",
     });
     expect(state.points).toStrictEqual([0, 0, 8, 0]);
   });
@@ -1272,7 +1308,14 @@ describe("game end", () => {
     expect(state.phase).toStrictEqual({ kind: "gameOver", winners: [1] });
     expect(types(events)).not.toContain("roundSummary");
     expect(events.slice(-2)).toStrictEqual([
-      { type: "potTaken", seat: 3, pot: 1, points: 5, tieBreaks: 0 },
+      {
+        type: "potTaken",
+        seat: 3,
+        pot: 1,
+        points: 5,
+        tieBreaks: 0,
+        hand: "3-2",
+      },
       { type: "gameEnded", winners: [1], points: [4, 2, 3, 5] },
     ]);
   });

@@ -13,13 +13,9 @@ import {
 
 /** Pure and total on valid states (ENG-7). Nothing here is stored. */
 
-/** Null in the roll-off: nobody holds the turn. */
+/** Null between turns, and in the roll-off: nobody holds the turn. */
 export function actingSeat(state: GameState): Seat | null {
-  const { phase } = state;
-  if (phase.kind === "turn") return phase.seat;
-  if (phase.kind === "tieBreak")
-    return phase.order[phase.rolled.length] ?? null;
-  return null;
+  return state.acting;
 }
 
 /**
@@ -33,7 +29,7 @@ export function toRoll(state: GameState): readonly Seat[] {
       .filter((seat) => !phase.rolled.some((rolled) => rolled.seat === seat))
       .toSorted((a, b) => a - b);
   }
-  const acting = actingSeat(state);
+  const { acting } = state;
   return acting === null ? [] : [acting];
 }
 
@@ -56,7 +52,7 @@ export function diceToRoll(state: GameState): 0 | 1 | 2 {
 /** The acting seat in a main-round turn only. */
 export function rollsLeft(state: GameState): number | null {
   const { phase } = state;
-  if (phase.kind !== "turn") return null;
+  if (phase.kind !== "turn" || state.acting === null) return null;
   return limitOf(state) - phase.rollsUsed;
 }
 
@@ -88,7 +84,7 @@ export function standingAgainstWorst(
   seat: Seat,
 ): "beats" | "ties" | "worse" | null {
   const { phase } = state;
-  if (phase.kind !== "turn" || phase.seat !== seat || phase.dice === null) {
+  if (phase.kind !== "turn" || state.acting !== seat || phase.dice === null) {
     return null;
   }
   const worst = worstHandSoFar(state);
@@ -128,7 +124,7 @@ export function allowedIntents(state: GameState, seat: Seat): AllowedIntents {
     case "tieBreak":
       return { ...none, roll: toRoll(state).includes(seat) };
     case "turn": {
-      if (phase.seat !== seat) return none;
+      if (state.acting !== seat) return none;
       if (phase.dice === null) return { ...none, roll: true };
       return {
         ...none,
@@ -143,7 +139,7 @@ export function allowedIntents(state: GameState, seat: Seat): AllowedIntents {
 /** The acting seat in a turn, once it has dice. Null otherwise. */
 export function kept(state: GameState, seat: Seat): KeptPair | null {
   const { phase } = state;
-  if (phase.kind !== "turn" || phase.seat !== seat || phase.dice === null) {
+  if (phase.kind !== "turn" || state.acting !== seat || phase.dice === null) {
     return null;
   }
   return phase.kept;
@@ -164,7 +160,7 @@ export function seatHand(state: GameState, seat: Seat): SeatHand | null {
         : null;
     }
     case "turn": {
-      if (phase.seat === seat && phase.dice !== null) {
+      if (state.acting === seat && phase.dice !== null) {
         return handOf(
           phase.dice,
           handFromDice(phase.dice),

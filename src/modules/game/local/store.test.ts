@@ -242,6 +242,7 @@ describe("bot steps", () => {
           dice: [3, 4],
           kept: [false, false],
         },
+        acting: 1,
       },
     };
     expect(() =>

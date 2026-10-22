@@ -82,6 +82,14 @@ export type GameState = {
   /** null before round 1; kept at gameOver. */
   readonly round: RoundState | null;
   readonly phase: Phase;
+  /**
+   * The seat that may act now, or null: between turns and between the
+   * events of a step, and always outside rollOff, turn and tieBreak.
+   * Stored, not derived (ENG-7 amended): a state folded to mid-step needs
+   * "nobody yet". Set by `turnStarted`; cleared by `turnEnded`,
+   * `rollOffRolled`, `tieBreakRolled` and every event that changes phase.
+   */
+  readonly acting: Seat | null;
 };
 
 export type RollCount = 1 | 2 | 3;

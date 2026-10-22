@@ -5,6 +5,7 @@ export type * from "./session";
 export { handFromDice, isMitchi, rankOf } from "./hand-rank";
 export { clockwiseFrom, opposite, orderFrom } from "./order";
 export { applyAction, createGame } from "./apply";
+export { applyEvent } from "./evolve";
 export * as select from "./select";
 export { completeAction, type Spare } from "./dice";
 export { appendEvents } from "./log";

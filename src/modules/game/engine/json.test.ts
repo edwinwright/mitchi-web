@@ -63,6 +63,22 @@ describe("state is plain JSON (ENG-2)", () => {
     }
   });
 
+  it("states, events and views survive a JSON round trip", () => {
+    for (const [name, fixture] of NAMED) {
+      const view = fixtures.fixtureSession(fixture).view;
+      expect(roundTrip(fixture.state), name).toStrictEqual(fixture.state);
+      expect(roundTrip(fixture.events), name).toStrictEqual(fixture.events);
+      expect(roundTrip(view), name).toStrictEqual(view);
+      expect(roundTrip(fixture.state), name).toHaveProperty("acting");
+    }
+    // The new fields are among what was round-tripped.
+    const events = NAMED.flatMap(([, f]) => f.events);
+    expect(events).toContainEqual(
+      expect.objectContaining({ type: "potTaken", hand: expect.any(String) }),
+    );
+    expect(NAMED.some(([, f]) => f.state.acting !== null)).toBe(true);
+  });
+
   it("the events an action returns are plain JSON too", () => {
     for (const [name, fixture] of NAMED) {
       const result = applyAction(fixture.state, nextAction(fixture.state));
