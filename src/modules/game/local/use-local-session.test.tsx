@@ -158,6 +158,28 @@ describe("viewer roll", () => {
     });
   });
 
+  it("lock length does not depend on motion preference", () => {
+    // Reduced motion: the dice do not animate, but the lock is session code.
+    const matchMedia = vi.fn((query: string) => ({
+      matches: query.includes("prefers-reduced-motion"),
+      media: query,
+      addEventListener: () => {},
+      removeEventListener: () => {},
+    }));
+    vi.stubGlobal("matchMedia", matchMedia);
+    try {
+      const { result } = viewerTurn();
+      act(() => result.current.intents.roll());
+      expect(result.current.view.rollMs).toBe(ROLL_MS.normal);
+      wait(ROLL_MS.normal - 1);
+      expect(result.current.allowed.stop).toBe(false);
+      wait(1);
+      expect(result.current.allowed.stop).toBe(true);
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
   it("Stop straight after settled is accepted", () => {
     const { result } = viewerRolled();
     act(() => result.current.intents.stop());

@@ -1,4 +1,4 @@
-import type { Ref } from "react";
+import type { CSSProperties, ReactNode, Ref } from "react";
 import { useTranslations } from "next-intl";
 import { MitchiDie } from "@/components/mitchi-die";
 import { cn } from "@/lib/utils";
@@ -7,6 +7,7 @@ import type {
   BoardSlices,
   HeaderData,
   PrimaryAction,
+  RollingData,
   TrayData,
 } from "./board-slices";
 import { ControlButton } from "./control-button";
@@ -42,6 +43,36 @@ export type DiceTrayProps = {
   rollRef?: Ref<HTMLButtonElement>;
 };
 
+/**
+ * Wraps one die. A rolling die gets the tumble; a still one gets nothing.
+ * The key is the beat id while rolling and a constant after, so each roll
+ * beat mounts a fresh element and the CSS animation restarts; only this
+ * span remounts, never a control. Under reduced motion `motion-safe:`
+ * matches nothing, so the die just shows its value.
+ */
+function AnimatedDie({
+  rolling,
+  slot,
+  children,
+}: {
+  rolling: RollingData | null;
+  slot: DieSlot;
+  children: ReactNode;
+}) {
+  const on = rolling !== null && rolling.slots.includes(slot);
+  return (
+    <span
+      key={on ? rolling.beat : "still"}
+      className={cn("block", on && "motion-safe:animate-die-roll")}
+      style={
+        on ? ({ "--roll-ms": `${rolling.ms}ms` } as CSSProperties) : undefined
+      }
+    >
+      {children}
+    </span>
+  );
+}
+
 function KeepButtons({
   tray,
   controls,
@@ -76,7 +107,9 @@ function KeepButtons({
           {face === null ? (
             <DiePlaceholder size={DIE_SIZE} />
           ) : (
-            <MitchiDie face={face} size={DIE_SIZE} />
+            <AnimatedDie rolling={tray.rolling} slot={slot}>
+              <MitchiDie face={face} size={DIE_SIZE} />
+            </AnimatedDie>
           )}
         </span>
         <span aria-hidden className="inline-flex items-center gap-1">
@@ -121,7 +154,9 @@ function DiceRow({
     case "rollOff":
       return tray.shown?.kind === "die" ? (
         <span className="block">
-          <MitchiDie face={tray.shown.face} size={DIE_SIZE} />
+          <AnimatedDie rolling={tray.rolling} slot={0}>
+            <MitchiDie face={tray.shown.face} size={DIE_SIZE} />
+          </AnimatedDie>
           <span className="sr-only">{tray.shown.face}</span>
         </span>
       ) : (

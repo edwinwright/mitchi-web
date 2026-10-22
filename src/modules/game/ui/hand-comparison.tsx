@@ -24,9 +24,8 @@ function OutlinedDisc({ path }: { path: string }) {
 }
 
 /**
- * The shown hand against the hand to beat. The viewer hears the sentence for
- * each standing; for another player only "beats" has copy so far, so ties and
- * worse are the icon alone.
+ * The shown hand against the hand to beat: an icon, and the sentence for
+ * screen readers, for the viewer and for another player.
  */
 export function HandComparison({
   standing,
@@ -39,9 +38,7 @@ export function HandComparison({
   const t = useTranslations("play");
   const sentence = viewer
     ? t(`round.standing.${standing}`)
-    : standing === "beats"
-      ? t("commentary.reason.beatsWorstHandSoFar")
-      : null;
+    : t(`round.otherStanding.${standing}`);
 
   return (
     <>
@@ -50,7 +47,7 @@ export function HandComparison({
       {standing === "beats" ? (
         <OutlinedDisc path="M8 13.5v-10M3.5 7.5 8 3l4.5 4.5" />
       ) : null}
-      {sentence ? <span className="sr-only">{sentence}</span> : null}
+      <span className="sr-only">{sentence}</span>
     </>
   );
 }

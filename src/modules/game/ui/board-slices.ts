@@ -10,9 +10,11 @@ import {
   type Beat,
   type DicePair,
   type Die,
+  type DieSlot,
   type GameSession,
   type GameState,
   type KeptPair,
+  type LoggedBeat,
   type LoggedEvent,
   type Phase,
   type Seat,
@@ -85,6 +87,16 @@ export type HeaderData =
     }
   | { stage: "gameOver"; winners: Winners; viewerWon: boolean };
 
+/** The dice that just rolled, for the tray's animation. */
+export type RollingData = {
+  /** The beat id. The tray keys the animated element on it, so each beat restarts the animation. */
+  beat: number;
+  /** view.rollMs. Always greater than 0 here. */
+  ms: number;
+  /** The slots that animate. Never a kept slot. */
+  slots: readonly DieSlot[];
+};
+
 /** One box per roll the acting seat has this turn. */
 export type RollsRowData = { available: number; used: number };
 
@@ -103,6 +115,8 @@ export type TrayData = {
   rolls: RollsRowData | null;
   /** Set at gameOver. */
   winners: Winners | null;
+  /** The last beat rolled dice that are still to land. */
+  rolling: RollingData | null;
 };
 
 /** The Roll node's label: one node, relabelled by phase. */
@@ -232,7 +246,8 @@ export function sliceSession(session: GameSession): BoardSlices {
   const acting = select.actingSeat(state);
   const worst = select.worstHandSoFar(state);
   const stillToRoll = select.stillToRoll(state);
-  const shown = shownRoll(state, select.lastBeat(events));
+  const beat = select.lastBeat(events);
+  const shown = shownRoll(state, beat);
   // The pot beat that ends the game: no Next round, Play again comes next.
   const primary = select.limitReached(state) ? ENDING : PRIMARY[phase.kind];
 
@@ -247,6 +262,7 @@ export function sliceSession(session: GameSession): BoardSlices {
       ownDice: shown?.seat === viewerSeat,
       rolls: rollsOf(state, shown !== null && acting === null),
       winners: phase.kind === "gameOver" ? phase.winners : null,
+      rolling: rollingOf(beat, view.rollMs),
     },
     roundRows: state.points.map((_points, seat) => {
       const hand = select.seatHand(state, seat);
@@ -277,6 +293,25 @@ export function sliceSession(session: GameSession): BoardSlices {
     roundBar: roundBarOf(state),
     status: latestStatus(events, state, viewerSeat),
   };
+}
+
+/**
+ * The dice the last beat rolled, while it has an animation length: the
+ * unkept slots of a roll, both dice of a tie-break roll, the one die rolled
+ * to start. Set for the life of the beat; the animation runs once.
+ */
+function rollingOf(beat: LoggedBeat | null, ms: number): RollingData | null {
+  if (beat === null || ms <= 0) return null;
+  const [first] = beat.events;
+  const slots: readonly DieSlot[] | null =
+    first.type === "rolled"
+      ? ([0, 1] as const).filter((slot) => !first.kept[slot])
+      : first.type === "tieBreakRolled"
+        ? [0, 1]
+        : first.type === "rollOffRolled"
+          ? [0]
+          : null;
+  return slots ? { beat: beat.id, ms, slots } : null;
 }
 
 function roundBarOf(state: GameState): RoundBarData | null {

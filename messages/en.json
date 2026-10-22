@@ -434,6 +434,11 @@
         "beats": "Your hand beats it",
         "ties": "Your hand ties it",
         "worse": "Your hand is worse"
+      },
+      "otherStanding": {
+        "beats": "Their hand beats it",
+        "ties": "Their hand ties it",
+        "worse": "Their hand is worse"
       }
     },
     "commentary": {

@@ -2,8 +2,12 @@ import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import {
   beatTieBreakRolled,
   beatViewerRollToStart,
+  beatViewerRolls,
   beatViewerStops,
+  botBeats,
   botMidTurn,
+  botTies,
+  botWorse,
   fixtureSession,
   gameOverDraw,
   notStarted,
@@ -82,3 +86,17 @@ export const GameOver: Story = { args: { fixture: gameOverDraw } };
 export const Pending: Story = {
   args: { fixture: viewerKeptOne, options: { pending: true } },
 };
+
+// The tumble plays on load. In DevTools, getComputedStyle on a rolling die
+// gives animationDuration 0.5s here and 0.2s at Fast.
+export const ViewerRolling: Story = { args: { fixture: beatViewerRolls } };
+export const ViewerRollingFast: Story = {
+  args: { fixture: beatViewerRolls, options: { rollMs: 200 } },
+};
+export const BotRolling: Story = {
+  args: { fixture: botMidTurn, options: { rollMs: 500 } },
+};
+// Another player against the viewer's 6-3: the three sentences, in context.
+export const BotBeats: Story = { args: { fixture: botBeats } };
+export const BotTies: Story = { args: { fixture: botTies } };
+export const BotWorse: Story = { args: { fixture: botWorse } };

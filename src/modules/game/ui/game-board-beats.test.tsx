@@ -17,6 +17,7 @@ import {
 import { GameBoard } from "./game-board";
 
 // Read with node:fs: a relative import of messages/en.json would climb out of the module.
+const css = readFileSync("src/app/globals.css", "utf8");
 const messages = JSON.parse(readFileSync("messages/en.json", "utf8")) as Record<
   string,
   unknown
@@ -215,3 +216,102 @@ describe("focus", () => {
     },
   );
 });
+
+/** The animated die spans in the tray. */
+const animated = (container: HTMLElement) =>
+  [...container.querySelectorAll<HTMLElement>("span")].filter((span) =>
+    span.className.includes("animate-die-roll"),
+  );
+
+describe("roll animation", () => {
+  it("only rolled dice carry the animation class and duration", () => {
+    // The viewer kept slot 0 (the 5), then rolled the other die.
+    const beats = beatFixtures([
+      { type: "newGame" },
+      roll(0, 6),
+      roll(1, 3),
+      roll(2, 2),
+      roll(3, 1),
+      roll(0, 5, 2),
+      { type: "keep", seat: 0, die: 0, kept: true },
+      roll(0, 3),
+    ]);
+    const { container } = render(board(beats[beats.length - 1]));
+    const spans = animated(container);
+    expect(spans).toHaveLength(1);
+    expect(spans[0].style.getPropertyValue("--roll-ms")).toBe("500ms");
+    // It is the second Keep button's die.
+    const keeps = screen.getAllByRole("button", { name: /^Keep/ });
+    expect(keeps[1].contains(spans[0])).toBe(true);
+    expect(keeps[0].contains(spans[0])).toBe(false);
+  });
+
+  it("the animation class is motion-safe gated", () => {
+    const { container } = render(board(fixtures.beatViewerRolls));
+    const spans = animated(container);
+    expect(spans).toHaveLength(2);
+    for (const span of spans) {
+      const classes = span.className.split(/\s+/);
+      expect(classes).toContain("motion-safe:animate-die-roll");
+      expect(classes).not.toContain("animate-die-roll");
+    }
+  });
+
+  it("globals.css defines die-roll and --animate-die-roll inside @theme inline", () => {
+    expect(css).toMatch(/^@keyframes die-roll \{/m);
+    const inline = [...css.matchAll(/@theme inline \{([^}]*)\}/g)].map(
+      (m) => m[1],
+    );
+    expect(
+      inline.some((block) =>
+        /--animate-die-roll:\s*die-roll var\(--roll-ms/.test(block),
+      ),
+    ).toBe(true);
+  });
+
+  it("each roll beat remounts the die span but never the button", () => {
+    // The viewer rolls 5-2, then 2-5: two roll beats in a row.
+    const beats = beatFixtures([
+      { type: "newGame" },
+      roll(0, 6),
+      roll(1, 3),
+      roll(2, 2),
+      roll(3, 1),
+      roll(0, 5, 2),
+      roll(0, 2, 5),
+    ]);
+    const [first, second] = beats.slice(-2);
+    const { container, rerender } = render(board(first));
+    const keeps = screen.getAllByRole("button", { name: /^Keep/ });
+    const spans = animated(container);
+    act(() => keeps[0].focus());
+    rerender(board(second));
+    expect(screen.getAllByRole("button", { name: /^Keep/ })).toStrictEqual(
+      keeps,
+    );
+    for (const span of animated(container)) expect(spans).not.toContain(span);
+    expect(document.activeElement).toBe(keeps[0]);
+  });
+});
+
+describe("hand comparison", () => {
+  it.each([
+    ["beats", fixtures.botBeats, "Their hand beats it"],
+    ["ties", fixtures.botTies, "Their hand ties it"],
+    ["worse", fixtures.botWorse, "Their hand is worse"],
+  ] as const)("another player %s", (_standing, fixture, sentence) => {
+    const { container } = render(board(fixture));
+    expect(container.textContent).toContain(sentence);
+    expect(container.textContent).not.toContain(
+      messagesAt("play.commentary.reason.beatsWorstHandSoFar"),
+    );
+  });
+});
+
+function messagesAt(path: string): string {
+  let node: unknown = messages;
+  for (const part of path.split(".")) {
+    node = (node as Record<string, unknown>)[part];
+  }
+  return node as string;
+}

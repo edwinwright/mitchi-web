@@ -22,8 +22,11 @@ export const Beats: Story = {};
 export const Ties: Story = { args: { standing: "ties" } };
 export const Worse: Story = { args: { standing: "worse" } };
 
-// Another player's hand: only "beats" has screen-reader copy.
+// Another player's hand: each standing has its own screen-reader sentence.
 export const AnotherPlayerBeats: Story = { args: { viewer: false } };
+export const AnotherPlayerTies: Story = {
+  args: { standing: "ties", viewer: false },
+};
 export const AnotherPlayerWorse: Story = {
   args: { standing: "worse", viewer: false },
 };

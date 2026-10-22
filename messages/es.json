@@ -434,6 +434,11 @@
         "beats": "Tu mano la supera",
         "ties": "Tu mano empata con ella",
         "worse": "Tu mano es peor"
+      },
+      "otherStanding": {
+        "beats": "[ES] Their hand beats it",
+        "ties": "[ES] Their hand ties it",
+        "worse": "[ES] Their hand is worse"
       }
     },
     "commentary": {

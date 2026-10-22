@@ -81,6 +81,13 @@ describe("commentary messages", () => {
   });
 });
 
+/** The approved FR-10 copy, verbatim, for the tray's other-player sentences. */
+const OTHER_STANDING_EN = {
+  beats: "Their hand beats it",
+  ties: "Their hand ties it",
+  worse: "Their hand is worse",
+};
+
 /** The approved FR-10 copy, verbatim. */
 const STATUS_EN = {
   intro: "Each player rolls one die. The highest starts the first round.",
@@ -102,16 +109,35 @@ function text(locale: string, path: string): string {
 }
 
 describe("status messages", () => {
-  const keys = Object.keys(STATUS_EN).map((key) => `play.status.${key}`);
+  const keys = [
+    ...Object.keys(STATUS_EN).map((key) => `play.status.${key}`),
+    ...Object.keys(OTHER_STANDING_EN).map(
+      (key) => `play.round.otherStanding.${key}`,
+    ),
+  ];
 
   it.each(LOCALES)("status keys exist in en, es, pl: %s", (locale) => {
     expect(keys.filter((key) => !has(locale, key))).toEqual([]);
   });
 
+  it.each(LOCALES)(
+    "round.otherStanding has all three keys in every locale: %s",
+    (locale) => {
+      for (const key of Object.keys(OTHER_STANDING_EN)) {
+        expect(has(locale, `play.round.otherStanding.${key}`), key).toBe(true);
+      }
+    },
+  );
+
   describe("en copy", () => {
     it("each new string equals the approved FR-10 text", () => {
       for (const [key, english] of Object.entries(STATUS_EN)) {
         expect(text("en", `play.status.${key}`), key).toBe(english);
+      }
+      for (const [key, english] of Object.entries(OTHER_STANDING_EN)) {
+        expect(text("en", `play.round.otherStanding.${key}`), key).toBe(
+          english,
+        );
       }
     });
   });

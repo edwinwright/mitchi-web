@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { select, type Action } from "../engine";
+import { select, type Action, type Die } from "../engine";
 import {
   batchActions,
   beatBotKeepSwap,
@@ -14,6 +14,7 @@ import {
   beatTieBreakOpens,
   beatTieBreakRolled,
   beatViewerRollToStart,
+  beatViewerRolls,
   beatViewerStops,
   botKept,
   botMidTurn,
@@ -41,6 +42,25 @@ import { shownRoll, sliceSession } from "./board-slices";
 const shown = (fixture: Fixture) =>
   shownRoll(fixture.state, select.lastBeat(fixture.events));
 const slices = (fixture: Fixture) => sliceSession(fixtureSession(fixture));
+const rollAction = (seat: number, ...values: Die[]): Action => ({
+  type: "roll",
+  seat,
+  values,
+  reason: null,
+});
+
+/** The viewer starts, rolls 5-2, keeps the 5 and rolls the other die. */
+const KEPT_ROLL: Action[] = [
+  { type: "newGame" },
+  rollAction(0, 6),
+  rollAction(1, 3),
+  rollAction(2, 2),
+  rollAction(3, 1),
+  rollAction(0, 5, 2),
+  { type: "keep", seat: 0, die: 0, kept: true },
+  rollAction(0, 3),
+];
+
 /** Every beat of a seeded bot game, as the session releases them. */
 function beatsOfGame(seed: number): readonly Fixture[] {
   const actions: Action[] = [];
@@ -652,3 +672,33 @@ function statusSeats(
     ),
   ];
 }
+
+describe("tray.rolling", () => {
+  const rolling = (fixture: Fixture, rollMs?: number) =>
+    sliceSession(fixtureSession(fixture, { rollMs })).tray.rolling;
+
+  it("slots per beat kind", () => {
+    const viewerRolls = select.lastBeat(beatViewerRolls.events);
+    expect(rolling(beatViewerRolls)).toStrictEqual({
+      beat: viewerRolls?.id,
+      ms: 500,
+      slots: [0, 1],
+    });
+    // Slot 0 was kept: only slot 1 rolled.
+    const keptRoll = beatFixtures(KEPT_ROLL).at(-1);
+    if (!keptRoll) throw new Error("No beat");
+    expect(rolling(keptRoll)?.slots).toStrictEqual([1]);
+    expect(rolling(beatTieBreakRolled)?.slots).toStrictEqual([0, 1]);
+    expect(rolling(beatViewerRollToStart)?.slots).toStrictEqual([0]);
+    expect(rolling(beatViewerRolls, 200)?.ms).toBe(200);
+  });
+
+  it("null on a keep beat, a turn end, and when rollMs is 0", () => {
+    expect(rolling(viewerKeptOne)).toBeNull();
+    expect(rolling(beatBotKeepSwap)).toBeNull();
+    expect(rolling(beatViewerStops)).toBeNull();
+    expect(rolling(beatViewerRolls, 0)).toBeNull();
+    // A fixture built without playback has no animation length.
+    expect(rolling(viewerRolledKeepable)).toBeNull();
+  });
+});
