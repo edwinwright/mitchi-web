@@ -49,14 +49,14 @@ export type RoundBarData =
 /** The dice card's header, by stage. */
 export type HeaderData =
   | { stage: "notStarted" }
-  /** The next seat to roll this pass. */
+  /** The seat rolling to start, or the one that has just rolled. */
   | { stage: "rollOff"; seat: Seat; viewer: boolean }
   | {
       stage: "round";
       number: number;
       /** null outside a tie-break. */
       tieBreak: number | null;
-      /** The acting seat. */
+      /** The acting seat, or the one whose turn or roll has just ended. */
       seat: Seat;
       viewer: boolean;
       pot: number;
@@ -244,7 +244,7 @@ export function sliceSession(
   const primary = PRIMARY[phase.kind];
 
   return {
-    header: headerOf(state, viewerSeat),
+    header: headerOf(state, view.events, viewerSeat),
     tray: {
       shown,
       // Only the acting seat mid-turn has keep flags; any other roll is past.
@@ -295,22 +295,40 @@ function roundBarOf(state: GameState): RoundBarData | null {
     : { kind: "round", number: round.number };
 }
 
-function headerOf(state: GameState, viewerSeat: Seat): HeaderData {
+/**
+ * The seat the heading names: the acting seat, or, between beats when
+ * nobody is acting, the player the last beat was about. It never names the
+ * next player before their handover beat, which sets `acting`.
+ */
+function headingSeat(state: GameState, events: SessionView["events"]): Seat {
+  const { phase, acting } = state;
+  if (acting !== null) return acting;
+  // The player whose turn has just ended, or the starter as the round starts.
+  if (phase.kind === "turn") return phase.seat;
+  const subject = select.lastBeat(events, (beat) => beat.seat === null)?.seat;
+  if (subject !== undefined && subject !== null) return subject;
+  // Not reachable after gameStarted: its beat sets `acting`.
+  if (phase.kind === "tieBreak") return phase.order[0];
+  return phase.kind === "rollOff" ? phase.seats[0] : 0;
+}
+
+function headerOf(
+  state: GameState,
+  events: SessionView["events"],
+  viewerSeat: Seat,
+): HeaderData {
   const { phase, round } = state;
   switch (phase.kind) {
     case "notStarted":
       return { stage: "notStarted" };
     case "rollOff": {
-      // The viewer always rolls first in a pass; the bots follow.
-      const seat = select.toRoll(state)[0];
+      const seat = headingSeat(state, events);
       return { stage: "rollOff", seat, viewer: seat === viewerSeat };
     }
     case "turn":
     case "tieBreak": {
-      const seat = select.actingSeat(state);
-      if (seat === null || !round) {
-        throw new Error(`A ${phase.kind} with no acting seat or round`);
-      }
+      const seat = headingSeat(state, events);
+      if (!round) throw new Error(`A ${phase.kind} with no round`);
       const tieBreak = select.tieBreakNumber(state);
       return {
         stage: "round",

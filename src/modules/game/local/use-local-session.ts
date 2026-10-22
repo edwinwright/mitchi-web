@@ -8,102 +8,98 @@ import {
   useRef,
   useState,
 } from "react";
-import {
-  select,
-  type DieSlot,
-  type GameSession,
-  type Intents,
-  type Pacing,
-  type Speed,
-} from "../engine";
+import type { DieSlot, GameSession, Intents, Pacing, Speed } from "../engine";
 import { VIEWER_SEAT } from "./config";
-import { botDelay, ROLL_LOCK_MS } from "./pacing";
+import { DELAY_MS } from "./pacing";
 import { rollSpare } from "./random";
-import { initStore, storeReducer } from "./store";
+import {
+  allowedOf,
+  initStore,
+  releasedSeq,
+  storeReducer,
+  viewOf,
+  whatsNext,
+} from "./store";
 
 /**
  * The local GameSession: the tested store, plus the only timers and the only
  * dice in the feature. Dice are drawn in handlers and timer callbacks, never
  * during render, so the first render is the same on the server and the client.
+ *
+ * Two timers. The beat timer releases one beat, or one bot move, after
+ * `DELAY_MS`. The settle timer lifts the lock when the viewer's dice land,
+ * after `rollMs`; Pause holds beats, not a roll already under way.
  */
 export function useLocalSession(): GameSession {
   const [store, dispatch] = useReducer(storeReducer, undefined, initStore);
   const [paused, setPaused] = useState(false);
   const [speed, setSpeed] = useState<Speed>("normal");
-  const [locked, setLocked] = useState(false);
 
-  // step() reads the latest seq, never a stale closure. Updated in an effect:
-  // React does not allow writing a ref during render.
-  const seqRef = useRef(store.seq);
+  const next = whatsNext(store);
+  const seq = releasedSeq(store);
+
+  // Timers and Step read these at the moment they act, never a stale closure.
+  // Updated in an effect, declared before the timers: React does not allow
+  // writing a ref during render.
+  const speedRef = useRef(speed);
+  const releasedRef = useRef(seq);
   useEffect(() => {
-    seqRef.current = store.seq;
-  }, [store.seq]);
-  // Set in the handler, so a second click before the next render is ignored too.
-  const lockedRef = useRef(false);
+    speedRef.current = speed;
+    releasedRef.current = seq;
+  }, [speed, seq]);
 
-  // Local order: lowest seat first.
-  const mover = select.toRoll(store.game)[0] ?? null;
-  const botDue = mover !== null && mover !== VIEWER_SEAT;
-
-  // One timer at a time, cleared when the state, pause or speed changes.
+  // Speed is read once, at arming, and is not a dependency: a change applies
+  // from the next beat, not the one already waiting. Resume re-arms a full delay.
   useEffect(() => {
-    if (!botDue || paused) return;
+    if (next === null || paused) return;
+    const armedSpeed = speedRef.current;
     const id = setTimeout(
-      () => dispatch({ type: "botStep", atSeq: store.seq, spare: rollSpare() }),
-      botDelay(store.log, speed),
+      () =>
+        dispatch({
+          type: "advance",
+          atRelease: seq,
+          // Drawn when the timer fires, never at arming or render.
+          spare: next === "bot" ? rollSpare() : null,
+          speed: armedSpeed,
+        }),
+      DELAY_MS[armedSpeed],
     );
     return () => clearTimeout(id);
-    // store.seq changes exactly when store.log does.
-  }, [store.seq, store.log, botDue, paused, speed]);
+  }, [seq, next, paused]);
 
+  const { animating, rollMs } = store;
   useEffect(() => {
-    if (!locked) return;
-    const id = setTimeout(() => {
-      lockedRef.current = false;
-      setLocked(false);
-    }, ROLL_LOCK_MS);
+    if (animating === null) return;
+    const id = setTimeout(
+      () => dispatch({ type: "settled", beat: animating }),
+      rollMs,
+    );
     return () => clearTimeout(id);
-  }, [locked]);
+  }, [animating, rollMs]);
 
   const intents = useMemo<Intents>(
     () => ({
       roll() {
-        if (lockedRef.current) return;
-        lockedRef.current = true;
-        dispatch({
-          type: "request",
-          request: { type: "roll", seat: VIEWER_SEAT },
-          spare: rollSpare(),
-        });
-        setLocked(true);
+        // A second Roll before the next render is ignored by the reducer.
+        dispatch({ type: "roll", spare: rollSpare(), speed: speedRef.current });
       },
       setKeep(die: DieSlot, kept: boolean) {
         dispatch({
           type: "request",
           request: { type: "keep", seat: VIEWER_SEAT, die, kept },
-          spare: null,
         });
       },
       stop() {
         dispatch({
           type: "request",
           request: { type: "stop", seat: VIEWER_SEAT },
-          spare: null,
         });
       },
       nextRound() {
-        dispatch({
-          type: "request",
-          request: { type: "nextRound" },
-          spare: null,
-        });
+        dispatch({ type: "request", request: { type: "nextRound" } });
       },
       newGame() {
-        dispatch({
-          type: "request",
-          request: { type: "newGame" },
-          spare: null,
-        });
+        dispatch({ type: "request", request: { type: "newGame" } });
       },
     }),
     [],
@@ -111,31 +107,26 @@ export function useLocalSession(): GameSession {
 
   const pause = useCallback(() => setPaused(true), []);
   const resume = useCallback(() => setPaused(false), []);
+  // Two calls before a render carry the same atRelease: the second is stale.
   const step = useCallback(() => {
-    if (!paused || !botDue) return;
-    dispatch({ type: "botStep", atSeq: seqRef.current, spare: rollSpare() });
-  }, [paused, botDue]);
+    if (!paused || next === null) return;
+    dispatch({
+      type: "advance",
+      atRelease: releasedRef.current,
+      spare: next === "bot" ? rollSpare() : null,
+      speed: speedRef.current,
+    });
+  }, [paused, next]);
 
   const pacing: Pacing = {
     paused,
     speed,
-    canStep: paused && botDue,
+    canStep: paused && next !== null,
     pause,
     resume,
     step,
     setSpeed,
   };
 
-  return {
-    view: {
-      state: store.game,
-      events: store.log,
-      viewerSeat: VIEWER_SEAT,
-      pending: locked,
-      rollMs: 0,
-    },
-    allowed: select.allowedIntents(store.game, VIEWER_SEAT),
-    intents,
-    pacing,
-  };
+  return { view: viewOf(store), allowed: allowedOf(store), intents, pacing };
 }

@@ -2,11 +2,12 @@
 import { StrictMode, type ReactNode } from "react";
 import { act, cleanup, renderHook } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { select, type GameSession } from "../engine";
 import { VIEWER_SEAT } from "./config";
-import { DELAY_MS, ROLL_LOCK_MS } from "./pacing";
+import { DELAY_MS, ROLL_MS } from "./pacing";
 import { useLocalSession } from "./use-local-session";
 
-// The roll-off: the viewer's 6 beats the bots' 3, 2 and 1, so the viewer starts.
+// The roll to start: the viewer's 6 beats the bots' 3, 2 and 1, so the viewer starts.
 // After that the dice are all 3-2, which no test depends on.
 const dice = vi.hoisted(() => ({ queue: [] as [number, number][] }));
 vi.mock("./random", () => ({
@@ -31,161 +32,324 @@ const strict = ({ children }: { children: ReactNode }) => (
   <StrictMode>{children}</StrictMode>
 );
 
-/** Bot actions so far: roll-off rolls by anyone but the viewer. */
-function botRolls(session: ReturnType<typeof useLocalSession>) {
-  return session.view.events.filter(
-    (event) => event.type === "rollOffRolled" && event.seat !== VIEWER_SEAT,
-  ).length;
+type Hook = { result: { current: GameSession } };
+
+/** Distinct beats in the view's log. */
+function beatsReleased(session: GameSession) {
+  return new Set(session.view.events.map((event) => event.beat)).size;
 }
 
-/** Starts a game and rolls for the viewer, then lets the roll lock lapse. */
-function startAndRoll(options?: Parameters<typeof renderHook>[1]) {
-  const hook = renderHook(() => useLocalSession(), options);
+const lastKind = (session: GameSession) =>
+  select.lastBeat(session.view.events)?.kind;
+
+function wait(ms: number) {
+  act(() => {
+    vi.advanceTimersByTime(ms);
+  });
+}
+
+function render(options?: { wrapper: typeof strict }): Hook {
+  return renderHook(() => useLocalSession(), options) as unknown as Hook;
+}
+
+/** Starts a game and rolls to start for the viewer: their roll beat is showing. */
+function startAndRoll(options?: { wrapper: typeof strict }): Hook {
+  const hook = render(options);
   act(() => hook.result.current.intents.newGame());
   act(() => hook.result.current.intents.roll());
-  act(() => {
-    vi.advanceTimersByTime(ROLL_LOCK_MS);
-  });
-  return hook as unknown as ReturnType<
-    typeof renderHook<ReturnType<typeof useLocalSession>, unknown>
-  >;
+  return hook;
 }
+
+/** Plays the roll to start through to the viewer's turn in round 1. */
+function viewerTurn(): Hook {
+  const hook = startAndRoll();
+  for (let i = 0; i < 20; i++) {
+    const { allowed, view } = hook.result.current;
+    if (allowed.roll && view.state.phase.kind === "turn") return hook;
+    wait(DELAY_MS.normal);
+  }
+  throw new Error("The viewer's turn never came");
+}
+
+/** The viewer's turn, rolled once and landed: Keep and Stop are available. */
+function viewerRolled(): Hook {
+  const hook = viewerTurn();
+  act(() => hook.result.current.intents.roll());
+  wait(ROLL_MS.normal);
+  return hook;
+}
+
+const rolledEvents = (session: GameSession) =>
+  session.view.events.filter(
+    (e) =>
+      (e.type === "rolled" || e.type === "rollOffRolled") &&
+      e.seat === VIEWER_SEAT,
+  ).length;
 
 describe("useLocalSession", () => {
   it("starts deterministically, with no timer and pacing present", () => {
-    const { result } = renderHook(() => useLocalSession());
+    const { result } = render();
     expect(result.current.view.state.phase.kind).toBe("notStarted");
     expect(result.current.view.pending).toBe(false);
-    expect(result.current.pacing).toBeDefined();
+    expect(result.current.pacing).toMatchObject({
+      speed: "normal",
+      paused: false,
+    });
     expect(vi.getTimerCount()).toBe(0);
   });
 
-  it("roll lock: pending for ROLL_LOCK_MS after a viewer roll, and no other intent sets it", () => {
-    const { result } = renderHook(() => useLocalSession());
-    act(() => result.current.intents.newGame());
+  it("pending stays false through a roll", () => {
+    const { result } = startAndRoll();
     expect(result.current.view.pending).toBe(false);
+    wait(ROLL_MS.normal);
+    expect(result.current.view.pending).toBe(false);
+  });
+});
 
+describe("beats", () => {
+  it("a bot beat arrives after DELAY_MS.normal and then waits again", () => {
+    const { result } = startAndRoll();
+    wait(DELAY_MS.normal); // the handover to seat 1
+    expect(lastKind(result.current)).toBe("turnStarted");
+    const before = beatsReleased(result.current);
+
+    wait(DELAY_MS.normal - 1);
+    expect(beatsReleased(result.current)).toBe(before);
+    wait(1);
+    expect(beatsReleased(result.current)).toBe(before + 1);
+    expect(lastKind(result.current)).toBe("rollOffRolled");
+
+    wait(DELAY_MS.normal - 1);
+    expect(beatsReleased(result.current)).toBe(before + 1);
+    wait(1);
+    expect(beatsReleased(result.current)).toBe(before + 2);
+  });
+});
+
+describe("viewer handover", () => {
+  it("Roll is allowed from the handover beat with no timer pending", () => {
+    const { result } = viewerTurn();
+    expect(lastKind(result.current)).toBe("turnStarted");
+    expect(result.current.view.state.acting).toBe(VIEWER_SEAT);
+    expect(result.current.allowed.roll).toBe(true);
+    expect(vi.getTimerCount()).toBe(0);
+  });
+
+  it("Roll straight after the handover is accepted", () => {
+    const { result } = viewerTurn();
     act(() => result.current.intents.roll());
-    expect(result.current.view.pending).toBe(true);
-    act(() => {
-      vi.advanceTimersByTime(ROLL_LOCK_MS - 1);
+    expect(lastKind(result.current)).toBe("rolled");
+  });
+});
+
+describe("viewer roll", () => {
+  it("controls are unavailable for ROLL_MS and available together afterwards", () => {
+    const { result } = viewerTurn();
+    act(() => result.current.intents.roll());
+    expect(result.current.view.rollMs).toBe(ROLL_MS.normal);
+    expect(result.current.allowed).toStrictEqual(select.noIntents);
+    wait(ROLL_MS.normal - 1);
+    expect(result.current.allowed).toStrictEqual(select.noIntents);
+    wait(1);
+    expect(result.current.allowed).toMatchObject({
+      roll: true,
+      setKeep: true,
+      stop: true,
     });
-    expect(result.current.view.pending).toBe(true);
-    act(() => {
-      vi.advanceTimersByTime(1);
-    });
-    expect(result.current.view.pending).toBe(false);
   });
 
-  it("roll lock: a second roll inside the window draws no dice", async () => {
-    const { rollSpare } = await import("./random");
-    const { result } = renderHook(() => useLocalSession());
-    act(() => result.current.intents.newGame());
-    vi.mocked(rollSpare).mockClear();
+  it("Stop straight after settled is accepted", () => {
+    const { result } = viewerRolled();
+    act(() => result.current.intents.stop());
+    expect(lastKind(result.current)).toBe("turnEnded");
+  });
+
+  it("a second roll adds no event", () => {
+    const { result } = viewerTurn();
+    const before = rolledEvents(result.current);
     act(() => {
       result.current.intents.roll();
       result.current.intents.roll();
     });
-    expect(rollSpare).toHaveBeenCalledTimes(1);
+    expect(rolledEvents(result.current)).toBe(before + 1);
+  });
+});
+
+describe("viewer stop", () => {
+  it("the turn end is shown for DELAY_MS before the handover", () => {
+    const { result } = viewerRolled();
+    act(() => result.current.intents.stop());
+    expect(result.current.view.rollMs).toBe(0);
+    wait(DELAY_MS.normal - 1);
+    expect(lastKind(result.current)).toBe("turnEnded");
+    expect(result.current.view.state.acting).toBeNull();
+    wait(1);
+    expect(lastKind(result.current)).toBe("turnStarted");
+  });
+});
+
+describe("speed", () => {
+  it("a change applies from the next beat, not the one waiting", () => {
+    const { result } = startAndRoll();
+    const before = beatsReleased(result.current);
+    wait(300);
+    act(() => result.current.pacing!.setSpeed("fast"));
+    expect(vi.getTimerCount()).toBeGreaterThanOrEqual(1);
+    wait(DELAY_MS.normal - 300 - 1);
+    expect(beatsReleased(result.current)).toBe(before);
+    wait(1);
+    expect(beatsReleased(result.current)).toBe(before + 1);
+    wait(DELAY_MS.fast - 1);
+    expect(beatsReleased(result.current)).toBe(before + 1);
+    wait(1);
+    expect(beatsReleased(result.current)).toBe(before + 2);
   });
 
-  it("a bot moves after the pacing delay, once", () => {
-    const { result } = startAndRoll();
-    expect(botRolls(result.current)).toBe(0);
-    act(() => {
-      vi.advanceTimersByTime(DELAY_MS.normal);
-    });
-    expect(botRolls(result.current)).toBe(1);
+  it("changing speed during an animation does not shorten or extend the settle timer", () => {
+    const { result } = viewerTurn();
+    act(() => result.current.intents.roll());
+    wait(100);
+    act(() => result.current.pacing!.setSpeed("fast"));
+    expect(result.current.view.rollMs).toBe(ROLL_MS.normal);
+    wait(ROLL_MS.normal - 100 - 1);
+    expect(result.current.allowed.stop).toBe(false);
+    wait(1);
+    expect(result.current.allowed.stop).toBe(true);
   });
+});
 
-  it("step: applies exactly one bot action per call while paused, including after re-renders", () => {
+describe("pause", () => {
+  it("nothing is released while paused", () => {
     const { result } = startAndRoll();
+    wait(DELAY_MS.normal * 2); // a bot's roll to start is showing
     act(() => result.current.pacing!.pause());
+    const { state, events } = result.current.view;
+    wait(5000);
+    expect(result.current.view.state).toBe(state);
+    expect(result.current.view.events).toBe(events);
+  });
+
+  it("the settle timer is not paused", () => {
+    const { result } = viewerTurn();
+    act(() => result.current.intents.roll());
+    act(() => result.current.pacing!.pause());
+    wait(ROLL_MS.normal);
+    expect(result.current.allowed.stop).toBe(true);
+  });
+
+  it("a viewer intent while paused releases only its first beat", () => {
+    const { result } = viewerRolled();
+    act(() => result.current.pacing!.pause());
+    act(() => result.current.intents.stop());
+    expect(lastKind(result.current)).toBe("turnEnded");
+    wait(5000);
+    expect(lastKind(result.current)).toBe("turnEnded");
     expect(result.current.pacing!.canStep).toBe(true);
-
-    for (const expected of [1, 2, 3]) {
-      act(() => result.current.pacing!.step());
-      expect(botRolls(result.current)).toBe(expected);
-    }
-    // The next move is the viewer's: nothing to step to.
-    expect(result.current.pacing!.canStep).toBe(false);
-    act(() => result.current.pacing!.step());
-    expect(botRolls(result.current)).toBe(3);
   });
+});
 
-  it("step: does nothing unless paused", () => {
+describe("resume", () => {
+  it("re-arms one full delay with one timer", () => {
     const { result } = startAndRoll();
-    act(() => result.current.pacing!.step());
-    expect(botRolls(result.current)).toBe(0);
-  });
-
-  it("step: two calls before a render apply one action", () => {
-    const { result } = startAndRoll();
-    act(() => result.current.pacing!.pause());
-    act(() => {
-      result.current.pacing!.step();
-      result.current.pacing!.step();
-    });
-    expect(botRolls(result.current)).toBe(1);
-  });
-
-  it("pause: clears the timer, and resume schedules exactly one new one", () => {
-    const { result } = startAndRoll();
-    expect(vi.getTimerCount()).toBe(1);
+    wait(ROLL_MS.normal); // the viewer's dice have landed: only the beat timer is left
     act(() => result.current.pacing!.pause());
     expect(vi.getTimerCount()).toBe(0);
-    act(() => {
-      vi.advanceTimersByTime(DELAY_MS.normal * 3);
-    });
-    expect(botRolls(result.current)).toBe(0);
+    const before = beatsReleased(result.current);
 
     act(() => result.current.pacing!.resume());
     expect(vi.getTimerCount()).toBe(1);
-    act(() => {
-      vi.advanceTimersByTime(DELAY_MS.normal);
-    });
-    expect(botRolls(result.current)).toBe(1);
+    wait(DELAY_MS.normal - 1);
+    expect(beatsReleased(result.current)).toBe(before);
+    wait(1);
+    expect(beatsReleased(result.current)).toBe(before + 1);
   });
+});
 
-  it("speed: changing it restarts the delay with one timer", () => {
+describe("step", () => {
+  it("releases one beat per call while paused", () => {
     const { result } = startAndRoll();
-    act(() => {
-      vi.advanceTimersByTime(500); // well inside the delay, after the lock lapsed
-    });
-    act(() => result.current.pacing!.setSpeed("fast"));
-    expect(vi.getTimerCount()).toBe(1);
-    act(() => {
-      vi.advanceTimersByTime(DELAY_MS.fast);
-    });
-    expect(botRolls(result.current)).toBe(1);
+    act(() => result.current.pacing!.pause());
+    const before = beatsReleased(result.current);
+    for (const n of [1, 2, 3]) {
+      act(() => result.current.pacing!.step());
+      expect(beatsReleased(result.current)).toBe(before + n);
+    }
   });
 
-  it("unmount: no timer or lock outlives the hook", () => {
-    const { result, unmount } = renderHook(() => useLocalSession());
-    act(() => result.current.intents.newGame());
-    act(() => result.current.intents.roll());
-    // The bot timer and the roll lock are both pending.
+  it("two calls before a render release one", () => {
+    const { result } = startAndRoll();
+    act(() => result.current.pacing!.pause());
+    const before = beatsReleased(result.current);
+    act(() => {
+      result.current.pacing!.step();
+      result.current.pacing!.step();
+    });
+    expect(beatsReleased(result.current)).toBe(before + 1);
+  });
+
+  it("does nothing unless paused", () => {
+    const { result } = startAndRoll();
+    const before = beatsReleased(result.current);
+    act(() => result.current.pacing!.step());
+    expect(beatsReleased(result.current)).toBe(before);
+  });
+
+  it("does nothing when canStep is false", () => {
+    const { result } = viewerTurn();
+    act(() => result.current.pacing!.pause());
+    expect(result.current.pacing!.canStep).toBe(false);
+    const { events } = result.current.view;
+    act(() => result.current.pacing!.step());
+    expect(result.current.view.events).toBe(events);
+  });
+
+  it("canStep is true only with a queued beat or a bot to move", () => {
+    const { result } = startAndRoll();
+    act(() => result.current.pacing!.pause());
+    // The handover to seat 1 is queued.
+    expect(result.current.pacing!.canStep).toBe(true);
+    act(() => result.current.pacing!.step());
+    // Caught up, and seat 1 is a bot to move.
+    expect(result.current.pacing!.canStep).toBe(true);
+    // Unpaused, nothing can be stepped.
+    act(() => result.current.pacing!.resume());
+    expect(result.current.pacing!.canStep).toBe(false);
+  });
+});
+
+describe("StrictMode", () => {
+  it("double-invoked effects leave one beat timer and one settle timer", () => {
+    startAndRoll({ wrapper: strict });
     expect(vi.getTimerCount()).toBe(2);
-    unmount();
-    expect(vi.getTimerCount()).toBe(0);
   });
 
-  it("StrictMode: double-invoked effects leave one bot step scheduled", () => {
+  it("a viewer Roll under StrictMode adds one rolled event", () => {
     const { result } = startAndRoll({ wrapper: strict });
-    expect(vi.getTimerCount()).toBe(1);
-    act(() => {
-      vi.advanceTimersByTime(DELAY_MS.normal);
-    });
-    expect(botRolls(result.current)).toBe(1);
+    expect(rolledEvents(result.current)).toBe(1);
+    wait(DELAY_MS.normal);
+    expect(lastKind(result.current)).toBe("turnStarted");
+  });
+});
+
+describe("unmount", () => {
+  it("no beat or settle timer outlives the hook", () => {
+    const hook = renderHook(() => useLocalSession());
+    act(() => hook.result.current.intents.newGame());
+    act(() => hook.result.current.intents.roll());
+    // Both pending: the queued handover and the viewer's dice.
+    expect(vi.getTimerCount()).toBe(2);
+    hook.unmount();
+    expect(vi.getTimerCount()).toBe(0);
   });
 
-  it("StrictMode: unmount leaves no timer", () => {
-    const { result, unmount } = renderHook(() => useLocalSession(), {
-      wrapper: strict,
-    });
-    act(() => result.current.intents.newGame());
-    act(() => result.current.intents.roll());
-    unmount();
-    expect(vi.getTimerCount()).toBe(0);
+  it("unmount during animation: advancing timers throws no act warning", () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    const hook = renderHook(() => useLocalSession());
+    act(() => hook.result.current.intents.newGame());
+    act(() => hook.result.current.intents.roll());
+    hook.unmount();
+    vi.advanceTimersByTime(5000);
+    expect(error).not.toHaveBeenCalled();
+    error.mockRestore();
   });
 });

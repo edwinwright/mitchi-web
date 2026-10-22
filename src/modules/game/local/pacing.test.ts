@@ -1,24 +1,15 @@
 import { describe, expect, it } from "vitest";
-import { notStarted, rollOff, tieBreakViewerToRoll } from "../testing";
-import { botDelay, DELAY_MS, HANDOVER_MS, isHandover } from "./pacing";
+import { DELAY_MS, ROLL_MS } from "./pacing";
 
-describe("isHandover", () => {
-  it("is true when the latest step ended a turn and started the next", () => {
-    expect(tieBreakViewerToRoll.events.at(-1)?.type).toBe("turnStarted");
-    expect(isHandover(tieBreakViewerToRoll.events)).toBe(true);
+describe("tables", () => {
+  it("has the agreed values", () => {
+    expect(DELAY_MS).toStrictEqual({ normal: 1200, fast: 400 });
+    expect(ROLL_MS).toStrictEqual({ normal: 500, fast: 200 });
   });
 
-  it("is false before a game, and in the roll-off", () => {
-    expect(isHandover(notStarted.events)).toBe(false);
-    expect(isHandover(rollOff.events)).toBe(false);
-  });
-});
-
-describe("botDelay", () => {
-  it("adds the handover beat only after a turn ends", () => {
-    expect(botDelay(tieBreakViewerToRoll.events, "normal")).toBe(
-      DELAY_MS.normal + HANDOVER_MS.normal,
-    );
-    expect(botDelay(rollOff.events, "fast")).toBe(DELAY_MS.fast);
+  it("ROLL_MS[s] < DELAY_MS[s] for every speed", () => {
+    for (const speed of Object.keys(DELAY_MS) as (keyof typeof DELAY_MS)[]) {
+      expect(ROLL_MS[speed]).toBeLessThan(DELAY_MS[speed]);
+    }
   });
 });
