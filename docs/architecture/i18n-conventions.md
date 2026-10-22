@@ -40,6 +40,8 @@ Only `play` contains ICU arguments, and they are plain number arguments (`{numbe
 
 **Hands are data, names are messages.** The visible name of a hand comes from ``t(`hands.${hand.id}`)``. Never compose a hand name from two number words at runtime: "six-five" is not "six" plus "five" in Polish or Japanese, and "double-six" is not "six-six" in any language. Twenty-one whole strings per locale is the cheap option, not the expensive one. Group names and descriptions work the same way, under `handGroups.<group>.name` and `.description`.
 
+**An action that depends on who acts is two whole strings, never one with a person argument.** The practice game's commentary has `commentary.you.*` for the viewer (second person) and `commentary.player.*` for everyone else (third person, read after the player's label cell), so each locale chooses its own person and agreement.
+
 **Player labels and hand names are separate cells of a row, never an argument in a sentence.** A label such as "Player 2" or "You" and a hand name each have their own cell, so the host sentence never has to inflect either for case. Passing one into a message as an argument is the template problem described above.
 
 **Anchor IDs stay English in every locale.** `#hands`, `#round`, `#scoring`, `#tie-breaks`, `#winning`, `#vocabulary`. Visible headings translate, IDs do not. A URL fragment is never sent to the server, so no routing layer can rewrite it the way `pathnames` rewrites a slug. Localised IDs would break every shared link on a locale switch and add a per-locale fragment map to the language switcher.

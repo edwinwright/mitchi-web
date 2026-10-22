@@ -12,6 +12,8 @@ A statically generated Next.js site publishing the rules of Mitchi, a two-dice g
 | `docs/product/voice.md`                 | How the site is written.                                                                                                                                       |
 | `docs/product/site-map.md`              | The routes, and what the site deliberately does not have.                                                                                                      |
 | `docs/architecture/storybook.md`        | Storybook: how to run it, how to write a story, what it does not cover.                                                                                        |
+| `docs/architecture/modules.md`          | How feature code is laid out in `src/modules/<name>`, and how a module is imported.                                                                            |
+| `docs/architecture/game-engine.md`      | The practice game's engine: what is pure, what may import what, the dice and keep rules.                                                                       |
 | `.work/`                                | Local, ephemeral work-order notes, not committed. One subdirectory per work order, check for one in progress before starting; naming and file layout may vary. |
 
 Read the plan for the current work item and do one slice at a time. Stop at the end of a slice and show the diff.
@@ -25,12 +27,16 @@ Read the plan for the current work item and do one slice at a time. Stop at the 
 - `[locale]/not-found.tsx` is the 404 users hit. `src/app/not-found.tsx` is the no-locale shell: hardcoded English, `<a href="/">`, its own `globals.css` import. Do not call `useTranslations` there.
 - Section anchor IDs stay in English in every locale.
 - Copy changes come from the work item's source copy, not from improvisation. If a string is missing, ask.
+- Import a module through its index (`@/modules/game`), never a file inside it; inside a module, import a sibling sub-module through `../name`. dependency-cruiser enforces it (`npm run depcruise`).
+- `src/modules/game/engine` is pure: no React, no `Math.random`, no timers, no dates. Dice arrive in the action. The UI reads the engine through types and `select`, never `applyAction`. `local/` is the only place that runs the engine.
 
 ## Commands
 
 ```bash
 npm run dev           # local
 npx tsc --noEmit      # types, including message keys
+npm test              # vitest: engine, local store, pure UI helpers
+npm run depcruise     # import rules (.dependency-cruiser.cjs)
 npm run lint
 npm run format
 npm run build         # read the route table

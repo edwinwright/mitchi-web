@@ -35,19 +35,19 @@ The agreed vocabulary for Mitchi. Every term used in the rules, on the site and 
 
 ## Terms deliberately not used
 
-| Avoid              | Use instead                        | Why                                                                                                                                                 |
-| ------------------ | ---------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Penalty points     | Points                             | One currency, one name.                                                                                                                             |
-| Target             | Roll limit, or worst hand so far   | "Target" was doing two jobs: the number of rolls, and the hand to beat. The hand to beat changes during the round, so it was never really a target. |
-| Tie-breaker        | Tie-break                          | Both were in use. Tie-break matches how the game is actually talked about.                                                                          |
-| Best hand          | Worst hand so far                  | You are not trying to roll the best hand, only to avoid the worst.                                                                                  |
-| The table          | The pot                            | Renamed because it collided with the literal table.                                                                                                 |
-| Current worst hand | Worst hand so far                  | "Current" was a clumsy way of saying what "so far" says plainly.                                                                                    |
-| Hold (a die)       | Keep                               | "Keep" is the rules' own word.                                                                                                                      |
-| Pass               | Stop                               | One word for ending a turn.                                                                                                                         |
-| Bot, computer      | "Player 2", "Player 3", "Player 4" | The other players are named as players, not as machines.                                                                                            |
-| Roll-off           | "rolls to start"                   | A phrase, not a term.                                                                                                                               |
-| Level (on)         | Tied (on)                          | British idiom. "Tied" is plain in every English and translates cleanly.                                                                             |
+| Avoid              | Use instead                        | Why                                                                                                                                                                                    |
+| ------------------ | ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Penalty points     | Points                             | One currency, one name.                                                                                                                                                                |
+| Target             | Roll limit, or worst hand so far   | "Target" was doing two jobs: the number of rolls, and the hand to beat. The hand to beat changes during the round, so it was never really a target.                                    |
+| Tie-breaker        | Tie-break                          | Both were in use. Tie-break matches how the game is actually talked about.                                                                                                             |
+| Best hand          | Worst hand so far                  | You are not trying to roll the best hand, only to avoid the worst.                                                                                                                     |
+| The table          | The pot                            | Renamed because it collided with the literal table.                                                                                                                                    |
+| Current worst hand | Worst hand so far                  | "Current" was a clumsy way of saying what "so far" says plainly.                                                                                                                       |
+| Hold (a die)       | Keep                               | "Keep" is the rules' own word.                                                                                                                                                         |
+| Pass               | Stop                               | One word for ending a turn.                                                                                                                                                            |
+| Bot, computer      | "Player 2", "Player 3", "Player 4" | The other players are named as players, not as machines. Visible copy only: `bot` stays an identifier in code and architecture docs (`bots.ts`, `botStep`, ENG-8 in `game-engine.md`). |
+| Roll-off           | "rolls to start"                   | A phrase, not a term.                                                                                                                                                                  |
+| Level (on)         | Tied (on)                          | British idiom. "Tied" is plain in every English and translates cleanly.                                                                                                                |
 
 ## Hands
 

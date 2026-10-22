@@ -10,7 +10,11 @@ The engine is a reducer with a rulebook. Given a state and an action it decides 
 
 The engine is pure and never rolls dice. `applyAction(state, action)` returns a result or a typed rejection, and the dice arrive inside the action. The same engine runs in the browser now and could run on a server later, where the server must roll for fairness. It also makes the seeded simulation and the scripted tests deterministic.
 
+The alternatives and the trade-off are in `docs/architecture/decisions/0001-session-boundary.md`.
+
 The action and event types and the `GameSession` interface are the contract a future online version reuses. Change them deliberately: every fixture, story and commentary row depends on them.
+
+Mitchi has no hidden information: every die is public. That is what keeps the session boundary cheap, because a server would broadcast the same events to every seat and need no per-seat redaction.
 
 ## Engine rules (ENG)
 
@@ -25,15 +29,18 @@ The action and event types and the `GameSession` interface are the contract a fu
 9. Seats are numbers. No names, "you" or avatars in the engine. The UI compares against `view.viewerSeat`, never `0`.
 10. Control actions (`newGame`, `nextRound`) carry no seat. Player actions do.
 11. Dice stay in the slot they were rolled into. `DicePair` is positional: slot 0 is shown on the left, slot 1 on the right, and `die` in a keep action is a slot. Hand lookup reads the pair as higher die, then lower, and never writes that order back. Hand names read highest first. Wherever a hand is shown as two dice, it is drawn higher die first too; only the Keep buttons, one per slot, show the rolled order.
+12. The roll to start is unordered. The engine accepts a roll-off roll from any seat still to roll, in any order, and a tie on the highest die re-rolls among the tied seats only. Rounds and tie-breaks are turn-based. Only a session picks an order; the local session rolls lowest seat first.
 
 ## Session rules (SES)
 
-1. `local/` is the only place that runs the engine, and the only place with `Math.random` and `setTimeout`. The initial store state is deterministic. Dice are generated in event handlers and timer callbacks and passed in the message.
+1. `local/` is the only place that runs the engine, and the only place with `Math.random` and `setTimeout`, with one known exception: the dice hold, a display-only timer in `ui/game-board.tsx` (`ui/hold.ts`) that WO-0018 replaces. The initial store state is deterministic. Dice are generated in event handlers and timer callbacks and passed in the message.
 2. `ui/` receives a `GameSession` and reads the engine through types and the `select` namespace. It never calls `applyAction` or the bots, and never imports `local/`. Only the `local/` import is checked; the rest is review.
 3. Only `GameBoard` receives the `GameSession`. Panels take slices as props.
 4. Nothing is written to the device: no `localStorage`, `sessionStorage` or cookies.
 5. No transport, event bus, `RemoteSession` stub or optimistic update. The seams are the types.
 6. `testing/` (fixtures, the simulation) is imported by tests and stories only. It is as pure as the engine.
+7. `SessionView.events` is the log since the round started; round 1 also keeps the roll-off. The log empties on `gameStarted` and on `roundStarted` after round 1. `seq` is unique and strictly increasing for the whole session and carries on across those trims, so a consumer can key on it.
+8. `SessionView.pending` is true while the viewer's own intent is unacknowledged. For the local session that is the roll lock, about 350ms after a viewer roll; an online session would hold it until the server answers.
 
 ## What may import what
 
@@ -68,6 +75,8 @@ gameOver ─newGame─▶ rollOff
 ```
 
 A hand is not fixed until the turn ends. A Mitchi rolled mid-turn and re-rolled counts for nothing; the pot changes only when a turn ends on a Mitchi. A tie-break roll is a whole turn, so a Mitchi there adds 2 as it lands.
+
+The roll limit is unset until the starter's turn ends. That turn is bounded by `MAX_ROLLS` (3); the limit then equals the rolls the starter used, and resets every round. A non-starter who reaches it is ended automatically (`noRollsLeft`), so at limit 1 they make no decisions. No one can keep or stop before rolling (`noDiceRolled`). A tie-break roll is a single roll: no keep, no stop.
 
 ## What `/rules` does not state
 
