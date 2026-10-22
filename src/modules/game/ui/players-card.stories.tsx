@@ -1,5 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import {
+  beatGameStart,
+  beatRoundTwoBotStarts,
+  beatViewerStops,
   botMidTurn,
   fixtureSession,
   gameOverDraw,
@@ -42,4 +45,13 @@ export const Points: Story = { args: { defaultView: "points" } };
 export const GameOver: Story = { args: { fixture: gameOverDraw } };
 export const GameOverPoints: Story = {
   args: { fixture: gameOverDraw, defaultView: "points" },
+};
+
+/** The game starts: You are rolling now, the others Waiting. */
+export const RollToStartRolling: Story = { args: { fixture: beatGameStart } };
+/** The viewer has stopped: nobody is current until the handover. */
+export const BetweenTurns: Story = { args: { fixture: beatViewerStops } };
+/** A later round starts with a bot: its starter is current at once. */
+export const RoundTwoStart: Story = {
+  args: { fixture: beatRoundTwoBotStarts },
 };

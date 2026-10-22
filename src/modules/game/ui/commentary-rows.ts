@@ -49,6 +49,8 @@ export type CommentaryRow =
       order: readonly Seat[];
     }
   | { kind: "pot"; key: string; pot: number; cause: "mitchi" | "tieBreak" }
+  /** The roll to start tied on the highest die: the tied roll again. */
+  | { kind: "tied"; key: string; face: Die }
   | { kind: "draw"; key: string }
   | { kind: "gameOver"; key: string };
 
@@ -87,9 +89,14 @@ export function commentaryRows(
     switch (event.type) {
       // The viewer's turn row comes from their turnStarted, in every context.
       case "gameStarted":
-      case "rollOffStarted":
       case "keepSet":
       case "worstHandChanged":
+        break;
+
+      case "rollOffStarted":
+        if (event.tiedOn !== null) {
+          rows.push({ kind: "tied", key, face: event.tiedOn });
+        }
         break;
 
       case "rollOffRolled":

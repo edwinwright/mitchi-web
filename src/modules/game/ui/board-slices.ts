@@ -1,21 +1,26 @@
-// Turns a GameSession into the props of each panel. Pure. Stored fields of
-// GameState are read directly; anything derived comes from `select`.
+// Turns a GameSession into the props of each panel. Pure. Every panel reads
+// the shown state and the last released beat, so they all show the same
+// moment. Stored fields of GameState are read directly; anything derived
+// comes from `select`.
 
 import { handById, type HandId } from "@/data/hands";
 import {
   select,
   type AllowedIntents,
+  type Beat,
   type DicePair,
   type Die,
   type GameSession,
   type GameState,
   type KeptPair,
+  type LoggedEvent,
   type Phase,
   type Seat,
   type SeatHand,
   type SessionView,
   type Winners,
 } from "../engine";
+import { latestStatus, type BeatStatusData } from "./beat-status";
 
 /** The roll on the table: whose it is, and what it shows. */
 export type ShownRoll =
@@ -49,8 +54,11 @@ export type RoundBarData =
 /** The dice card's header, by stage. */
 export type HeaderData =
   | { stage: "notStarted" }
-  /** The seat rolling to start, or the one that has just rolled. */
-  | { stage: "rollOff"; seat: Seat; viewer: boolean }
+  /**
+   * The seat rolling to start, or the one that has just rolled. `rolling`
+   * is false when nobody is acting: the heading names the seat alone.
+   */
+  | { stage: "rollOff"; seat: Seat; viewer: boolean; rolling: boolean }
   | {
       stage: "round";
       number: number;
@@ -59,6 +67,8 @@ export type HeaderData =
       /** The acting seat, or the one whose turn or roll has just ended. */
       seat: Seat;
       viewer: boolean;
+      /** False when nobody is acting: the heading names the seat alone. */
+      rolling: boolean;
       pot: number;
       /** In a tie-break, from tie-break rolls only. null until someone has one. */
       handToBeat: HandId | null;
@@ -81,8 +91,8 @@ export type RollsRowData = { available: number; used: number };
 export type TrayData = {
   shown: ShownRoll | null;
   /**
-   * The roll on show is a finished one, held after its turn (or a roll-off
-   * die): the tray names who rolled it, since the header names who is next.
+   * The roll on show is a finished one on its own beat (a turn end, a
+   * tie-break roll, a roll-to-start die): the tray names who rolled it.
    */
   held: boolean;
   /** The acting seat against the hand to beat, in a main-round turn only. */
@@ -101,9 +111,12 @@ export type PrimaryAction = "start" | "roll" | "nextRound" | "playAgain";
 export type RoundRowData = {
   seat: Seat;
   starting: boolean;
-  /** Rolling now. Nobody is current in the roll-off. */
+  /**
+   * Rolling now. In the roll to start too, once the handover beat has named
+   * the seat. Nobody between turns.
+   */
   current: boolean;
-  /** Roll-off only: still to roll this pass. */
+  /** Roll to start only: still to roll this pass, never the seat rolling now. */
   waiting: boolean;
   hand: SeatHand | null;
   holdsWorst: boolean;
@@ -141,6 +154,8 @@ export type BoardSlices = {
   roundBar: RoundBarData | null;
   roundRows: readonly RoundRowData[];
   points: PointsData;
+  /** The status line for the latest beat that has one. Null before any beat. */
+  status: BeatStatusData | null;
 };
 
 /** A seat this many points or fewer from the limit is close to it. */
@@ -159,35 +174,20 @@ const PRIMARY: Record<
   gameOver: { action: "playAgain", intent: "newGame" },
 };
 
-/**
- * The seq of the most recent roll of any kind or turn end, or null before
- * one. The dice hold restarts on each, so a turn that ends on a Stop is held
- * from the Stop, not from its last roll.
- */
-export function latestRollSeq(events: SessionView["events"]): number | null {
-  const roll = events.findLast(
-    (event) =>
-      event.type === "rolled" ||
-      event.type === "tieBreakRolled" ||
-      event.type === "rollOffRolled" ||
-      event.type === "turnEnded",
-  );
-  return roll?.seq ?? null;
-}
+/** The pot beat that ends the game: the Roll label, unavailable until Play again. */
+const ENDING = { action: "roll", intent: "roll" } as const;
 
 /**
- * The roll on the table. The acting seat's dice once they have rolled this
- * turn, with their keep flags. Otherwise, while `holding`, the most recent
- * roll event, so a turn that ends on its own roll is seen at all. Otherwise
- * nothing: each turn starts with placeholders. Roll-off dice count only
- * while the roll-off is running.
+ * The roll on the table at this beat. The acting seat's live dice once they
+ * have rolled this turn, with their keep flags. Between turns, the finished
+ * roll the beat is about: a turn end, a tie-break roll or a roll-to-start
+ * die. Otherwise nothing: a handover, a round start, a tie-break opening, the
+ * pot taken and game over show placeholders.
  */
 export function shownRoll(
-  view: SessionView,
-  holding: boolean,
+  state: GameState,
+  beat: Beat<LoggedEvent> | null,
 ): ShownRoll | null {
-  const { state, events } = view;
-
   const acting = select.actingSeat(state);
   if (acting !== null) {
     const own = select.seatHand(state, acting);
@@ -201,50 +201,43 @@ export function shownRoll(
         kept: own.kept,
       };
     }
+    return null;
   }
-  if (!holding) return null;
-
-  for (const event of events.toReversed()) {
-    switch (event.type) {
-      case "rolled":
-      case "tieBreakRolled":
-        return {
-          kind: "hand",
-          seat: event.seat,
-          dice: event.dice,
-          hand: event.hand,
-          kept: null,
-        };
-      case "rollOffRolled":
-        if (state.phase.kind === "rollOff") {
-          return { kind: "die", seat: event.seat, face: event.die };
-        }
-        break;
-    }
+  if (
+    beat?.seat == null ||
+    !["turnEnded", "tieBreakRolled", "rollOffRolled"].includes(beat.kind)
+  ) {
+    return null;
   }
-  return null;
+  const finished = select.seatHand(state, beat.seat);
+  if (finished?.kind === "hand") {
+    return {
+      kind: "hand",
+      seat: beat.seat,
+      dice: finished.dice,
+      hand: finished.hand,
+      kept: null,
+    };
+  }
+  return finished?.kind === "die"
+    ? { kind: "die", seat: beat.seat, face: finished.face }
+    : null;
 }
 
-/**
- * `holding`: the most recent roll is still within its hold (`hold.ts`). The
- * board times it; without one, nothing is held.
- */
-export function sliceSession(
-  session: GameSession,
-  { holding = false }: { holding?: boolean } = {},
-): BoardSlices {
+export function sliceSession(session: GameSession): BoardSlices {
   const { view, allowed } = session;
-  const { state, viewerSeat, pending } = view;
+  const { state, events, viewerSeat, pending } = view;
   const { phase, round } = state;
 
   const acting = select.actingSeat(state);
   const worst = select.worstHandSoFar(state);
   const stillToRoll = select.stillToRoll(state);
-  const shown = shownRoll(view, holding);
-  const primary = PRIMARY[phase.kind];
+  const shown = shownRoll(state, select.lastBeat(events));
+  // The pot beat that ends the game: no Next round, Play again comes next.
+  const primary = select.limitReached(state) ? ENDING : PRIMARY[phase.kind];
 
   return {
-    header: headerOf(state, view.events, viewerSeat),
+    header: headerOf(state, events, viewerSeat),
     tray: {
       shown,
       // Only the acting seat mid-turn has keep flags; any other roll is past.
@@ -252,7 +245,7 @@ export function sliceSession(
       comparison:
         acting === null ? null : select.standingAgainstWorst(state, acting),
       ownDice: shown?.seat === viewerSeat,
-      rolls: rollsOf(state),
+      rolls: rollsOf(state, shown !== null && acting === null),
       winners: phase.kind === "gameOver" ? phase.winners : null,
     },
     roundRows: state.points.map((_points, seat) => {
@@ -282,6 +275,7 @@ export function sliceSession(
       },
     },
     roundBar: roundBarOf(state),
+    status: latestStatus(events, state, viewerSeat),
   };
 }
 
@@ -323,7 +317,12 @@ function headerOf(
       return { stage: "notStarted" };
     case "rollOff": {
       const seat = headingSeat(state, events);
-      return { stage: "rollOff", seat, viewer: seat === viewerSeat };
+      return {
+        stage: "rollOff",
+        seat,
+        viewer: seat === viewerSeat,
+        rolling: state.acting !== null,
+      };
     }
     case "turn":
     case "tieBreak": {
@@ -336,6 +335,7 @@ function headerOf(
         tieBreak,
         seat,
         viewer: seat === viewerSeat,
+        rolling: state.acting !== null,
         pot: round.pot,
         handToBeat: select.worstHandSoFar(state)?.hand ?? null,
         rollLimit: tieBreak === null ? select.rollLimit(state).set : null,
@@ -362,15 +362,18 @@ function headerOf(
 
 /**
  * The starter has three rolls until the limit is set, everyone else the
- * limit. The roll to start and a tie-break are one roll each, and the seat
- * shown has not used it: once it rolls, the next seat is up.
+ * limit. The roll to start and a tie-break are one roll each: used once the
+ * roll on show is a finished one.
  */
-function rollsOf(state: GameState): RollsRowData | null {
+function rollsOf(
+  state: GameState,
+  finishedOnShow: boolean,
+): RollsRowData | null {
   const { phase } = state;
   switch (phase.kind) {
     case "rollOff":
     case "tieBreak":
-      return { available: 1, used: 0 };
+      return { available: 1, used: finishedOnShow ? 1 : 0 };
     case "turn": {
       const limit = select.rollLimit(state);
       return { available: limit.set ?? limit.max, used: phase.rollsUsed };

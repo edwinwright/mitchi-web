@@ -34,7 +34,7 @@ export type Intents = {
 /** What the engine allows the viewer now. Excludes `pending`. */
 export type AllowedIntents = { readonly [K in keyof Intents]: boolean };
 
-export type Speed = "normal" | "fast";
+export type Speed = "slow" | "normal" | "fast";
 
 export type Pacing = {
   readonly paused: boolean;

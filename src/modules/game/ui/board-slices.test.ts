@@ -1,5 +1,20 @@
 import { describe, expect, it } from "vitest";
+import { select, type Action } from "../engine";
 import {
+  batchActions,
+  beatBotKeepSwap,
+  beatBotRollToStart,
+  beatFixtures,
+  beatGameStart,
+  beatLastHandOfRound,
+  beatNoRollsLeft,
+  beatRollOffTie,
+  beatRollOffWinner,
+  beatRoundTwoBotStarts,
+  beatTieBreakOpens,
+  beatTieBreakRolled,
+  beatViewerRollToStart,
+  beatViewerStops,
   botKept,
   botMidTurn,
   closeToLimit,
@@ -17,13 +32,26 @@ import {
   viewerKeptOne,
   viewerRolledKeepable,
   viewerToRoll,
+  simulateGame,
   type Fixture,
 } from "../testing";
-import { latestRollSeq, shownRoll, sliceSession } from "./board-slices";
+import { statusOf } from "./beat-status";
+import { shownRoll, sliceSession } from "./board-slices";
 
-const shown = (fixture: Fixture, holding = false) =>
-  shownRoll(fixtureSession(fixture).view, holding);
+const shown = (fixture: Fixture) =>
+  shownRoll(fixture.state, select.lastBeat(fixture.events));
 const slices = (fixture: Fixture) => sliceSession(fixtureSession(fixture));
+/** Every beat of a seeded bot game, as the session releases them. */
+function beatsOfGame(seed: number): readonly Fixture[] {
+  const actions: Action[] = [];
+  simulateGame(seed, {
+    onStep: ({ action, result }) => {
+      if (result.ok) actions.push(action);
+    },
+  });
+  return beatFixtures(batchActions(actions));
+}
+
 /** Seats for which `field` is true, from a slice's rows. */
 const seatsWhere = <Row extends { seat: number }>(
   rows: readonly Row[],
@@ -53,67 +81,53 @@ describe("shownRoll", () => {
     expect(shown(botKept)).toMatchObject({ seat: 1, kept: [true, false] });
   });
 
-  it("shows nothing before anyone has rolled", () => {
-    expect(shown(notStarted)).toBeNull();
-  });
-
-  it("shows the roll-off die while its hold runs, then nothing", () => {
-    expect(shown(rollOff, true)).toEqual({ kind: "die", seat: 0, face: 4 });
-    expect(shown(rollOff)).toBeNull();
-  });
-
-  it("shows nothing at the start of round 1: roll-off dice do not carry over", () => {
-    expect(shown(viewerToRoll, true)).toBeNull();
-  });
-
-  it("keeps the last roll on screen until the hold ends or the next seat rolls, with no keep flags", () => {
-    // Seat 1 is to roll; the viewer's final 6-3 is held.
-    expect(shown(starterLimitSet, true)).toEqual({
+  it("shows a finished roll, with no keep flags, on its own beat", () => {
+    expect(shown(beatViewerStops)).toEqual({
       kind: "hand",
       seat: 0,
       dice: [6, 3],
       hand: "6-3",
       kept: null,
     });
-    expect(shown(starterLimitSet)).toBeNull();
-    // A bot's one-roll turn stays shown after it ends, between rounds too.
-    expect(shown(roundSummary, true)).toMatchObject({
-      seat: 3,
-      dice: [3, 2],
-      kept: null,
-    });
-    expect(shown(roundSummary)).toBeNull();
-  });
-
-  it("holds the last tie-break roll, then shows nothing until the next seat rolls", () => {
-    expect(shown(tieBreakViewerToRoll, true)).toMatchObject({
+    expect(shown(beatNoRollsLeft)).toMatchObject({ seat: 1, kept: null });
+    expect(shown(beatTieBreakRolled)).toMatchObject({
       seat: 1,
       dice: [4, 3],
       kept: null,
     });
+    expect(shown(beatLastHandOfRound)).toMatchObject({ seat: 3, kept: null });
+  });
+
+  it("shows the die rolled to start on its own beat", () => {
+    expect(shown(beatViewerRollToStart)).toEqual({
+      kind: "die",
+      seat: 0,
+      face: 4,
+    });
+    expect(shown(beatBotRollToStart)).toEqual({
+      kind: "die",
+      seat: 1,
+      face: 3,
+    });
+  });
+
+  it("null on the handover beat (starterLimitSet)", () => {
+    expect(shown(starterLimitSet)).toBeNull();
+    expect(shown(rollOff)).toBeNull();
     expect(shown(tieBreakViewerToRoll)).toBeNull();
   });
 
-  it("shows the acting seat's own dice whether or not a hold runs", () => {
-    expect(shown(botMidTurn, true)).toMatchObject({ seat: 1, dice: [4, 2] });
-    expect(shown(botMidTurn, false)).toMatchObject({ seat: 1, dice: [4, 2] });
-  });
-});
-
-describe("latestRollSeq", () => {
-  it("is the seq of the most recent roll of any kind or turn end", () => {
-    const { events } = tieBreakViewerToRoll;
-    const last = events.findLast(
-      (event) => event.type === "tieBreakRolled" || event.type === "turnEnded",
-    );
-    expect(latestRollSeq(events)).toBe(last?.seq);
-    expect(latestRollSeq(rollOff.events)).toBe(
-      rollOff.events.find((event) => event.type === "rollOffRolled")?.seq,
-    );
-  });
-
-  it("is null before anyone has rolled", () => {
-    expect(latestRollSeq(notStarted.events)).toBeNull();
+  it("null on a round start, a tie-break opening, the pot taken, game over and before start", () => {
+    for (const fixture of [
+      beatRollOffWinner,
+      beatRoundTwoBotStarts,
+      beatTieBreakOpens,
+      roundSummary,
+      gameOverUnique,
+      notStarted,
+    ]) {
+      expect(shown(fixture)).toBeNull();
+    }
   });
 });
 
@@ -179,12 +193,14 @@ describe("header", () => {
       stage: "rollOff",
       seat: 1,
       viewer: false,
+      rolling: true,
     });
     // 0 and 1 tied on 4: the viewer rolls first in the new pass.
     expect(slices(rollOffReroll).header).toEqual({
       stage: "rollOff",
       seat: 0,
       viewer: true,
+      rolling: true,
     });
   });
 
@@ -195,6 +211,7 @@ describe("header", () => {
       tieBreak: null,
       seat: 0,
       viewer: true,
+      rolling: true,
       pot: 1,
       handToBeat: null,
       rollLimit: null,
@@ -263,6 +280,7 @@ describe("tie-break", () => {
       tieBreak: 1,
       seat: 1,
       viewer: false,
+      rolling: true,
       pot: 2,
       handToBeat: null,
       rollLimit: null,
@@ -310,16 +328,40 @@ describe("tray", () => {
     expect(slices(roundSummary).tray.comparison).toBeNull();
   });
 
-  it("marks a past roll on show as held, never the acting seat's own", () => {
-    const held = (fixture: Fixture) =>
-      sliceSession(fixtureSession(fixture), { holding: true }).tray.held;
-    expect(held(tieBreakViewerToRoll)).toBe(true);
-    expect(held(roundSummary)).toBe(true);
-    expect(held(rollOff)).toBe(true);
+  it("marks a finished roll on its own beat as held, never the acting seat's own", () => {
+    const held = (fixture: Fixture) => slices(fixture).tray.held;
+    for (const fixture of [
+      beatViewerStops,
+      beatNoRollsLeft,
+      beatTieBreakRolled,
+      beatViewerRollToStart,
+    ]) {
+      expect(held(fixture)).toBe(true);
+    }
     expect(held(botMidTurn)).toBe(false);
     expect(held(viewerRolledKeepable)).toBe(false);
     // Nothing on show, nothing held.
-    expect(slices(tieBreakViewerToRoll).tray.held).toBe(false);
+    expect(held(tieBreakViewerToRoll)).toBe(false);
+  });
+
+  it("has no comparison when nobody is acting", () => {
+    expect(slices(beatViewerStops).tray.comparison).toBeNull();
+    expect(slices(beatNoRollsLeft).tray.comparison).toBeNull();
+  });
+
+  it("uses the one roll to start or tie-break only while a finished roll is on show", () => {
+    expect(slices(beatViewerRollToStart).tray.rolls).toEqual({
+      available: 1,
+      used: 1,
+    });
+    expect(slices(beatTieBreakRolled).tray.rolls).toEqual({
+      available: 1,
+      used: 1,
+    });
+    expect(slices(tieBreakViewerToRoll).tray.rolls).toEqual({
+      available: 1,
+      used: 0,
+    });
   });
 
   it("has the winners at game over only", () => {
@@ -343,6 +385,16 @@ describe("controls.primary", () => {
     expect(slices(fixture).controls.primary).toEqual({ action, available });
   });
 
+  it("the pot beat that ends the game offers no Next round", () => {
+    // Every simulated game ends: its pot beat is followed by gameEnded.
+    const potBeat = beatsOfGame(1).find((f) => select.limitReached(f.state));
+    if (!potBeat) throw new Error("No pot beat ended the game");
+    expect(slices(potBeat).controls.primary).toEqual({
+      action: "roll",
+      available: false,
+    });
+  });
+
   it("is unavailable while a roll is pending, whatever its label", () => {
     expect(
       sliceSession(fixtureSession(roundSummary, { pending: true })).controls
@@ -358,6 +410,20 @@ describe("roundRows", () => {
     expect(seatsWhere(rows, "current")).toEqual([1]);
     expect(seatsWhere(rows, "holdsWorst")).toEqual([0]);
     expect(rows[0].hand).toMatchObject({ kind: "hand", hand: "6-3" });
+  });
+
+  it("current only for acting, waiting never for the acting seat", () => {
+    const start = slices(beatGameStart).roundRows;
+    expect(seatsWhere(start, "current")).toEqual([0]);
+    expect(seatsWhere(start, "waiting")).toEqual([1, 2, 3]);
+    // Between turns nobody is current.
+    expect(seatsWhere(slices(beatViewerStops).roundRows, "current")).toEqual(
+      [],
+    );
+    // A later round's start carries its starter's turn.
+    expect(
+      seatsWhere(slices(beatRoundTwoBotStarts).roundRows, "current"),
+    ).toEqual([1]);
   });
 
   it("has the acting seat current in the roll-off, and the others still to roll waiting", () => {
@@ -420,3 +486,169 @@ describe("point limit", () => {
     }
   });
 });
+
+describe("header between beats", () => {
+  it("acting null shows the seat label without the trailing phrase", () => {
+    // The viewer has stopped: still named, but not rolling.
+    expect(slices(beatViewerStops).header).toMatchObject({
+      stage: "round",
+      seat: 0,
+      viewer: true,
+      rolling: false,
+    });
+    expect(slices(beatNoRollsLeft).header).toMatchObject({
+      seat: 1,
+      rolling: false,
+    });
+  });
+
+  it("on roundStarted names the starter (the beat's subject)", () => {
+    expect(slices(beatRollOffWinner).header).toMatchObject({
+      stage: "round",
+      seat: 0,
+      rolling: false,
+    });
+    expect(slices(beatRoundTwoBotStarts).header).toMatchObject({
+      seat: 1,
+      rolling: true,
+    });
+  });
+
+  it("names the last roller on a tie-break opening and a roll-to-start tie", () => {
+    // Seat 3 rolled last before the tie-break; seat 3 rolled last before the tie.
+    expect(slices(beatTieBreakOpens).header).toMatchObject({
+      seat: 3,
+      rolling: false,
+    });
+    expect(slices(beatRollOffTie).header).toMatchObject({
+      stage: "rollOff",
+      seat: 3,
+      rolling: false,
+    });
+  });
+});
+
+describe("status", () => {
+  it("null on notStarted", () => {
+    expect(slices(notStarted).status).toBeNull();
+  });
+
+  it("unchanged across a viewer keep", () => {
+    expect(slices(viewerKeptOne).status).toEqual(
+      slices(viewerRolledKeepable).status,
+    );
+  });
+
+  it("names the beat for a bot keep swap", () => {
+    expect(slices(beatBotKeepSwap).status?.status.line).toMatchObject({
+      kind: "keeps",
+      seat: 1,
+      face: 6,
+      instead: true,
+    });
+  });
+});
+
+describe("controls", () => {
+  it("pending disables every control", () => {
+    for (const fixture of [viewerRolledKeepable, roundSummary, gameOverDraw]) {
+      const { controls } = sliceSession(
+        fixtureSession(fixture, { pending: true }),
+      );
+      expect([
+        controls.roll,
+        controls.keep,
+        controls.stop,
+        controls.nextRound,
+        controls.newGame,
+        controls.primary.available,
+      ]).toStrictEqual([false, false, false, false, false, false]);
+    }
+  });
+});
+
+describe("consistent turn", () => {
+  const SEEDS = Array.from({ length: 50 }, (_, i) => i + 1);
+  const VIEWER = 0;
+
+  it("every panel names the beat's subject across 50 seeded games", () => {
+    for (const seed of SEEDS) {
+      for (const [index, fixture] of beatsOfGame(seed).entries()) {
+        const where = `seed ${seed} beat ${index}`;
+        const beat = select.lastBeat(fixture.events);
+        if (!beat) throw new Error(`${where}: no beat`);
+        const { acting } = fixture.state;
+        // A tie-break opening or a roll-to-start tie has no subject: the
+        // heading names the previous roller.
+        const previous = select.lastBeat(
+          fixture.events,
+          (b) => b.seat === null,
+        );
+        const subject = acting ?? beat.seat ?? previous?.seat;
+        const view = slices(fixture);
+
+        if (view.header.stage === "rollOff" || view.header.stage === "round") {
+          expect(view.header.seat, where).toBe(subject);
+          expect(view.header.rolling, where).toBe(acting !== null);
+        }
+        expect(seatsWhere(view.roundRows, "current"), where).toEqual(
+          acting === null ? [] : [acting],
+        );
+        if (view.tray.shown) {
+          expect([acting, beat.seat], where).toContain(view.tray.shown.seat);
+        }
+        // Every seat the status names is in the beat: never a later seat.
+        const named = new Set(beat.events.flatMap((e) => seatsOf(e)));
+        if (beat.seat !== null) named.add(beat.seat);
+        for (const seat of statusSeats(view.status?.status)) {
+          expect(named.has(seat), `${where}: seat ${seat}`).toBe(true);
+        }
+      }
+    }
+  });
+
+  it("statusOf is non-null for every beat except the viewer's keepSet and keepSwapped, and never throws (50 seeds)", () => {
+    for (const seed of SEEDS) {
+      for (const fixture of beatsOfGame(seed)) {
+        const beat = select.lastBeat(fixture.events);
+        if (!beat) continue;
+        const status = statusOf(beat, fixture.state, VIEWER);
+        const silent =
+          (beat.kind === "keepSet" || beat.kind === "keepSwapped") &&
+          beat.seat === VIEWER;
+        expect(status === null, `seed ${seed} ${beat.kind}`).toBe(silent);
+      }
+    }
+  });
+});
+
+/** The seats an event names. */
+function seatsOf(event: Record<string, unknown>): number[] {
+  const seats: number[] = [];
+  if (typeof event.seat === "number") seats.push(event.seat);
+  if (typeof event.startingSeat === "number") seats.push(event.startingSeat);
+  for (const key of ["seats", "winners"]) {
+    const value = event[key];
+    if (Array.isArray(value)) seats.push(...(value as number[]));
+  }
+  return seats;
+}
+
+/** The seats a status names, in its line and its detail rows. */
+function statusSeats(
+  status: ReturnType<typeof statusOf> | undefined,
+): number[] {
+  if (!status) return [];
+  const { line, details } = status;
+  const rows = [...(line.kind === "row" ? [line.row] : []), ...details];
+  return [
+    ...("seat" in line ? [line.seat] : []),
+    ...rows.flatMap((row) =>
+      row.kind === "action"
+        ? [row.seat]
+        : row.kind === "tieBreak"
+          ? row.order
+          : [],
+    ),
+  ];
+}

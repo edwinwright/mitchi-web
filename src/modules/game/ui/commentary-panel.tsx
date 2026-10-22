@@ -1,23 +1,18 @@
 "use client";
 
 import {
-  Fragment,
   useEffect,
   useId,
   useRef,
   useState,
   useSyncExternalStore,
-  type ReactNode,
 } from "react";
 import { useTranslations } from "next-intl";
-import { MitchiDie } from "@/components/mitchi-die";
-import { MitchiHand } from "@/components/mitchi-hand";
-import { handById } from "@/data/hands";
 import { cn } from "@/lib/utils";
 import type { Seat } from "../engine";
-import type { CommentaryRow, Shown } from "./commentary-rows";
-import { Icon, Mark } from "./marks";
-import { SeatLabel } from "./seat-label";
+import { CommentaryRowView } from "./commentary-row";
+import type { CommentaryRow } from "./commentary-rows";
+import { Icon } from "./marks";
 
 /** The reader counts as "at the bottom" within this many pixels. */
 const STUCK_PX = 24;
@@ -45,137 +40,6 @@ function useWide() {
     () => false,
   );
 }
-const LIMIT_KEYS = [null, "one", "two", "three"] as const;
-
-/**
- * Each cell but the last is followed by a hidden comma, so a screen reader
- * hears "Player 2, six-three, rolls both dice again" as one phrase.
- */
-function Cells({ cells }: { cells: ReactNode[] }) {
-  const present = cells.filter((cell) => cell !== null);
-  return present.map((cell, index) => (
-    <Fragment key={index}>
-      {cell}
-      {index < present.length - 1 ? <span className="sr-only">, </span> : null}
-    </Fragment>
-  ));
-}
-
-function shownCells(
-  shown: Shown,
-  hands: ReturnType<typeof useTranslations<"hands">>,
-): ReactNode[] {
-  if (shown.kind === "die") {
-    return [
-      <span key="die">
-        <MitchiDie face={shown.face} size={20} />
-        <span className="sr-only">{shown.face}</span>
-      </span>,
-    ];
-  }
-  // High die first, as everywhere a hand is named, not the rolled order.
-  const { high, low } = handById(shown.hand);
-  return [
-    <MitchiHand key="dice" high={high} low={low} size={20} />,
-    <span key="hand" className="inline-flex items-center gap-2">
-      {/* Decorative: the hand name is already text. */}
-      {handById(shown.hand).group === "mitchi" ? <Mark name="mitchi" /> : null}
-      {hands(shown.hand)}
-    </span>,
-  ];
-}
-
-function Row({ row, viewerSeat }: { row: CommentaryRow; viewerSeat: Seat }) {
-  const t = useTranslations("play.commentary");
-  const hands = useTranslations("hands");
-
-  switch (row.kind) {
-    case "turn":
-      return <span className="font-semibold">{t("you.turn")}</span>;
-    case "round":
-      return (
-        <span className="font-semibold">
-          {t("notice.round", { number: row.number })}
-        </span>
-      );
-    case "rollLimit": {
-      const word = LIMIT_KEYS[row.limit];
-      return word ? <span>{t(`notice.rollLimit.${word}`)}</span> : null;
-    }
-    case "tieBreak":
-      return (
-        <>
-          <span className="font-semibold">
-            {row.direction === "clockwise"
-              ? t("notice.tieBreakClockwise", { number: row.number })
-              : t("notice.tieBreakAnticlockwise", { number: row.number })}
-          </span>
-          {row.order.map((seat) => (
-            <Fragment key={seat}>
-              <span className="sr-only">, </span>
-              <span>
-                <SeatLabel seat={seat} viewerSeat={viewerSeat} />
-              </span>
-            </Fragment>
-          ))}
-        </>
-      );
-    case "pot":
-      return (
-        <span>
-          {row.cause === "mitchi"
-            ? t("notice.potMitchi", { pot: row.pot })
-            : t("notice.potDoubled", { pot: row.pot })}
-        </span>
-      );
-    case "draw":
-      return <span className="font-semibold">{t("notice.draw")}</span>;
-    case "gameOver":
-      return <span className="font-semibold">{t("notice.gameOver")}</span>;
-    case "action": {
-      const { phrase, voice } = row;
-      // The viewer's rows carry their own subject, so they have no label cell.
-      // A re-roll phrase exists only for other players: the viewer's re-rolls
-      // show as results ("You roll").
-      let text: string;
-      if (phrase.type === "takesPot") {
-        text =
-          voice === "you"
-            ? t("you.takesPot", { pot: phrase.pot })
-            : t("player.takesPot", { pot: phrase.pot });
-      } else if (voice === "you") {
-        if (
-          phrase.type === "rollAgainBoth" ||
-          phrase.type === "rollAgainKeeping"
-        ) {
-          throw new Error(`The viewer has no "${phrase.type}" row`);
-        }
-        text = t(`you.${phrase.type}`);
-      } else {
-        text = t(`player.${phrase.type}`);
-      }
-      return (
-        <Cells
-          cells={[
-            voice === "player" ? (
-              <span key="label" className="font-semibold">
-                <SeatLabel seat={row.seat} viewerSeat={viewerSeat} />
-              </span>
-            ) : null,
-            ...(row.shown ? shownCells(row.shown, hands) : []),
-            <span key="phrase">{text}</span>,
-            row.reason ? (
-              <span key="reason" className="text-muted">
-                {t(`reason.${row.reason}`)}
-              </span>
-            ) : null,
-          ]}
-        />
-      );
-    }
-  }
-}
-
 function Chevron({ open }: { open: boolean }) {
   return (
     <Icon px={20} viewBox="0 0 20 20">
@@ -194,14 +58,14 @@ function Chevron({ open }: { open: boolean }) {
 const ROW = "flex flex-wrap items-center gap-x-2 gap-y-1";
 
 /**
- * The page's only live region. Rows are cells, never sentences with a name
- * inside. New rows scroll into view only if the reader was already at the
- * bottom, so scrolling up to read is never undone.
+ * A plain list, named by its heading: the announcements live in
+ * `BeatAnnouncer`. Rows are cells, never sentences with a name inside. New
+ * rows scroll into view only if the reader was already at the bottom, so
+ * scrolling up to read is never undone.
  *
- * Below `xl` it is collapsed under its heading, showing the latest row. The
- * full log stays mounted, visually hidden, so every row is still announced;
- * the visible latest row is hidden from screen readers so it is not read
- * twice, and the hidden log is not a tab stop. From `xl` it is always open.
+ * Below `xl` it is collapsed under its heading, showing the latest row, and
+ * the list is `hidden`: out of the accessibility tree and not a tab stop, so
+ * the latest row is read once, on demand. From `xl` it is always open.
  */
 export function CommentaryPanel({
   rows,
@@ -255,34 +119,26 @@ export function CommentaryPanel({
       </h2>
       {rows.length === 0 ? <p className="text-muted">{t("empty")}</p> : null}
       {!open && latest ? (
-        <p
-          aria-hidden
-          className={cn(ROW, "min-h-6 text-[15px] text-stone-700")}
-        >
-          <Row row={latest} viewerSeat={viewerSeat} />
+        <p className={cn(ROW, "min-h-6 text-[15px] text-stone-700")}>
+          <CommentaryRowView row={latest} viewerSeat={viewerSeat} />
         </p>
       ) : null}
       <ol
         ref={logRef}
         id={logId}
-        role="log"
         aria-labelledby={headingId}
-        aria-relevant="additions"
+        hidden={!open}
         tabIndex={open ? 0 : undefined}
         onScroll={(event) => {
           const log = event.currentTarget;
           stuck.current =
             log.scrollHeight - log.scrollTop - log.clientHeight <= STUCK_PX;
         }}
-        className={cn(
-          open
-            ? "focus-ring flex max-h-72 flex-col gap-2 overflow-y-auto xl:max-h-[40rem]"
-            : "sr-only",
-        )}
+        className="focus-ring flex max-h-72 flex-col gap-2 overflow-y-auto xl:max-h-[40rem]"
       >
         {rows.map((row) => (
           <li key={row.key} className={ROW}>
-            <Row row={row} viewerSeat={viewerSeat} />
+            <CommentaryRowView row={row} viewerSeat={viewerSeat} />
           </li>
         ))}
       </ol>

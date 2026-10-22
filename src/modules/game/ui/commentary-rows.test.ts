@@ -5,6 +5,7 @@ import {
   botMidTurn,
   gameOverDraw,
   rollOff,
+  rollOffReroll,
   secondTieBreak,
   simulateGame,
   starterLimitSet,
@@ -146,6 +147,17 @@ describe("commentaryRows", () => {
     const rows = commentaryRows(rollOff.events, VIEWER);
     expect(rows[0]).toMatchObject({ kind: "turn" });
     expect(rows.filter((row) => row.kind === "turn")).toHaveLength(1);
+  });
+
+  it("a roll-to-start tie gives a tie notice row with the face", () => {
+    const rows = commentaryRows(rollOffReroll.events, VIEWER);
+    const tied = rows.filter((row) => row.kind === "tied");
+    expect(tied).toMatchObject([{ kind: "tied", face: 4 }]);
+    // The viewer is tied and rolls first again: the turn row follows the notice.
+    expect(rows.slice(-2).map((row) => row.kind)).toStrictEqual([
+      "tied",
+      "turn",
+    ]);
   });
 
   it("turn row for the viewer is last in the step", () => {

@@ -37,6 +37,10 @@ export function ControlButton({
       aria-disabled={unavailable}
       aria-busy={busy}
       aria-pressed={pressed}
+      // A held key acts once: a repeat would roll again as soon as the lock lifts.
+      onKeyDown={(event) => {
+        if (event.repeat) event.preventDefault();
+      }}
       onClick={() => {
         if (unavailable) return;
         onPress();

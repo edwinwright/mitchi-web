@@ -501,6 +501,16 @@
     "tray": {
       "intro": "Juega una partida de práctica contra otros tres jugadores. Pulsa Empezar para comenzar.",
       "rollsLeft": "tiradas restantes"
+    },
+    "status": {
+      "intro": "[ES] Each player rolls one die. The highest starts the first round.",
+      "youRollFirst": "[ES] You roll first",
+      "youRolledToStart": "[ES] You roll a {face}",
+      "playerRolledToStart": "[ES] Rolls a {face}",
+      "tied": "[ES] Tied on {face}. The tied players roll again.",
+      "rollsNext": "[ES] Rolls next",
+      "keeps": "[ES] Keeps the {face}",
+      "keepsInstead": "[ES] Keeps the {face} instead"
     }
   }
 }

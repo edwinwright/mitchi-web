@@ -501,6 +501,16 @@
     "tray": {
       "intro": "Zagraj w grę treningową przeciwko trzem innym graczom. Naciśnij Zacznij, aby rozpocząć.",
       "rollsLeft": "pozostałe rzuty"
+    },
+    "status": {
+      "intro": "[PL] Each player rolls one die. The highest starts the first round.",
+      "youRollFirst": "[PL] You roll first",
+      "youRolledToStart": "[PL] You roll a {face}",
+      "playerRolledToStart": "[PL] Rolls a {face}",
+      "tied": "[PL] Tied on {face}. The tied players roll again.",
+      "rollsNext": "[PL] Rolls next",
+      "keeps": "[PL] Keeps the {face}",
+      "keepsInstead": "[PL] Keeps the {face} instead"
     }
   }
 }

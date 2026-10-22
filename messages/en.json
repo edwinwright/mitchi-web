@@ -501,6 +501,16 @@
     "tray": {
       "intro": "Play a practice game against three other players. Press Start to begin.",
       "rollsLeft": "rolls left"
+    },
+    "status": {
+      "intro": "Each player rolls one die. The highest starts the first round.",
+      "youRollFirst": "You roll first",
+      "youRolledToStart": "You roll a {face}",
+      "playerRolledToStart": "Rolls a {face}",
+      "tied": "Tied on {face}. The tied players roll again.",
+      "rollsNext": "Rolls next",
+      "keeps": "Keeps the {face}",
+      "keepsInstead": "Keeps the {face} instead"
     }
   }
 }

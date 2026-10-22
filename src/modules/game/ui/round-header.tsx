@@ -46,6 +46,10 @@ function Joined({
   ));
 }
 
+/**
+ * When nobody is acting (a turn has just ended, or a roll), the heading names
+ * that seat alone: never "rolling now" for a player who has finished.
+ */
 function useCells(header: HeaderData, viewerSeat: Seat): Cells {
   const t = useTranslations("play");
   const limitWord = (limit: number | null) => {
@@ -66,9 +70,11 @@ function useCells(header: HeaderData, viewerSeat: Seat): Cells {
     case "rollOff":
       return {
         label: null,
-        heading: header.viewer
-          ? [t("dice.yourTurn")]
-          : [seat(header.seat), t("commentary.player.rollsToStart")],
+        heading: !header.rolling
+          ? [seat(header.seat)]
+          : header.viewer
+            ? [t("dice.yourTurn")]
+            : [seat(header.seat), t("commentary.player.rollsToStart")],
         pot: null,
         hand: null,
         rollLimit: null,
@@ -81,9 +87,11 @@ function useCells(header: HeaderData, viewerSeat: Seat): Cells {
             ? []
             : [t("header.tieBreak", { number: header.tieBreak })]),
         ],
-        heading: header.viewer
-          ? [t("dice.yourTurn")]
-          : [seat(header.seat), t("players.rollingNow")],
+        heading: !header.rolling
+          ? [seat(header.seat)]
+          : header.viewer
+            ? [t("dice.yourTurn")]
+            : [seat(header.seat), t("players.rollingNow")],
         pot: header.pot,
         hand: { label: t("header.handToBeat"), hand: header.handToBeat },
         rollLimit: limitWord(header.rollLimit),

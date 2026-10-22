@@ -218,6 +218,42 @@ describe("speed", () => {
   });
 });
 
+describe("slow", () => {
+  it("slow delays the next beat by 2000 ms", () => {
+    const { result } = render();
+    act(() => result.current.pacing!.setSpeed("slow"));
+    act(() => result.current.intents.newGame());
+    act(() => result.current.intents.roll());
+    expect(result.current.view.rollMs).toBe(ROLL_MS.slow);
+    const before = beatsReleased(result.current);
+    wait(DELAY_MS.slow - 1);
+    expect(beatsReleased(result.current)).toBe(before);
+    wait(1);
+    expect(beatsReleased(result.current)).toBe(before + 1);
+  });
+});
+
+describe("fast", () => {
+  it("the handover to the viewer is released within 2000 ms of the previous beat", () => {
+    const { result } = render();
+    act(() => result.current.pacing!.setSpeed("fast"));
+    act(() => result.current.intents.newGame());
+    act(() => result.current.intents.roll());
+    // Through the roll to start: the bots roll, then the viewer starts round 1.
+    let sinceLastBeat = 0;
+    for (let i = 0; i < 40 && !result.current.allowed.roll; i++) {
+      const before = beatsReleased(result.current);
+      wait(100);
+      sinceLastBeat =
+        beatsReleased(result.current) === before ? sinceLastBeat + 100 : 0;
+      expect(sinceLastBeat).toBeLessThan(2000);
+    }
+    expect(result.current.allowed.roll).toBe(true);
+    expect(lastKind(result.current)).toBe("turnStarted");
+    expect(result.current.view.state.acting).toBe(VIEWER_SEAT);
+  });
+});
+
 describe("pause", () => {
   it("nothing is released while paused", () => {
     const { result } = startAndRoll();

@@ -1,12 +1,11 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import type { GameSession, GameState } from "../engine";
-import { latestRollSeq, sliceSession } from "./board-slices";
+import { sliceSession } from "./board-slices";
 import { CommentaryPanel } from "./commentary-panel";
 import { commentaryRows } from "./commentary-rows";
 import { DiceCard } from "./dice-card";
-import { HOLD_MS } from "./hold";
 import { PacingControls } from "./pacing-controls";
 import { PlayersCard } from "./players-card";
 
@@ -21,28 +20,7 @@ export function GameBoard({ session }: { session: GameSession }) {
   const { view, intents, pacing } = session;
   const { viewerSeat } = view;
 
-  // The dice hold: the most recent roll stays on screen once its turn has
-  // ended (hold.ts), then each turn shows placeholders. Display only: no intent waits for it.
-  // The engine ends one turn and starts the next in a single step, so the gap
-  // can only live here.
-  const lastRoll = latestRollSeq(view.events);
-  const speed = pacing?.speed ?? "normal";
-  // Paused with a bot due, no step is coming until play resumes, so a held
-  // roll stays. Paused with the viewer next, nothing is waiting on a bot and
-  // the hold runs out as it would unpaused.
-  const waitingOnResume = pacing?.canStep ?? false;
-  const [heldOver, setHeldOver] = useState<number | null>(null);
-  useEffect(() => {
-    if (lastRoll === null || waitingOnResume) return;
-    // The one timer outside the session (WO-0017): display timing, not pacing.
-    // eslint-disable-next-line no-restricted-globals -- the dice hold
-    const id = setTimeout(() => setHeldOver(lastRoll), HOLD_MS[speed]);
-    // eslint-disable-next-line no-restricted-globals -- the dice hold
-    return () => clearTimeout(id);
-  }, [lastRoll, speed, waitingOnResume]);
-  const holding = lastRoll !== null && heldOver !== lastRoll;
-
-  const slices = sliceSession(session, { holding });
+  const slices = sliceSession(session);
   const rows = useMemo(
     () => commentaryRows(view.events, viewerSeat),
     [view.events, viewerSeat],

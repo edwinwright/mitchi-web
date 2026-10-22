@@ -1,11 +1,14 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import {
+  beatTieBreakRolled,
+  beatViewerRollToStart,
+  beatViewerStops,
   botMidTurn,
   fixtureSession,
   gameOverDraw,
   notStarted,
-  rollOff,
   roundSummary,
+  starterLimitSet,
   tieBreakViewerToRoll,
   viewerKeptOne,
   type Fixture,
@@ -19,15 +22,12 @@ const noop = () => {};
 function Showcase({
   fixture,
   options,
-  holding = false,
 }: {
   fixture: Fixture;
   options?: SessionOptions;
-  /** As the board does while the last roll's hold runs. */
-  holding?: boolean;
 }) {
   const session = fixtureSession(fixture, options);
-  const slices = sliceSession(session, { holding });
+  const slices = sliceSession(session);
   return (
     <div className="max-w-[420px] rounded-[22px] bg-stone-100">
       <DiceTray
@@ -58,19 +58,26 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const NotStarted: Story = {};
-/** The viewer's roll-off die, held and named, while a bot is next. */
-export const RollOffHeld: Story = { args: { fixture: rollOff, holding: true } };
+/** The viewer's die to start, on its own beat, named, before the handover. */
+export const RollToStartLanded: Story = {
+  args: { fixture: beatViewerRollToStart },
+};
+/** The handover beat: placeholders while Player 2's turn starts. */
+export const HandoverPlaceholders: Story = {
+  args: { fixture: starterLimitSet },
+};
 export const MidRoll: Story = { args: { fixture: viewerKeptOne } };
 export const BotMidTurn: Story = { args: { fixture: botMidTurn } };
-/** Player 2's tie-break roll, held under the viewer's turn and named. */
-export const TieBreakHeld: Story = {
-  args: { fixture: tieBreakViewerToRoll, holding: true },
+/** The viewer's stop: their finished hand, named, before the handover. */
+export const TurnEndedHeld: Story = { args: { fixture: beatViewerStops } };
+/** Player 2's tie-break roll, on its own beat, named. */
+export const TieBreakRolledHeld: Story = {
+  args: { fixture: beatTieBreakRolled },
 };
-/** After the hold: placeholders for the viewer's roll. */
+/** The handover to the viewer's tie-break roll: placeholders. */
 export const TieBreak: Story = { args: { fixture: tieBreakViewerToRoll } };
-export const RoundSummaryHeld: Story = {
-  args: { fixture: roundSummary, holding: true },
-};
+/** The pot taken: placeholders. */
+export const PotTaken: Story = { args: { fixture: roundSummary } };
 export const GameOver: Story = { args: { fixture: gameOverDraw } };
 export const Pending: Story = {
   args: { fixture: viewerKeptOne, options: { pending: true } },

@@ -3,8 +3,11 @@ import { readFileSync } from "node:fs";
 import { NextIntlClientProvider } from "next-intl";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import type { GameSession } from "../engine";
+import type { Action, GameSession } from "../engine";
 import {
+  batchActions,
+  beatFixtures,
+  simulateGame,
   botKept,
   botMidTurn,
   fixtureSession,
@@ -68,7 +71,7 @@ describe("focus handoff", () => {
     },
   );
 
-  it("a later bot step does not move focus", () => {
+  it("a bot beat after Start does not move focus", () => {
     const first = spied(notStarted);
     const { rerender } = render(board(first.session));
     fireEvent.click(button("Start"));
@@ -78,7 +81,7 @@ describe("focus handoff", () => {
     // The reader moves on. Further bot steps must leave focus where it is.
     // jsdom is narrow, so the log starts collapsed: open it to focus it.
     fireEvent.click(button("What happened"));
-    const log = screen.getByRole("log");
+    const log = screen.getByRole("list", { name: "What happened" });
     log.focus();
     rerender(board(fixtureSession(botKept)));
     rerender(board(fixtureSession(botMidTurn)));
@@ -220,25 +223,28 @@ describe("the players card", () => {
 });
 
 describe("the collapsed log", () => {
-  it("collapsed log: not a tab stop, still the live region, latest row shown once", () => {
+  it("collapsed log is not in the accessibility tree, is not live, and the latest row is shown once", () => {
     const { rerender } = render(board(fixtureSession(viewerToRoll)));
     const heading = button("What happened");
     expect(heading.getAttribute("aria-expanded")).toBe("false");
+    expect(screen.queryByRole("log")).toBeNull();
+    expect(screen.queryByRole("list", { name: "What happened" })).toBeNull();
 
-    const log = screen.getByRole("log");
-    expect(log.hasAttribute("tabindex")).toBe(false);
-    const before = log.querySelectorAll("li").length;
+    // The log is the list the heading button controls.
+    const logList = () =>
+      document.getElementById(heading.getAttribute("aria-controls") ?? "");
+    const latestRow = () => {
+      expect(logList()?.hidden).toBe(true);
+      return logList()?.parentElement?.querySelector("p");
+    };
+    const before = latestRow()?.textContent;
+    expect(before).toBe(logList()?.querySelector("li:last-child")?.textContent);
+    // Read once: the visible copy is not hidden from screen readers.
+    expect(latestRow()?.hasAttribute("aria-hidden")).toBe(false);
 
-    // A bot step adds rows to the mounted log, so they are announced.
     rerender(board(fixtureSession(botMidTurn)));
-    expect(screen.getByRole("log")).toBe(log);
-    expect(log.querySelectorAll("li").length).toBeGreaterThan(before);
-
-    // The visible copy of the latest row is hidden from screen readers.
-    const latest = log.parentElement?.querySelector("p[aria-hidden]");
-    expect(latest?.textContent).toBe(
-      log.querySelector("li:last-child")?.textContent,
-    );
+    expect(screen.queryByRole("log")).toBeNull();
+    expect(latestRow()?.textContent).not.toBe(before);
   });
 
   it("collapsed log opens on its heading button and becomes a tab stop", () => {
@@ -246,7 +252,29 @@ describe("the collapsed log", () => {
     const heading = button("What happened");
     fireEvent.click(heading);
     expect(heading.getAttribute("aria-expanded")).toBe("true");
-    expect(screen.getByRole("log").getAttribute("tabindex")).toBe("0");
-    expect(document.activeElement).not.toBe(screen.getByRole("log"));
+    const list = screen.getByRole("list", { name: "What happened" });
+    expect(list.getAttribute("tabindex")).toBe("0");
+    expect(document.activeElement).not.toBe(list);
+    expect(screen.queryByRole("log")).toBeNull();
+  });
+});
+
+describe("the end of the game", () => {
+  it("the pot beat that ends the game offers no Next round", () => {
+    const actions: Action[] = [];
+    simulateGame(1, {
+      onStep: ({ action, result }) => {
+        if (result.ok) actions.push(action);
+      },
+    });
+    const potBeat = beatFixtures(batchActions(actions)).find(
+      (fixture) =>
+        fixture.state.phase.kind === "roundSummary" &&
+        fixture.state.points.some((p) => p >= fixture.state.config.pointLimit),
+    );
+    if (!potBeat) throw new Error("No pot beat ended the game");
+    render(board(fixtureSession(potBeat)));
+    expect(screen.queryByRole("button", { name: "Next round" })).toBeNull();
+    expect(button("Roll").getAttribute("aria-disabled")).toBe("true");
   });
 });
