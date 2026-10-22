@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { HandId } from "@/data/hands";
+import { simulateGame } from "../testing";
 import { botStep, STARTER_STOPS_AT } from "./bots";
 import type {
   DicePair,
@@ -292,5 +293,45 @@ describe("botStep: keeping", () => {
       request: KEEP(2, 0, false),
       reason: null,
     });
+  });
+});
+
+describe("keep swap", () => {
+  it("an un-keep is always followed by a keep of the other die (300 seeds)", () => {
+    let swaps = 0;
+    for (let seed = 1; seed <= 300; seed++) {
+      let unkept: { seat: number; die: 0 | 1 } | null = null;
+      simulateGame(seed, {
+        onStep: ({ action, result }) => {
+          if (unkept) {
+            // The action straight after an un-keep is the matching keep.
+            expect(action, `seed ${seed}`).toStrictEqual({
+              type: "keep",
+              seat: unkept.seat,
+              die: unkept.die === 0 ? 1 : 0,
+              kept: true,
+            });
+            unkept = null;
+          }
+          if (action.type !== "keep" || action.kept || !result.ok) return;
+          swaps += 1;
+          unkept = { seat: action.seat, die: action.die };
+          expect(
+            botStep(result.state, action.seat),
+            `seed ${seed}`,
+          ).toStrictEqual({
+            request: {
+              type: "keep",
+              seat: action.seat,
+              die: action.die === 0 ? 1 : 0,
+              kept: true,
+            },
+            reason: null,
+          });
+        },
+      });
+      expect(unkept, `seed ${seed} ended mid-swap`).toBeNull();
+    }
+    expect(swaps).toBeGreaterThan(0);
   });
 });

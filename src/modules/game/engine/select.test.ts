@@ -2,7 +2,10 @@ import { describe, expect, it } from "vitest";
 import * as fixtures from "../testing";
 import { applyAction, createGame } from "./apply";
 import { completeAction } from "./dice";
+import type { GameEvent } from "./events";
 import { applyEvent } from "./evolve";
+import { stampEvents } from "./log";
+import type { LoggedEvent } from "./session";
 import * as select from "./select";
 import type { DicePair, GameState, Phase, RoundState, Seat } from "./types";
 
@@ -89,6 +92,93 @@ describe("actingSeat", () => {
     expect(select.actingSeat(TIE_BREAK)).toBe(1);
     expect(select.actingSeat(SUMMARY)).toBeNull();
     expect(select.actingSeat(GAME_OVER)).toBeNull();
+  });
+});
+
+describe("limitReached", () => {
+  it("true on the pot beat that ends the game, false on an ordinary summary", () => {
+    expect(select.limitReached(SUMMARY)).toBe(false);
+    expect(select.limitReached(state(SUMMARY.phase, {}, [0, 0, 5, 0]))).toBe(
+      true,
+    );
+    expect(select.limitReached(state(SUMMARY.phase, {}, [0, 0, 7, 0]))).toBe(
+      true,
+    );
+    // The limit is the taker's: another seat on 5 does not end the game here.
+    expect(select.limitReached(state(SUMMARY.phase, {}, [5, 0, 1, 0]))).toBe(
+      false,
+    );
+    expect(select.limitReached(GAME_OVER)).toBe(false);
+  });
+});
+
+describe("lastBeat", () => {
+  const log = (...batches: GameEvent[][]): LoggedEvent[] => {
+    let seq = 0;
+    return batches.flatMap((batch) => {
+      const stamped = stampEvents(seq, batch);
+      seq = stamped.seq;
+      return [...stamped.events];
+    });
+  };
+  const ended: GameEvent = {
+    type: "turnEnded",
+    seat: 0,
+    dice: [6, 3],
+    hand: "6-3",
+    rollsUsed: 2,
+    cause: "stop",
+    reason: null,
+  };
+  const limit: GameEvent = { type: "rollLimitSet", seat: 0, limit: 2 };
+  const turn: GameEvent = { type: "turnStarted", seat: 1, context: "round" };
+  const keep: GameEvent = { type: "keepSet", seat: 1, die: 0, kept: true };
+
+  it("is the latest beat, with its id the seq of its first event", () => {
+    expect(select.lastBeat(log([ended, limit, turn]))).toStrictEqual({
+      kind: "turnStarted",
+      seat: 1,
+      id: 3,
+      events: [{ ...turn, seq: 3, beat: 3 }],
+    });
+  });
+
+  it("keeps a multi-event beat whole", () => {
+    expect(select.lastBeat(log([ended, limit]))).toMatchObject({
+      kind: "turnEnded",
+      id: 1,
+      events: [{ type: "turnEnded" }, { type: "rollLimitSet" }],
+    });
+  });
+
+  it("skips the beats `silent` marks", () => {
+    const events = log([ended, limit, turn], [keep]);
+    expect(select.lastBeat(events)?.kind).toBe("keepSet");
+    expect(
+      select.lastBeat(events, (beat) => beat.kind === "keepSet")?.kind,
+    ).toBe("turnStarted");
+    expect(select.lastBeat(events, () => true)).toBeNull();
+  });
+
+  it("is null for an empty log", () => {
+    expect(select.lastBeat([])).toBeNull();
+  });
+
+  it("throws when one stamp holds two beats", () => {
+    const corrupt = log([ended, limit, turn]).map((e) => ({ ...e, beat: 1 }));
+    expect(() => select.lastBeat(corrupt)).toThrow(/^Corrupt log: /);
+  });
+});
+
+describe("noIntents", () => {
+  it("is every intent unavailable", () => {
+    expect(Object.values(select.noIntents)).toStrictEqual([
+      false,
+      false,
+      false,
+      false,
+      false,
+    ]);
   });
 });
 

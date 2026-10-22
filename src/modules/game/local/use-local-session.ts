@@ -132,6 +132,7 @@ export function useLocalSession(): GameSession {
       events: store.log,
       viewerSeat: VIEWER_SEAT,
       pending: locked,
+      rollMs: 0,
     },
     allowed: select.allowedIntents(store.game, VIEWER_SEAT),
     intents,

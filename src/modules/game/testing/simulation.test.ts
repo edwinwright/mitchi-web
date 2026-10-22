@@ -2,12 +2,27 @@ import { beforeAll, describe, expect, it } from "vitest";
 import {
   applyAction,
   applyEvent,
+  beatsOf,
+  caughtUp,
   completeAction,
+  createGame,
   isMitchi,
+  receive,
+  release,
   select,
+  startPlayback,
+  type Action,
+  type ApplyResult,
+  type GameEvent,
   type GameState,
+  type LoggedBeat,
 } from "../engine";
-import { simulateGame, type SimulationResult } from "./simulate";
+import { batchActions } from "./batch";
+import {
+  SIMULATION_CONFIG,
+  simulateGame,
+  type SimulationResult,
+} from "./simulate";
 
 const GAMES = 2000;
 const SEEDS = Array.from({ length: GAMES }, (_, i) => i + 1);
@@ -134,15 +149,231 @@ function checker(seed: number) {
   };
 }
 
-type Run = { result: SimulationResult; failures: string[] };
+const RIDERS = ["rollLimitSet", "worstHandChanged", "potChanged"];
+const ACTIVE = ["rollOff", "turn", "tieBreak"];
+
+/**
+ * The checks at one released beat: the state shown names one turn, and no
+ * panel could read a later one from it. Returns a failure per broken check,
+ * tagged so each test reads its own.
+ */
+function checkBeat(
+  s: GameState,
+  beat: LoggedBeat,
+  previous: LoggedBeat | null,
+): string[] {
+  const failures: string[] = [];
+  const fail = (tag: string, what: string) =>
+    failures.push(`${tag}: ${what} at ${beat.kind} ${beat.id}`);
+  const { acting, phase, round } = s;
+
+  // I1 to I6.
+  if (acting !== null && !(acting >= 0 && acting < s.config.seats))
+    fail("turn", "acting out of range");
+  if (!ACTIVE.includes(phase.kind) && acting !== null)
+    fail("turn", "acting outside a turn");
+  if (phase.kind === "turn" && acting !== null && acting !== phase.seat)
+    fail("turn", "acting is not the turn's seat");
+  if (
+    phase.kind === "tieBreak" &&
+    acting !== null &&
+    acting !== phase.order[phase.rolled.length]
+  )
+    fail("turn", "acting is not the next tie-break roller");
+  if (
+    phase.kind === "rollOff" &&
+    acting !== null &&
+    acting !==
+      phase.seats.find((seat) => !phase.rolled.some((r) => r.seat === seat))
+  )
+    fail("turn", "acting is not the next seat to roll to start");
+  if (
+    JSON.stringify(select.toRoll(s)) !==
+    JSON.stringify(acting === null ? [] : [acting])
+  )
+    fail("turn", "toRoll is not [acting]");
+  if (acting === null && ACTIVE.includes(phase.kind)) {
+    for (const seat of SEATS) {
+      if (Object.values(select.allowedIntents(s, seat)).some(Boolean))
+        fail("turn", `seat ${seat} may act while nobody is acting`);
+    }
+  }
+
+  // The subject of the beat.
+  const absorbed = beat.events.find((e) => e.type === "turnStarted");
+  switch (beat.kind) {
+    case "turnStarted":
+    case "rolled":
+    case "keepSet":
+    case "keepSwapped":
+      if (acting !== beat.seat) fail("turn", "the subject is not acting");
+      break;
+    case "turnEnded":
+    case "tieBreakRolled":
+    case "rollOffRolled":
+      if (acting !== null) fail("turn", "a seat is acting after a hand");
+      if (beat.seat === null || select.seatHand(s, beat.seat) === null)
+        fail("turn", "the subject shows no hand");
+      break;
+    case "tieBreakStarted":
+    case "rollOffStarted":
+    case "potTaken":
+    case "gameEnded":
+      if (acting !== null) fail("turn", "a seat is acting");
+      break;
+    case "roundStarted":
+      // Round 1 names the starter on its own beat; their turn starts on the next.
+      if (
+        beat.events[0].type === "roundStarted" &&
+        beat.events[0].round === 1
+      ) {
+        if (acting !== null || absorbed)
+          fail("turn", "round 1 starts with a seat acting");
+        break;
+      }
+    // falls through: a later round's start carries the starter's turn.
+    case "gameStarted":
+      if (absorbed?.type !== "turnStarted" || acting !== absorbed.seat)
+        fail("turn", "acting is not the absorbed turn's seat");
+      break;
+  }
+
+  // Not later.
+  if (absorbed?.type === "turnStarted" && absorbed.context === "round") {
+    if (
+      phase.kind !== "turn" ||
+      phase.dice !== null ||
+      phase.kept.some(Boolean)
+    )
+      fail("turn", "a fresh turn already has dice or keeps");
+  }
+  if (absorbed?.type === "turnStarted" && absorbed.context === "rollOff") {
+    if (phase.kind !== "rollOff" || phase.rolled.some((r) => r.seat === acting))
+      fail("turn", "the seat to roll to start has rolled");
+  }
+  if (phase.kind === "turn" && round && acting !== null) {
+    const at = round.order.indexOf(acting);
+    if (round.finished.some((f) => round.order.indexOf(f.seat) > at))
+      fail("turn", "a later seat has a finished hand");
+  }
+  if (beat.kind === "keepSet" && beat.events[0].type === "keepSet") {
+    if (!beat.events[0].kept) fail("turn", "a lone un-keep is a beat");
+  }
+
+  // The pot beat that ends the game, and the beat before every pot.
+  const limit = select.limitReached(s);
+  if (limit && beat.kind !== "potTaken")
+    fail("limit", "limitReached off the pot beat");
+  if (beat.kind === "gameEnded") {
+    const previousLimit =
+      previous?.kind === "potTaken" &&
+      previous.events[0].type === "potTaken" &&
+      previous.events[0].points >= s.config.pointLimit;
+    if (!previousLimit) fail("limit", "gameEnded without a limit pot beat");
+  }
+  if (
+    beat.kind === "potTaken" &&
+    previous?.kind !== "turnEnded" &&
+    previous?.kind !== "tieBreakRolled"
+  )
+    fail("pot", `pot taken after ${previous?.kind}`);
+
+  // Stamps.
+  if (
+    beat.id !== beat.events[0].seq ||
+    beat.events.some((e) => e.beat !== beat.id)
+  )
+    fail("stamp", "beat is not the seq of its first event");
+  return failures;
+}
+
+type Step = { readonly action: Action; readonly result: ApplyResult };
+
+/**
+ * Plays a game's accepted actions through a Playback one beat at a time,
+ * batched as the store batches a bot's keep swap.
+ */
+function replay(seed: number, steps: readonly Step[]): string[] {
+  const failures: string[] = [];
+  let playback = startPlayback(createGame(SIMULATION_CONFIG));
+  let previous: LoggedBeat | null = null;
+  let previousLimit = false;
+  let index = 0;
+  const stream: GameEvent[] = [];
+  for (const batch of batchActions(steps.map((step) => step.action))) {
+    const size = Array.isArray(batch) ? batch.length : 1;
+    const results = steps.slice(index, index + size).map((step) => step.result);
+    index += size;
+    const events = results.flatMap((r) => (r.ok ? r.events : []));
+    stream.push(...events);
+    playback = receive(playback, events);
+    while (!caughtUp(playback)) {
+      playback = release(playback);
+      const beat = select.lastBeat(playback.released);
+      if (!beat) {
+        failures.push(`turn: seed ${seed}: nothing released`);
+        continue;
+      }
+      if (previousLimit && beat.kind !== "gameEnded")
+        failures.push(`limit: seed ${seed}: ${beat.kind} after the limit pot`);
+      failures.push(
+        ...checkBeat(playback.shown, beat, previous).map(
+          (f) => `${f} (seed ${seed})`,
+        ),
+      );
+      previousLimit = select.limitReached(playback.shown);
+      previous = beat;
+    }
+    const last = results.at(-1);
+    if (
+      last?.ok &&
+      JSON.stringify(playback.shown) !== JSON.stringify(last.state)
+    )
+      failures.push(`state: seed ${seed}: shown differs after batch ${index}`);
+  }
+
+  try {
+    const beats = beatsOf(stream);
+    if (
+      JSON.stringify(beats.flatMap((b) => b.events)) !== JSON.stringify(stream)
+    )
+      failures.push(
+        `beats: seed ${seed}: the beats do not give the stream back`,
+      );
+    if (beats.some((b) => RIDERS.includes(b.events[0].type)))
+      failures.push(`beats: seed ${seed}: a beat starts with a rider`);
+  } catch (error) {
+    failures.push(`beats: seed ${seed}: ${String(error)}`);
+  }
+  return failures;
+}
+
+type Run = { result: SimulationResult; failures: string[]; replay: string[] };
 
 function runAll(): Run[] {
   return SEEDS.map((seed) => {
     const { failures, onStep } = checker(seed);
-    const result = simulateGame(seed, { onStep });
-    return { result, failures };
+    const steps: Step[] = [];
+    const result = simulateGame(seed, {
+      onStep: (step) => {
+        onStep(step);
+        if (step.result.ok) steps.push(step);
+      },
+    });
+    return { result, failures, replay: replay(seed, steps) };
   });
 }
+
+const replayFailures = (tag: string) =>
+  RUN.flatMap((r) => r.replay.filter((f) => f.startsWith(`${tag}:`))).slice(
+    0,
+    5,
+  );
+
+const percentile = (values: number[], p: number) => {
+  const sorted = values.toSorted((a, b) => a - b);
+  return sorted[Math.min(sorted.length - 1, Math.floor(sorted.length * p))];
+};
 
 // One run feeds every assertion below, so the games are played once.
 let RUN: Run[] = [];
@@ -217,6 +448,50 @@ describe("simulation", () => {
         r.failures.filter((f) => f.includes("fold differs")),
       );
       expect(failures.slice(0, 5)).toStrictEqual([]);
+    });
+  });
+
+  describe("playback replay", () => {
+    it("every released beat is a consistent turn", () => {
+      expect(replayFailures("turn")).toStrictEqual([]);
+    });
+
+    it("limitReached exactly on the potTaken beat before gameEnded", () => {
+      expect(replayFailures("limit")).toStrictEqual([]);
+    });
+  });
+
+  describe("last-beat state", () => {
+    it("after the last beat of each batch, shown deep-equals the engine state", () => {
+      expect(replayFailures("state")).toStrictEqual([]);
+    });
+  });
+
+  describe("beats", () => {
+    it("mean < 200, p95 < 300, max < 400", () => {
+      const beats = RUN.map((r) => r.result.beats);
+      const stats = {
+        mean: beats.reduce((a, b) => a + b, 0) / beats.length,
+        p95: percentile(beats, 0.95),
+        max: Math.max(...beats),
+      };
+      console.info("Beats per game", stats);
+      expect(stats.mean).toBeLessThan(200);
+      expect(stats.p95).toBeLessThan(300);
+      expect(stats.max).toBeLessThan(400);
+    });
+
+    it("LoggedEvent.beat equals the seq of its beat's first event", () => {
+      expect(replayFailures("stamp")).toStrictEqual([]);
+    });
+
+    it("every pot taken is preceded by a turnEnded beat", () => {
+      // Or by the last tie-break roll, when the round went to a tie-break.
+      expect(replayFailures("pot")).toStrictEqual([]);
+    });
+
+    it("beatsOf gives the whole stream back, each beat led by a headline", () => {
+      expect(replayFailures("beats")).toStrictEqual([]);
     });
   });
 

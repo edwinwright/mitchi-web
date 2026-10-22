@@ -1,5 +1,6 @@
 import type { HandId } from "@/data/hands";
-import type { AllowedIntents } from "./session";
+import { beatsOf, type LoggedBeat } from "./beats";
+import type { AllowedIntents, LoggedEvent } from "./session";
 import { handFromDice, rankOf, worstOf } from "./hand-rank";
 import {
   MAX_ROLLS,
@@ -110,14 +111,17 @@ export function nearestLimit(
   return { seats, points };
 }
 
+/** Every intent unavailable. */
+export const noIntents: AllowedIntents = {
+  roll: false,
+  setKeep: false,
+  stop: false,
+  nextRound: false,
+  newGame: false,
+};
+
 export function allowedIntents(state: GameState, seat: Seat): AllowedIntents {
-  const none: AllowedIntents = {
-    roll: false,
-    setKeep: false,
-    stop: false,
-    nextRound: false,
-    newGame: false,
-  };
+  const none = noIntents;
   const { phase } = state;
   switch (phase.kind) {
     case "notStarted":
@@ -182,6 +186,45 @@ export function seatHand(state: GameState, seat: Seat): SeatHand | null {
       return null;
   }
 }
+
+/**
+ * The round summary whose pot took the taker to the point limit: the pot
+ * beat that ends the game, with `gameEnded` still to come. False otherwise.
+ */
+export function limitReached(state: GameState): boolean {
+  const { phase, points, config } = state;
+  return (
+    phase.kind === "roundSummary" && points[phase.taker] >= config.pointLimit
+  );
+}
+
+/**
+ * The latest beat in a stamped log, or null for an empty log. Walks back
+ * over runs of events sharing a `beat` stamp; with `silent`, skips the beats
+ * it marks and returns the latest one it does not. Throws if a run is not
+ * exactly one beat: a corrupt log.
+ */
+export function lastBeat(
+  events: readonly LoggedEvent[],
+  silent?: (beat: LoggedBeat) => boolean,
+): LoggedBeat | null {
+  let end = events.length;
+  while (end > 0) {
+    const stamp = events[end - 1].beat;
+    let start = end - 1;
+    while (start > 0 && events[start - 1].beat === stamp) start -= 1;
+    const grouped = beatsOf(events.slice(start, end));
+    if (grouped.length !== 1) {
+      throw new Error(`Corrupt log: beat ${stamp} is ${grouped.length} beats`);
+    }
+    const beat: LoggedBeat = { ...grouped[0], id: events[start].seq };
+    if (!silent?.(beat)) return beat;
+    end = start;
+  }
+  return null;
+}
+
+export { beatsOf };
 
 /** False only for non-participants in a tie-break. */
 export function inContest(state: GameState, seat: Seat): boolean {

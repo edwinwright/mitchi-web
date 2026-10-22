@@ -23,7 +23,8 @@ export const STARTER_STOPS_AT: HandId = "6-3";
  * 4. Starter on 6-3 or better: stop (`goodEnough`).
  * 5. Not the starter, strictly better than the worst so far: stop
  *    (`beatsWorstHandSoFar`). A tie is not a beat.
- * 6. Keeps differ from the target: set the first slot that differs.
+ * 6. Keeps differ from the target: set a slot that differs, letting go
+ *    before keeping, so a swap never holds both dice.
  * 7. The target keeps one die: roll (`keepingHighDie`).
  * 8. Otherwise roll both (`rerollingBoth`).
  *
@@ -56,13 +57,15 @@ export function botStep(state: GameState, seat: Seat): BotStep | null {
   }
 
   const target = targetKeep(phase.dice, phase.kept);
-  for (const die of [0, 1] as const) {
-    if (phase.kept[die] !== target[die]) {
-      return {
-        request: { type: "keep", seat, die, kept: target[die] },
-        reason: null,
-      };
-    }
+  const differs = ([0, 1] as const).filter(
+    (die) => phase.kept[die] !== target[die],
+  );
+  const die = differs.find((d) => !target[d]) ?? differs[0];
+  if (die !== undefined) {
+    return {
+      request: { type: "keep", seat, die, kept: target[die] },
+      reason: null,
+    };
   }
   return target[0] || target[1]
     ? { request: roll, reason: "keepingHighDie" }

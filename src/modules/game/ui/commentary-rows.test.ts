@@ -79,6 +79,7 @@ describe("commentaryRows", () => {
       kept: readonly [boolean, boolean],
     ): LoggedEvent => ({
       seq,
+      beat: seq,
       type: "rolled",
       seat: 2,
       dice: [6, 1],
@@ -165,7 +166,11 @@ describe("commentaryRows over simulated games", () => {
     const result = simulateGame(seed, {
       onStep: ({ result }) => {
         if (!result.ok) return;
-        const logged = result.events.map((event) => ({ ...event, seq: ++seq }));
+        // The rows do not read the beat stamp.
+        const logged = result.events.map((event) => {
+          seq += 1;
+          return { ...event, seq, beat: seq };
+        });
         eventSteps.push(logged);
         steps.push(commentaryRows(logged, viewerSeat));
       },

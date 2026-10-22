@@ -1,5 +1,6 @@
 import {
   applyAction,
+  beatsOf,
   botStep,
   completeAction,
   createGame,
@@ -9,6 +10,7 @@ import {
   type BotReason,
   type Die,
   type GameConfig,
+  type GameEvent,
   type GameState,
   type Seat,
   type Spare,
@@ -61,6 +63,8 @@ export type SimulationResult = {
   readonly winners: Winners | null;
   /** The seat that took the last pot. */
   readonly finalTaker: Seat | null;
+  /** Beats in the whole game: every seat is a bot, so each keep swap is one. */
+  readonly beats: number;
 };
 
 /**
@@ -88,6 +92,7 @@ export function simulateGame(
   let finalTaker: Seat | null = null;
   let rejected: SimulationResult["rejected"] = null;
   const reasons = new Set<BotReason>();
+  const stream: GameEvent[] = [];
 
   const apply = (action: Action, bot: boolean): boolean => {
     actions += 1;
@@ -109,6 +114,7 @@ export function simulateGame(
         reasons.add(event.reason);
       }
     }
+    stream.push(...result.events);
     state = result.state;
     return true;
   };
@@ -139,5 +145,6 @@ export function simulateGame(
     points: state.points,
     winners: state.phase.kind === "gameOver" ? state.phase.winners : null,
     finalTaker,
+    beats: beatsOf(stream).length,
   };
 }

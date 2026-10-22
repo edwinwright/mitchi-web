@@ -18,7 +18,8 @@ function longLog(): LoggedEvent[] {
     onStep: ({ result }) => {
       if (result.ok) {
         for (const event of result.events) {
-          log.push({ ...event, seq: log.length + 1 });
+          // One beat per event: the rows do not read the beat stamp.
+          log.push({ ...event, seq: log.length + 1, beat: log.length + 1 });
         }
       }
     },

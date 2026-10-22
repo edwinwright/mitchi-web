@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { appendEvents } from "./log";
+import { appendEvents, appendReleased, stampEvents } from "./log";
 import type { GameEvent } from "./events";
 
 const GAME_STARTED: GameEvent = {
@@ -18,6 +18,70 @@ const ROUND = (round: number): GameEvent => ({
   startingSeat: 0,
 });
 const TURN: GameEvent = { type: "turnStarted", seat: 0, context: "round" };
+const FIRST_TURN: GameEvent = {
+  type: "turnStarted",
+  seat: 0,
+  context: "rollOff",
+};
+const LIMIT: GameEvent = { type: "rollLimitSet", seat: 0, limit: 2 };
+const ENDED: GameEvent = {
+  type: "turnEnded",
+  seat: 0,
+  dice: [6, 3],
+  hand: "6-3",
+  rollsUsed: 2,
+  cause: "stop",
+  reason: null,
+};
+
+describe("stampEvents", () => {
+  it("numbers from seq + 1 and stamps each event with its beat's first seq", () => {
+    const { events, seq } = stampEvents(10, [ENDED, LIMIT, TURN]);
+    expect(events.map((e) => [e.type, e.seq, e.beat])).toStrictEqual([
+      ["turnEnded", 11, 11],
+      ["rollLimitSet", 12, 11],
+      ["turnStarted", 13, 13],
+    ]);
+    expect(seq).toBe(13);
+  });
+
+  it("groups the game start as one beat", () => {
+    const { events } = stampEvents(0, [GAME_STARTED, OFF, FIRST_TURN]);
+    expect(events.map((e) => e.beat)).toStrictEqual([1, 1, 1]);
+  });
+
+  it("no events keeps the seq", () => {
+    expect(stampEvents(4, [])).toStrictEqual({ events: [], seq: 4 });
+  });
+});
+
+describe("appendReleased", () => {
+  const stamped = (seq: number, events: GameEvent[]) =>
+    stampEvents(seq, events).events;
+
+  it("appends without renumbering", () => {
+    const log = stamped(0, [GAME_STARTED, OFF, FIRST_TURN]);
+    const more = stamped(3, [ROUND(1), TURN]);
+    expect(appendReleased(log, more).map((e) => e.seq)).toStrictEqual([
+      1, 2, 3, 4, 5,
+    ]);
+  });
+
+  it("empties the log on gameStarted and on roundStarted after round 1", () => {
+    const log = stamped(0, [GAME_STARTED, OFF, FIRST_TURN, ROUND(1), TURN]);
+    expect(
+      appendReleased(log, stamped(5, [ROUND(2), TURN])).map((e) => e.seq),
+    ).toStrictEqual([6, 7]);
+    expect(
+      appendReleased(log, stamped(5, [GAME_STARTED])).map((e) => e.seq),
+    ).toStrictEqual([6]);
+  });
+
+  it("returns the same log for no events", () => {
+    const log = stamped(0, [GAME_STARTED]);
+    expect(appendReleased(log, [])).toBe(log);
+  });
+});
 
 describe("appendEvents", () => {
   it("numbers events from the last seq", () => {

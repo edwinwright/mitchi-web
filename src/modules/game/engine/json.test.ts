@@ -21,6 +21,9 @@ const NAMED = Object.entries(fixtures).filter(
     typeof entry[1] === "object" && "events" in entry[1] && "state" in entry[1],
 );
 
+/** A mid-action beat has nobody acting, so no next action. */
+const CAUGHT_UP = NAMED.filter(([, f]) => f.caughtUp !== false);
+
 const roundTrip = <T>(value: T): T => JSON.parse(JSON.stringify(value));
 
 /** A legal next action in the state, as a client would send it. */
@@ -54,7 +57,7 @@ describe("state is plain JSON (ENG-2)", () => {
   });
 
   it("round trip then same next action", () => {
-    for (const [name, fixture] of NAMED) {
+    for (const [name, fixture] of CAUGHT_UP) {
       const action = nextAction(fixture.state);
       const direct = applyAction(fixture.state, action);
       const viaJson = applyAction(roundTrip(fixture.state), roundTrip(action));
@@ -80,7 +83,7 @@ describe("state is plain JSON (ENG-2)", () => {
   });
 
   it("the events an action returns are plain JSON too", () => {
-    for (const [name, fixture] of NAMED) {
+    for (const [name, fixture] of CAUGHT_UP) {
       const result = applyAction(fixture.state, nextAction(fixture.state));
       if (result.ok)
         expect(roundTrip(result.events), name).toStrictEqual(result.events);

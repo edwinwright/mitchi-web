@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { applyAction, completeAction, createGame, select } from "../engine";
 import * as fixtures from "./fixtures";
-import { fixtureSession, run, type Fixture } from "./fixtures";
+import { batchActions } from "./batch";
+import { beatFixtures, fixtureSession, run, type Fixture } from "./fixtures";
+import { simulateGame } from "./simulate";
 
 const NAMED: Record<string, Fixture> = Object.fromEntries(
   Object.entries(fixtures).filter(
@@ -34,6 +36,23 @@ describe("fixtures", () => {
         "viewerKeptOne",
         "viewerRolledKeepable",
         "viewerToRoll",
+        "beatGameStart",
+        "beatViewerRollToStart",
+        "beatBotRollToStart",
+        "beatRollOffTie",
+        "beatRollOffWinner",
+        "beatViewerRolls",
+        "beatViewerStops",
+        "botBeats",
+        "botTies",
+        "botWorse",
+        "beatBotKeepSwap",
+        "beatNoRollsLeft",
+        "beatStopMitchi",
+        "beatTieBreakOpens",
+        "beatTieBreakRolled",
+        "beatLastHandOfRound",
+        "beatRoundTwoBotStarts",
       ].toSorted(),
     );
   });
@@ -55,24 +74,37 @@ describe("fixtures", () => {
       });
     });
 
-    it("agrees with applyAction about what the viewer may do", () => {
-      const { allowed } = fixtureSession(fixture);
-      const { state } = fixture;
-      const viewer = fixtures.FIXTURE_VIEWER;
-      const accepted = (action: Parameters<typeof applyAction>[1]) =>
-        applyAction(state, action).ok;
-      const roll = completeAction(
-        state,
-        { type: "roll", seat: viewer },
-        [3, 4],
-      );
-      expect(accepted(roll)).toBe(allowed.roll);
-      expect(accepted({ type: "stop", seat: viewer, reason: null })).toBe(
-        allowed.stop,
-      );
-      expect(accepted({ type: "newGame" })).toBe(allowed.newGame);
-      expect(accepted({ type: "nextRound" })).toBe(allowed.nextRound);
+    it("stamps each event with its beat's first seq, never decreasing", () => {
+      fixture.events.forEach((event, i) => {
+        const previous = fixture.events[i - 1];
+        if (previous) expect(event.beat).toBeGreaterThanOrEqual(previous.beat);
+        // A trim never splits a beat, so its first event is in the log.
+        expect(fixture.events.find((e) => e.beat === event.beat)?.seq).toBe(
+          event.beat,
+        );
+      });
     });
+
+    // A mid-action beat has nobody acting: there is nothing to agree on.
+    if (fixture.caughtUp !== false)
+      it("agrees with applyAction about what the viewer may do", () => {
+        const { allowed } = fixtureSession(fixture);
+        const { state } = fixture;
+        const viewer = fixtures.FIXTURE_VIEWER;
+        const accepted = (action: Parameters<typeof applyAction>[1]) =>
+          applyAction(state, action).ok;
+        const roll = completeAction(
+          state,
+          { type: "roll", seat: viewer },
+          [3, 4],
+        );
+        expect(accepted(roll)).toBe(allowed.roll);
+        expect(accepted({ type: "stop", seat: viewer, reason: null })).toBe(
+          allowed.stop,
+        );
+        expect(accepted({ type: "newGame" })).toBe(allowed.newGame);
+        expect(accepted({ type: "nextRound" })).toBe(allowed.nextRound);
+      });
   });
 
   it("run rejects an unreachable step", () => {
@@ -234,5 +266,96 @@ describe("fixtureSession", () => {
     });
     expect(session.view).toMatchObject({ viewerSeat: 1, pending: true });
     expect(session.allowed.roll).toBe(true);
+  });
+});
+
+describe("fixtureSession beat options", () => {
+  it("puts rollMs on the view, from the fixture or the options", () => {
+    expect(fixtureSession(fixtures.viewerToRoll).view.rollMs).toBe(0);
+    expect(fixtureSession(fixtures.beatViewerRolls).view.rollMs).toBe(500);
+    expect(
+      fixtureSession(fixtures.beatViewerRolls, { rollMs: 200 }).view.rollMs,
+    ).toBe(200);
+  });
+
+  it("allows nothing while not caught up or while the viewer's dice animate", () => {
+    expect(fixtureSession(fixtures.viewerToRoll).allowed.roll).toBe(true);
+    for (const options of [{ caughtUp: false }, { animating: true }]) {
+      expect(
+        fixtureSession(fixtures.viewerToRoll, options).allowed,
+      ).toStrictEqual(select.noIntents);
+    }
+    expect(fixtureSession(fixtures.beatViewerStops).allowed).toStrictEqual(
+      select.noIntents,
+    );
+  });
+});
+
+describe("beatFixtures", () => {
+  // The first three seeded bot games with a keep swap, each swap one batch.
+  const scripts: ReturnType<typeof batchActions>[] = [];
+  for (let seed = 1; scripts.length < 3; seed++) {
+    const actions: Parameters<typeof applyAction>[1][] = [];
+    simulateGame(seed, {
+      onStep: ({ action, result }) => {
+        if (result.ok) actions.push(action);
+      },
+    });
+    const steps = batchActions(actions);
+    if (steps.some((step) => Array.isArray(step))) scripts.push(steps);
+  }
+
+  it("the last fixture of each step equals the plain run state, earlier ones are not caught up", () => {
+    for (const steps of scripts) {
+      const beats = beatFixtures(steps);
+      const ends = beats.filter((f) => f.caughtUp);
+      expect(
+        beats.every((f) => f.caughtUp === true || f.caughtUp === false),
+      ).toBe(true);
+      let state = createGame(fixtures.FIXTURE_CONFIG);
+      const expected = steps.map((step) => {
+        state = run(state, Array.isArray(step) ? step : [step]).state;
+        return state;
+      });
+      expect(ends.map((f) => f.state)).toStrictEqual(expected);
+    }
+  });
+
+  it("beat stamps never decrease", () => {
+    for (const steps of scripts) {
+      let last = 0;
+      for (const fixture of beatFixtures(steps)) {
+        for (const event of fixture.events) {
+          if (event.seq > last) {
+            expect(event.beat).toBeGreaterThanOrEqual(
+              fixture.events.find((e) => e.seq === last)?.beat ?? 0,
+            );
+            last = event.seq;
+          }
+        }
+      }
+      expect(last).toBeGreaterThan(0);
+    }
+  });
+
+  it("a keep swap in one batch is one keepSwapped beat", () => {
+    expect(select.lastBeat(fixtures.beatBotKeepSwap.events)?.kind).toBe(
+      "keepSwapped",
+    );
+    for (const steps of scripts) {
+      const swaps = beatFixtures(steps).filter(
+        (f) => f.caughtUp && select.lastBeat(f.events)?.kind === "keepSwapped",
+      );
+      expect(swaps.length).toBe(
+        steps.filter((step) => Array.isArray(step)).length,
+      );
+    }
+  });
+
+  it("a roll beat carries rollMs; other beats carry 0", () => {
+    expect(fixtures.beatViewerRollToStart.rollMs).toBe(500);
+    expect(fixtures.beatTieBreakRolled.rollMs).toBe(500);
+    expect(fixtures.beatViewerStops.rollMs).toBe(0);
+    expect(fixtures.beatGameStart.rollMs).toBe(0);
   });
 });
