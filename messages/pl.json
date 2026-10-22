@@ -436,9 +436,9 @@
         "worse": "Twój układ jest gorszy"
       },
       "otherStanding": {
-        "beats": "[PL] Their hand beats it",
-        "ties": "[PL] Their hand ties it",
-        "worse": "[PL] Their hand is worse"
+        "beats": "Jego układ go pobija",
+        "ties": "Jego układ remisuje z nim",
+        "worse": "Jego układ jest gorszy"
       }
     },
     "commentary": {
@@ -508,14 +508,14 @@
       "rollsLeft": "pozostałe rzuty"
     },
     "status": {
-      "intro": "[PL] Each player rolls one die. The highest starts the first round.",
-      "youRollFirst": "[PL] You roll first",
-      "youRolledToStart": "[PL] You roll a {face}",
-      "playerRolledToStart": "[PL] Rolls a {face}",
-      "tied": "[PL] Tied on {face}. The tied players roll again.",
-      "rollsNext": "[PL] Rolls next",
-      "keeps": "[PL] Keeps the {face}",
-      "keepsInstead": "[PL] Keeps the {face} instead"
+      "intro": "Każdy gracz rzuca jedną kością. Pierwszą rundę zaczyna ten, kto wyrzuci najwięcej oczek.",
+      "youRollFirst": "Rzucasz najpierw",
+      "youRolledToStart": "Wyrzucasz {face}",
+      "playerRolledToStart": "Wyrzuca {face}",
+      "tied": "Remis, wynik {face}. Remisujący gracze rzucają jeszcze raz.",
+      "rollsNext": "Rzuca jako następny",
+      "keeps": "Zostawia {face}",
+      "keepsInstead": "W zamian zostawia {face}"
     }
   }
 }

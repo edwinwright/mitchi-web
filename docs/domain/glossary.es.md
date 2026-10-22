@@ -30,6 +30,7 @@ Variety: European Spanish, informal.
 | Doubles                        | dobles                   |                                                                                                                                                         |
 | The pot                        | el bote                  | See below                                                                                                                                               |
 | Take the pot                   | llevarse el bote         |                                                                                                                                                         |
+| Roll-off                       | tirar para empezar       | A phrase, not a term, as in English. Never a noun: not `tirada inicial`, not `desempate inicial`                                                        |
 | Tie-break                      | el desempate             | Verb: `desempatar`                                                                                                                                      |
 | Tied                           | empatado/a               | From `empatar`, "to tie". Pairs with `desempate`/`desempatar`                                                                                           |
 | Draw                           | compartir la victoria    | `empate` is already Tied, so a draw is written as a shared win: `comparten la victoria`                                                                 |
@@ -142,3 +143,17 @@ The commentary log in `/es/jugar` is a column of rows. A row is cells: a player 
 **Draw.** `Comparten la victoria` stands alone as a sentence. `empate` is already Tied.
 
 **Slugs.** `/es/jugar` conflicts with nothing in `translation-rationale.es.md` (section 6 lists `reglas`, `referencia`, `acerca-de`). `jugar` is the verb of the page, in the style of `reglas` and `referencia`: one word, no diacritics.
+
+### The status line
+
+The line under the dice card's heading says what is happening now. Another player's line is a label cell, then the phrase, read after it, so the phrase is third person. The viewer's lines are second person (`tú`). `{face}` is a digit.
+
+| English                                         | Spanish                                                                               | Forms and note                                                                                         |
+| ----------------------------------------------- | ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| Each player rolls one die. The highest starts … | `Cada jugador tira un dado. Empieza la primera ronda quien saque el número más alto.` | `tirar` for the act, `sacar` for the result, as in `rules.setup.whoStarts`                             |
+| You roll first                                  | `Tiras tú primero`                                                                    | `tú` stated, because it follows the explanation addressed to everyone                                  |
+| You roll a {face} / Rolls a {face}              | `Sacas un {face}` / `Saca un {face}`                                                  | The result, so `sacar`. `un` agrees with the masculine `número`, understood                            |
+| Tied on {face}                                  | `Empate a {face}. Los jugadores empatados vuelven a tirar.`                           | `empate a` + number is the idiom (`empate a cero`). `empatados`, plural of the glossary's `empatado/a` |
+| Rolls next                                      | `Tira a continuación`                                                                 | The act, so `tirar`. Distinct from `Tira ahora`, Rolling now                                           |
+| Keeps the {face} / … instead                    | `Conserva el {face}` / `Conserva el {face} en su lugar`                               | `conservar el 5`, as for the Keep button                                                               |
+| Their hand (beats, ties, worse)                 | `Su mano la supera` / `Su mano empata con ella` / `Su mano es peor`                   | Mirrors `Tu mano …`. `su` carries no gender. `la`, `ella`: the hand to beat, `la mano`                 |

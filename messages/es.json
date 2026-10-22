@@ -436,9 +436,9 @@
         "worse": "Tu mano es peor"
       },
       "otherStanding": {
-        "beats": "[ES] Their hand beats it",
-        "ties": "[ES] Their hand ties it",
-        "worse": "[ES] Their hand is worse"
+        "beats": "Su mano la supera",
+        "ties": "Su mano empata con ella",
+        "worse": "Su mano es peor"
       }
     },
     "commentary": {
@@ -508,14 +508,14 @@
       "rollsLeft": "tiradas restantes"
     },
     "status": {
-      "intro": "[ES] Each player rolls one die. The highest starts the first round.",
-      "youRollFirst": "[ES] You roll first",
-      "youRolledToStart": "[ES] You roll a {face}",
-      "playerRolledToStart": "[ES] Rolls a {face}",
-      "tied": "[ES] Tied on {face}. The tied players roll again.",
-      "rollsNext": "[ES] Rolls next",
-      "keeps": "[ES] Keeps the {face}",
-      "keepsInstead": "[ES] Keeps the {face} instead"
+      "intro": "Cada jugador tira un dado. Empieza la primera ronda quien saque el número más alto.",
+      "youRollFirst": "Tiras tú primero",
+      "youRolledToStart": "Sacas un {face}",
+      "playerRolledToStart": "Saca un {face}",
+      "tied": "Empate a {face}. Los jugadores empatados vuelven a tirar.",
+      "rollsNext": "Tira a continuación",
+      "keeps": "Conserva el {face}",
+      "keepsInstead": "Conserva el {face} en su lugar"
     }
   }
 }

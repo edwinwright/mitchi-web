@@ -100,6 +100,16 @@ const STATUS_EN = {
   keepsInstead: "Keeps the {face} instead",
 };
 
+/**
+ * The roll to start is a phrase, never a noun: the nouns each glossary
+ * (glossary.es.md, glossary.pl.md) rules out.
+ */
+const ROLL_OFF_NOUNS: Record<(typeof LOCALES)[number], readonly string[]> = {
+  en: [],
+  es: ["tirada inicial", "desempate inicial"],
+  pl: ["rzut początkowy", "dogrywka początkowa"],
+};
+
 function text(locale: string, path: string): string {
   let node = messages[locale];
   for (const part of path.split(".")) {
@@ -116,9 +126,12 @@ describe("status messages", () => {
     ),
   ];
 
-  it.each(LOCALES)("status keys exist in en, es, pl: %s", (locale) => {
-    expect(keys.filter((key) => !has(locale, key))).toEqual([]);
-  });
+  it.each(LOCALES)(
+    "status and round.otherStanding keys exist in en, es, pl: %s",
+    (locale) => {
+      expect(keys.filter((key) => !has(locale, key))).toEqual([]);
+    },
+  );
 
   it.each(LOCALES)(
     "round.otherStanding has all three keys in every locale: %s",
@@ -153,9 +166,9 @@ describe("status messages", () => {
             args.every((arg) => arg === "face"),
             `${locale} ${key}`,
           ).toBe(true);
-          expect(value.toLowerCase(), `${locale} ${key}`).not.toContain(
-            "roll-off",
-          );
+          for (const term of ["roll-off", ...ROLL_OFF_NOUNS[locale]]) {
+            expect(value.toLowerCase(), `${locale} ${key}`).not.toContain(term);
+          }
         }
       }
     });
