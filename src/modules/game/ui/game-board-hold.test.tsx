@@ -115,8 +115,13 @@ describe("the dice hold", () => {
     expect(keepsShowDice()).toBe(false);
   });
 
-  it("paused: a held roll stays until play resumes", () => {
-    const paused = { ...fast, speed: "normal" as const, paused: true };
+  it("paused with a bot due: a held roll stays until play resumes", () => {
+    const paused = {
+      ...fast,
+      speed: "normal" as const,
+      paused: true,
+      canStep: true,
+    };
     const { rerender } = render(
       board(fixtureSession(tieBreakViewerToRoll, { pacing: paused })),
     );
@@ -126,10 +131,18 @@ describe("the dice hold", () => {
     rerender(
       board(
         fixtureSession(tieBreakViewerToRoll, {
-          pacing: { ...paused, paused: false },
+          pacing: { ...paused, paused: false, canStep: false },
         }),
       ),
     );
+    advance(HOLD_MS.normal);
+    expect(keepsShowDice()).toBe(false);
+  });
+
+  it("paused with the viewer next: the hold runs out, so their turn is not shown a bot's dice", () => {
+    const paused = { ...fast, speed: "normal" as const, paused: true };
+    render(board(fixtureSession(tieBreakViewerToRoll, { pacing: paused })));
+    expect(keepsShowDice()).toBe(true);
     advance(HOLD_MS.normal);
     expect(keepsShowDice()).toBe(false);
   });
