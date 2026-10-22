@@ -85,13 +85,11 @@ export function commentaryRows(
     };
 
     switch (event.type) {
+      // The viewer's turn row comes from their turnStarted, in every context.
       case "gameStarted":
+      case "rollOffStarted":
       case "keepSet":
       case "worstHandChanged":
-        break;
-
-      case "rollOffStarted":
-        if (event.seats.includes(viewerSeat)) rows.push({ kind: "turn", key });
         break;
 
       case "rollOffRolled":

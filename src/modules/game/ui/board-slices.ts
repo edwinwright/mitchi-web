@@ -239,7 +239,7 @@ export function sliceSession(
 
   const acting = select.actingSeat(state);
   const worst = select.worstHandSoFar(state);
-  const toRoll = select.toRoll(state);
+  const stillToRoll = select.stillToRoll(state);
   const shown = shownRoll(view, holding);
   const primary = PRIMARY[phase.kind];
 
@@ -261,7 +261,7 @@ export function sliceSession(
         seat,
         starting: round?.startingSeat === seat,
         current: acting === seat,
-        waiting: phase.kind === "rollOff" && toRoll.includes(seat),
+        waiting: stillToRoll.includes(seat),
         hand,
         holdsWorst: worst?.seats.includes(seat) ?? false,
         inContest: select.inContest(state, seat),

@@ -52,7 +52,7 @@ export type Phase =
   | {
       readonly kind: "rollOff";
       readonly seats: readonly Seat[];
-      /** A set, not an order. */
+      /** In rolling order (ascending seat), this pass only. */
       readonly rolled: readonly { seat: Seat; die: Die }[];
     }
   | {

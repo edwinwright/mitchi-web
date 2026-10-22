@@ -22,13 +22,28 @@ export type BotReason =
 type Held = { readonly dice: DicePair; readonly hand: HandId };
 
 /**
- * What happened, in order. Ordering rules (each a test in apply.test.ts):
- * a final roll gives `rolled` then `turnEnded{noRollsLeft}`; a starter's
- * `turnEnded` is followed by `rollLimitSet`; a turn that ends on a Mitchi
- * gives `turnEnded`, [`rollLimitSet`], then `potChanged{mitchi}`; a
- * tie-break Mitchi gives `tieBreakRolled` then `potChanged{mitchi}`;
- * `turnStarted` or `rollOffStarted` is the last event of any step that
- * hands a roll to a seat.
+ * What happened, in order. State is the fold of these (applyEvent), so an
+ * event carries every field the fold needs. Ordering rules (each a test in
+ * apply.test.ts):
+ *
+ * - `turnStarted` is the last event of any step that hands a roll to a seat,
+ *   in the roll-off (context "rollOff"), a round and a tie-break.
+ * - Game start: `gameStarted`, `rollOffStarted{tiedOn: null}`, `turnStarted`
+ *   for seat 0.
+ * - A roll-off roll gives `rollOffRolled`, then `turnStarted{rollOff}` for the
+ *   next seat, or, when the pass is done, `rollOffStarted{tiedOn}` and
+ *   `turnStarted{rollOff}` for the tied, or `roundStarted` and
+ *   `turnStarted{round}` for the winner.
+ * - A final roll gives `rolled` then `turnEnded{noRollsLeft}`.
+ * - After `turnEnded`: the starter's `rollLimitSet`, `potChanged{mitchi}` if
+ *   the hand is a Mitchi, `worstHandChanged` if it moved, then the next
+ *   `turnStarted{round}`, or the end of the round.
+ * - The end of a round gives `potTaken` (then `gameEnded` at the limit), or
+ *   `tieBreakStarted`, `potChanged{tieBreak}`, `turnStarted{tieBreak}`.
+ * - A tie-break roll gives `tieBreakRolled`, `potChanged{mitchi}` on a Mitchi,
+ *   then `turnStarted{tieBreak}` for the next seat or the end of the round.
+ * - `rollLimitSet`, `potChanged` and `worstHandChanged` are consequences of the
+ *   event before them (they ride on its beat).
  */
 export type GameEvent =
   | {
@@ -37,7 +52,12 @@ export type GameEvent =
       readonly pointLimit: number;
     }
   /** The first pass, and each re-roll among the tied highest. */
-  | { readonly type: "rollOffStarted"; readonly seats: readonly Seat[] }
+  | {
+      readonly type: "rollOffStarted";
+      readonly seats: readonly Seat[];
+      /** The face the seats tied on; null on the first pass. */
+      readonly tiedOn: Die | null;
+    }
   | { readonly type: "rollOffRolled"; readonly seat: Seat; readonly die: Die }
   | {
       readonly type: "roundStarted";
@@ -47,7 +67,7 @@ export type GameEvent =
   | {
       readonly type: "turnStarted";
       readonly seat: Seat;
-      readonly context: "round" | "tieBreak";
+      readonly context: "rollOff" | "round" | "tieBreak";
     }
   | {
       readonly type: "rolled";

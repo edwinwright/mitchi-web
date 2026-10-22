@@ -136,7 +136,7 @@ function validate(state: GameState, input: unknown): RejectionCode | null {
       : phase.kind === "turn";
   if (!legal) return "wrongPhase";
 
-  // 5. The seat may act: the acting seat, or any seat still to roll in the roll-off.
+  // 5. The seat may act: the acting seat.
   if (!select.toRoll(state).includes(seat)) return "notYourTurn";
 
   if (phase.kind === "turn") {
@@ -196,7 +196,9 @@ function finish(start: GameState, draft: Draft): ApplyResult {
 function newGame(draft: Draft): void {
   const { seats, pointLimit } = draft.state.config;
   emit(draft, { type: "gameStarted", seats, pointLimit });
-  emit(draft, { type: "rollOffStarted", seats: clockwiseFrom(seats, 0) });
+  const everyone = clockwiseFrom(seats, 0);
+  emit(draft, { type: "rollOffStarted", seats: everyone, tiedOn: null });
+  emit(draft, { type: "turnStarted", seat: everyone[0], context: "rollOff" });
 }
 
 function rollOff(draft: Draft, seat: Seat, die: Die): void {
@@ -204,17 +206,20 @@ function rollOff(draft: Draft, seat: Seat, die: Die): void {
   const { phase } = draft.state;
   if (phase.kind !== "rollOff")
     throw new Error("Corrupt state: not a roll-off");
-  if (phase.rolled.length < phase.seats.length) return;
+  const next = phase.seats[phase.rolled.length];
+  if (next !== undefined) {
+    emit(draft, { type: "turnStarted", seat: next, context: "rollOff" });
+    return;
+  }
 
-  // The pass is complete: the highest die starts, or the tied highest go again.
-  const highest = Math.max(...phase.rolled.map((r) => r.die));
-  const tied = phase.rolled
-    .filter((r) => r.die === highest)
-    .map((r) => r.seat)
-    .toSorted((a, b) => a - b);
+  // The pass is complete: the highest die starts, or the tied highest go
+  // again. The pass rolled in seat order, so the tied are already ascending.
+  const highest = Math.max(...phase.rolled.map((r) => r.die)) as Die;
+  const tied = phase.rolled.filter((r) => r.die === highest).map((r) => r.seat);
 
   if (tied.length > 1) {
-    emit(draft, { type: "rollOffStarted", seats: tied });
+    emit(draft, { type: "rollOffStarted", seats: tied, tiedOn: highest });
+    emit(draft, { type: "turnStarted", seat: tied[0], context: "rollOff" });
     return;
   }
   const startingSeat = tied[0];
@@ -406,17 +411,17 @@ function startTieBreak(draft: Draft, tied: Worst): void {
     tied.seats,
   );
   emit(draft, {
-    type: "potChanged",
-    pot: round.pot * 2,
-    previous: round.pot,
-    cause: "tieBreak",
-  });
-  emit(draft, {
     type: "tieBreakStarted",
     number: round.tieBreaks + 1,
     seats: order,
     direction,
     tiedOn: tied.hand,
+  });
+  emit(draft, {
+    type: "potChanged",
+    pot: round.pot * 2,
+    previous: round.pot,
+    cause: "tieBreak",
   });
   emit(draft, { type: "turnStarted", seat: order[0], context: "tieBreak" });
 }

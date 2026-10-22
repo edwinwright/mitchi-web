@@ -97,9 +97,13 @@ describe("initStore", () => {
 describe("requests", () => {
   it("applies a request and logs its events", () => {
     const store = play([START]);
-    expect(types(store)).toStrictEqual(["gameStarted", "rollOffStarted"]);
-    expect(store.log.map((e) => e.seq)).toStrictEqual([1, 2]);
-    expect(store.seq).toBe(2);
+    expect(types(store)).toStrictEqual([
+      "gameStarted",
+      "rollOffStarted",
+      "turnStarted",
+    ]);
+    expect(store.log.map((e) => e.seq)).toStrictEqual([1, 2, 3]);
+    expect(store.seq).toBe(3);
   });
 
   it("a rejected request returns the same store", () => {
@@ -179,12 +183,12 @@ describe("bot steps", () => {
       atSeq: store.seq,
       spare: [2, 2],
     });
-    expect(next.seq).toBe(store.seq + 1);
-    expect(next.log.at(-1)).toMatchObject({
-      type: "rollOffRolled",
-      seat: 1,
-      die: 2,
-    });
+    // One roll to start: the roll, then the next seat's turn.
+    expect(next.seq).toBe(store.seq + 2);
+    expect(next.log.slice(-2)).toMatchObject([
+      { type: "rollOffRolled", seat: 1, die: 2 },
+      { type: "turnStarted", seat: 2, context: "rollOff" },
+    ]);
   });
 
   it("duplicate botStep with stale atSeq is ignored", () => {
@@ -272,9 +276,13 @@ describe("the log", () => {
     expect(types(store)).toStrictEqual([
       "gameStarted",
       "rollOffStarted",
+      "turnStarted",
       "rollOffRolled",
+      "turnStarted",
       "rollOffRolled",
+      "turnStarted",
       "rollOffRolled",
+      "turnStarted",
       "rollOffRolled",
       "roundStarted",
       "turnStarted",
@@ -294,8 +302,12 @@ describe("the log", () => {
     const finished = play(S1);
     expect(finished.game.phase.kind).toBe("gameOver");
     const again = play([START], finished);
-    expect(types(again)).toStrictEqual(["gameStarted", "rollOffStarted"]);
-    expect(again.seq).toBe(finished.seq + 2);
+    expect(types(again)).toStrictEqual([
+      "gameStarted",
+      "rollOffStarted",
+      "turnStarted",
+    ]);
+    expect(again.seq).toBe(finished.seq + 3);
     expect(again.game.points).toStrictEqual([0, 0, 0, 0]);
   });
 });

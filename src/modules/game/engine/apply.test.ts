@@ -117,9 +117,11 @@ describe("newGame", () => {
       seats: [0, 1, 2, 3],
       rolled: [],
     });
+    expect(result.state.acting).toBe(0);
     expect(result.events).toStrictEqual([
       { type: "gameStarted", seats: 4, pointLimit: 5 },
-      { type: "rollOffStarted", seats: [0, 1, 2, 3] },
+      { type: "rollOffStarted", seats: [0, 1, 2, 3], tiedOn: null },
+      { type: "turnStarted", seat: 0, context: "rollOff" },
     ]);
   });
 
@@ -166,44 +168,87 @@ describe("roll-off", () => {
     ]);
   });
 
-  it("roll-off: rolls accepted in any order", () => {
-    const dice: Record<Seat, Die> = { 0: 3, 1: 6, 2: 2, 3: 5 };
-    const inOrder = play(
-      started(),
-      [0, 1, 2, 3].map((s) => [s, dice[s]] as const),
-    );
-    const shuffled = play(
-      started(),
-      [2, 0, 3, 1].map((s) => [s, dice[s]] as const),
-    );
-    expect(shuffled.state).toStrictEqual(inOrder.state);
+  it("a roll out of seat order is notYourTurn", () => {
+    const state = deepFreeze(started());
+    expect(state.acting).toBe(0);
+    expectRejected(state, roll(2, 3), "notYourTurn");
+    const after = ok(state, roll(0, 3)).state;
+    expectRejected(after, roll(0, 3), "notYourTurn");
   });
 
-  it("roll-off: tied highest roll again among themselves", () => {
-    const { state, events } = play(deepFreeze(started()), [
-      [0, 4],
+  it("acting seat may roll, others may not on every pass", () => {
+    // Pass 1: 1 and 3 tie on 4. Pass 2: 3 beats 1.
+    let current = deepFreeze(started());
+    for (const [seat, die] of [
+      [0, 2],
       [1, 4],
+      [2, 1],
+      [3, 4],
+      [1, 2],
+      [3, 5],
+    ] as const) {
+      expect(select.toRoll(current)).toStrictEqual([seat]);
+      for (const other of [0, 1, 2, 3].filter((s) => s !== seat)) {
+        expectRejected(current, roll(other, die), "notYourTurn");
+      }
+      current = deepFreeze(ok(current, roll(seat, die)).state);
+    }
+    expect(current.round?.startingSeat).toBe(3);
+  });
+
+  it("emits turnStarted for each seat in order, the winner beats and roundStarted+turnStarted last", () => {
+    const start = ok(deepFreeze(createGame(CONFIG)), { type: "newGame" });
+    const rolls = play(start.state, [
+      [0, 6],
+      [1, 3],
       [2, 2],
       [3, 1],
     ]);
-    expect(events.at(-1)).toStrictEqual({
-      type: "rollOffStarted",
-      seats: [0, 1],
-    });
+    expect([...start.events, ...rolls.events]).toStrictEqual([
+      { type: "gameStarted", seats: 4, pointLimit: 5 },
+      { type: "rollOffStarted", seats: [0, 1, 2, 3], tiedOn: null },
+      { type: "turnStarted", seat: 0, context: "rollOff" },
+      { type: "rollOffRolled", seat: 0, die: 6 },
+      { type: "turnStarted", seat: 1, context: "rollOff" },
+      { type: "rollOffRolled", seat: 1, die: 3 },
+      { type: "turnStarted", seat: 2, context: "rollOff" },
+      { type: "rollOffRolled", seat: 2, die: 2 },
+      { type: "turnStarted", seat: 3, context: "rollOff" },
+      { type: "rollOffRolled", seat: 3, die: 1 },
+      { type: "roundStarted", round: 1, startingSeat: 0 },
+      { type: "turnStarted", seat: 0, context: "round" },
+    ]);
+  });
+
+  it("tied highest roll again among the tied, tiedOn is the face, turnStarted last", () => {
+    const before = play(deepFreeze(started()), [
+      [0, 2],
+      [1, 4],
+      [2, 1],
+    ]);
+    const { state, events } = ok(before.state, roll(3, 4));
+    expect(events).toStrictEqual([
+      { type: "rollOffRolled", seat: 3, die: 4 },
+      { type: "rollOffStarted", seats: [1, 3], tiedOn: 4 },
+      { type: "turnStarted", seat: 1, context: "rollOff" },
+    ]);
     expect(state.phase).toStrictEqual({
       kind: "rollOff",
-      seats: [0, 1],
+      seats: [1, 3],
       rolled: [],
     });
+    expect(state.acting).toBe(1);
     expect(state.round).toBeNull();
+    expectRejected(state, roll(0, 3), "notYourTurn");
     expectRejected(state, roll(2, 3), "notYourTurn");
     expectRejected(state, roll(3, 3), "notYourTurn");
     expect(ok(state, roll(1, 3)).events).toStrictEqual([
       { type: "rollOffRolled", seat: 1, die: 3 },
+      { type: "turnStarted", seat: 3, context: "rollOff" },
     ]);
   });
 
-  it("roll-off: three passes", () => {
+  it("three passes roll in ascending seat order", () => {
     const { state, events } = play(deepFreeze(started()), [
       // Pass 1: 0, 1 and 3 tie on 5.
       [0, 5],
@@ -211,19 +256,26 @@ describe("roll-off", () => {
       [2, 1],
       [3, 5],
       // Pass 2: 0 and 1 tie on 4.
-      [3, 3],
-      [1, 4],
       [0, 4],
+      [1, 4],
+      [3, 3],
       // Pass 3: 1 beats 0.
       [0, 2],
       [1, 6],
     ]);
     expect(
-      events.flatMap((e) => (e.type === "rollOffStarted" ? [e.seats] : [])),
+      events.flatMap((e) =>
+        e.type === "rollOffStarted" ? [[e.seats, e.tiedOn]] : [],
+      ),
     ).toStrictEqual([
-      [0, 1, 3],
-      [0, 1],
+      [[0, 1, 3], 5],
+      [[0, 1], 4],
     ]);
+    expect(
+      events.flatMap((e) =>
+        e.type === "turnStarted" && e.context === "rollOff" ? [e.seat] : [],
+      ),
+    ).toStrictEqual([1, 2, 3, 0, 1, 3, 0, 1]);
     expect(state.round?.startingSeat).toBe(1);
   });
 
@@ -1022,6 +1074,19 @@ describe("potTaken", () => {
 });
 
 describe("tie-breaks", () => {
+  it("events: tieBreakStarted, potChanged tieBreak, turnStarted", () => {
+    const { events } = lastBig(...TIED_NOT_LAST);
+    expect(types(events).slice(-3)).toStrictEqual([
+      "tieBreakStarted",
+      "potChanged",
+      "turnStarted",
+    ]);
+    expect(events.slice(-2)).toStrictEqual([
+      { type: "potChanged", pot: 2, previous: 1, cause: "tieBreak" },
+      { type: "turnStarted", seat: 1, context: "tieBreak" },
+    ]);
+  });
+
   it("pot: rules example A three-way tie gives 2", () => {
     const config = { seats: 3, pointLimit: 25 };
     const tie = [R(0, 3, 1), S(0), R(1, 1, 3), R(2, 3, 1)];
@@ -1031,7 +1096,6 @@ describe("tie-breaks", () => {
       expect.objectContaining({ type: "rolled" }),
       expect.objectContaining({ type: "turnEnded" }),
       { type: "worstHandChanged", hand: "3-1", seats: [0, 1, 2] },
-      { type: "potChanged", pot: 2, previous: 1, cause: "tieBreak" },
       {
         type: "tieBreakStarted",
         number: 1,
@@ -1039,6 +1103,7 @@ describe("tie-breaks", () => {
         direction: "anticlockwise",
         tiedOn: "3-1",
       },
+      { type: "potChanged", pot: 2, previous: 1, cause: "tieBreak" },
       { type: "turnStarted", seat: 2, context: "tieBreak" },
     ]);
     expect(state.points).toStrictEqual([0, 0, 0]);
@@ -1093,7 +1158,6 @@ describe("tie-breaks", () => {
     const tiedAgain = ok(mitchi.state, R(1, 3, 4));
     expect(tiedAgain.events).toStrictEqual([
       expect.objectContaining({ type: "tieBreakRolled", seat: 1 }),
-      { type: "potChanged", pot: 8, previous: 4, cause: "tieBreak" },
       {
         type: "tieBreakStarted",
         number: 2,
@@ -1101,6 +1165,7 @@ describe("tie-breaks", () => {
         direction: "clockwise",
         tiedOn: "4-3",
       },
+      { type: "potChanged", pot: 8, previous: 4, cause: "tieBreak" },
       { type: "turnStarted", seat: 1, context: "tieBreak" },
     ]);
     state = tiedAgain.state;
@@ -1237,12 +1302,12 @@ describe("tie-breaks", () => {
     expect(second.events).toStrictEqual([
       expect.objectContaining({ type: "tieBreakRolled", seat: 0 }),
       { type: "potChanged", pot: 6, previous: 4, cause: "mitchi" },
-      { type: "potChanged", pot: 12, previous: 6, cause: "tieBreak" },
       expect.objectContaining({
         type: "tieBreakStarted",
         number: 2,
         tiedOn: "2-1",
       }),
+      { type: "potChanged", pot: 12, previous: 6, cause: "tieBreak" },
       { type: "turnStarted", seat: 0, context: "tieBreak" },
     ]);
     expect(second.state.round?.pot).toBe(12);
@@ -1258,8 +1323,8 @@ describe("tie-breaks", () => {
       expect.objectContaining({ type: "turnEnded" }),
       { type: "potChanged", pot: 8, previous: 6, cause: "mitchi" },
       { type: "worstHandChanged", hand: "2-1", seats: [0, 1, 2, 3] },
-      { type: "potChanged", pot: 16, previous: 8, cause: "tieBreak" },
       expect.objectContaining({ type: "tieBreakStarted", number: 1 }),
+      { type: "potChanged", pot: 16, previous: 8, cause: "tieBreak" },
       { type: "turnStarted", seat: 3, context: "tieBreak" },
     ]);
     expect(state.round?.pot).toBe(16);
@@ -1397,6 +1462,7 @@ describe("game end", () => {
     expect(types(result.events)).toStrictEqual([
       "gameStarted",
       "rollOffStarted",
+      "turnStarted",
     ]);
   });
 });

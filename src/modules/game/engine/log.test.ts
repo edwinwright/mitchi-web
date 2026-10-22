@@ -7,7 +7,11 @@ const GAME_STARTED: GameEvent = {
   seats: 4,
   pointLimit: 5,
 };
-const OFF: GameEvent = { type: "rollOffStarted", seats: [0, 1, 2, 3] };
+const OFF: GameEvent = {
+  type: "rollOffStarted",
+  seats: [0, 1, 2, 3],
+  tiedOn: null,
+};
 const ROUND = (round: number): GameEvent => ({
   type: "roundStarted",
   round,

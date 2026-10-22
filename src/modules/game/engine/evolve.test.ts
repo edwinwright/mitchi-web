@@ -285,17 +285,27 @@ describe("applyEvent", () => {
       [
         "rollOffStarted in a turn",
         toRoll,
-        { type: "rollOffStarted", seats: [0, 1] },
+        { type: "rollOffStarted", seats: [0, 1], tiedOn: null },
       ],
       [
         "rollOffStarted before the pass is done",
         rollOff,
-        { type: "rollOffStarted", seats: [0, 1] },
+        { type: "rollOffStarted", seats: [0, 1], tiedOn: null },
       ],
       [
         "rollOffRolled in a turn",
         toRoll,
         { type: "rollOffRolled", seat: 0, die: 3 },
+      ],
+      [
+        "rollOffRolled by a seat that is not acting",
+        rollOff,
+        { type: "rollOffRolled", seat: 2, die: 3 },
+      ],
+      [
+        "turnStarted rollOff out of seat order",
+        { ...rollOff, acting: null },
+        { type: "turnStarted", seat: 3, context: "rollOff" },
       ],
       [
         "roundStarted 1 before the pass is done",

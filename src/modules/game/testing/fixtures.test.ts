@@ -86,7 +86,8 @@ describe("fixtures", () => {
 
 describe("the states fixtures show", () => {
   it("rollOff: the viewer has rolled and the bots are to go", () => {
-    expect(select.toRoll(fixtures.rollOff.state)).toStrictEqual([1, 2, 3]);
+    expect(select.toRoll(fixtures.rollOff.state)).toStrictEqual([1]);
+    expect(select.stillToRoll(fixtures.rollOff.state)).toStrictEqual([2, 3]);
   });
 
   it("round 1 keeps the roll-off rows", () => {
@@ -97,7 +98,10 @@ describe("the states fixtures show", () => {
   });
 
   it("rollOffReroll: only the tied seats roll again", () => {
-    expect(select.toRoll(fixtures.rollOffReroll.state)).toStrictEqual([0, 1]);
+    const { state } = fixtures.rollOffReroll;
+    expect(state.phase).toMatchObject({ kind: "rollOff", seats: [0, 1] });
+    expect(select.toRoll(state)).toStrictEqual([0]);
+    expect(select.stillToRoll(state)).toStrictEqual([1]);
   });
 
   it("the viewer fixtures are the viewer's turn, in order of progress", () => {

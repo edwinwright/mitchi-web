@@ -34,8 +34,9 @@ function state(
   };
 }
 
-/** The acting seat an authoritative state has in this phase (null in the roll-off). */
+/** The acting seat an authoritative state has in this phase. */
 function actingIn(phase: Phase): Seat | null {
+  if (phase.kind === "rollOff") return phase.seats[phase.rolled.length] ?? null;
   if (phase.kind === "turn") return phase.seat;
   if (phase.kind === "tieBreak")
     return phase.order[phase.rolled.length] ?? null;
@@ -58,8 +59,8 @@ const ROLL_OFF = state(
     kind: "rollOff",
     seats: [0, 1, 2, 3],
     rolled: [
+      { seat: 0, die: 2 },
       { seat: 1, die: 4 },
-      { seat: 3, die: 2 },
     ],
   },
   null,
@@ -81,9 +82,9 @@ const FINISHED = [
 ] as const;
 
 describe("actingSeat", () => {
-  it("is null outside a turn or tie-break, and the roller inside one", () => {
+  it("is the roller in the roll-off, a turn and a tie-break, and null outside them", () => {
     expect(select.actingSeat(NOT_STARTED)).toBeNull();
-    expect(select.actingSeat(ROLL_OFF)).toBeNull();
+    expect(select.actingSeat(ROLL_OFF)).toBe(2);
     expect(select.actingSeat(turn(2, 0, null))).toBe(2);
     expect(select.actingSeat(TIE_BREAK)).toBe(1);
     expect(select.actingSeat(SUMMARY)).toBeNull();
@@ -91,9 +92,23 @@ describe("actingSeat", () => {
   });
 });
 
+describe("stillToRoll", () => {
+  it("excludes the acting seat", () => {
+    // Seats 0 and 1 have rolled; seat 2 is rolling now.
+    expect(select.stillToRoll(ROLL_OFF)).toStrictEqual([3]);
+    expect(select.stillToRoll(fixtures.rollOff.state)).toStrictEqual([2, 3]);
+  });
+
+  it("is nobody outside the roll to start", () => {
+    for (const s of [NOT_STARTED, turn(2, 0, null), TIE_BREAK, SUMMARY]) {
+      expect(select.stillToRoll(s)).toStrictEqual([]);
+    }
+  });
+});
+
 describe("toRoll", () => {
-  it("lists the roll-off seats still to roll, ascending", () => {
-    expect(select.toRoll(ROLL_OFF)).toStrictEqual([0, 2]);
+  it("is the acting seat in the roll-off: one seat at a time, in seat order", () => {
+    expect(select.toRoll(ROLL_OFF)).toStrictEqual([2]);
   });
 
   it("is the acting seat in a turn and a tie-break, else empty", () => {
@@ -258,11 +273,12 @@ describe("allowedIntents", () => {
       ...none,
       newGame: true,
     });
-    expect(select.allowedIntents(ROLL_OFF, 0)).toStrictEqual({
+    expect(select.allowedIntents(ROLL_OFF, 2)).toStrictEqual({
       ...none,
       roll: true,
     });
-    expect(select.allowedIntents(ROLL_OFF, 1)).toStrictEqual(none);
+    expect(select.allowedIntents(ROLL_OFF, 0)).toStrictEqual(none);
+    expect(select.allowedIntents(ROLL_OFF, 3)).toStrictEqual(none);
     expect(select.allowedIntents(GAME_OVER, 0)).toStrictEqual({
       ...none,
       newGame: true,
@@ -347,7 +363,7 @@ describe("seatHand", () => {
       kind: "die",
       face: 4,
     });
-    expect(select.seatHand(ROLL_OFF, 0)).toBeNull();
+    expect(select.seatHand(ROLL_OFF, 3)).toBeNull();
   });
 
   it("seatHand shows the acting seat's hand as not final, with its keeps", () => {

@@ -36,8 +36,9 @@ function state(
   };
 }
 
-/** The acting seat an authoritative state has in this phase (null in the roll-off). */
+/** The acting seat an authoritative state has in this phase. */
 function actingIn(phase: Phase): Seat | null {
+  if (phase.kind === "rollOff") return phase.seats[phase.rolled.length] ?? null;
   if (phase.kind === "turn") return phase.seat;
   if (phase.kind === "tieBreak")
     return phase.order[phase.rolled.length] ?? null;
@@ -110,10 +111,19 @@ describe("botStep: when to roll", () => {
   it("botStep is null when not the seat's move", () => {
     expect(botStep(starter(null), 1)).toBeNull();
     const rollOff = state(
-      { kind: "rollOff", seats: [0, 1, 2, 3], rolled: [{ seat: 1, die: 4 }] },
+      {
+        kind: "rollOff",
+        seats: [0, 1, 2, 3],
+        rolled: [
+          { seat: 0, die: 2 },
+          { seat: 1, die: 4 },
+        ],
+      },
       null,
     );
+    // Seat 1 has rolled; seat 3 waits for seat 2.
     expect(botStep(rollOff, 1)).toBeNull();
+    expect(botStep(rollOff, 3)).toBeNull();
     expect(botStep(createGameLike("notStarted"), 0)).toBeNull();
     expect(
       botStep(state({ kind: "roundSummary", taker: 1, takerHand: "3-1" }), 1),

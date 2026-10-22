@@ -13,24 +13,29 @@ import {
 
 /** Pure and total on valid states (ENG-7). Nothing here is stored. */
 
-/** Null between turns, and in the roll-off: nobody holds the turn. */
+/** Null between turns: nobody holds the turn. */
 export function actingSeat(state: GameState): Seat | null {
   return state.acting;
 }
 
-/**
- * Who may roll now. Roll-off: the seats still to roll this pass, ascending.
- * Turn and tie-break: the acting seat. Otherwise nobody.
- */
+/** Who may roll now: the acting seat, in every phase. Nobody between turns. */
 export function toRoll(state: GameState): readonly Seat[] {
-  const { phase } = state;
-  if (phase.kind === "rollOff") {
-    return phase.seats
-      .filter((seat) => !phase.rolled.some((rolled) => rolled.seat === seat))
-      .toSorted((a, b) => a - b);
-  }
   const { acting } = state;
   return acting === null ? [] : [acting];
+}
+
+/**
+ * Rolling to start: the seats still to roll this pass, ascending, not
+ * counting the acting seat. Otherwise nobody. The acting seat is rolling
+ * now, never also waiting.
+ */
+export function stillToRoll(state: GameState): readonly Seat[] {
+  const { phase, acting } = state;
+  if (phase.kind !== "rollOff") return [];
+  return phase.seats.filter(
+    (seat) =>
+      seat !== acting && !phase.rolled.some((rolled) => rolled.seat === seat),
+  );
 }
 
 export function diceToRoll(state: GameState): 0 | 1 | 2 {

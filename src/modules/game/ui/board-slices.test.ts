@@ -360,10 +360,10 @@ describe("roundRows", () => {
     expect(rows[0].hand).toMatchObject({ kind: "hand", hand: "6-3" });
   });
 
-  it("has nobody current in the roll-off, and the seats still to roll waiting", () => {
+  it("has the acting seat current in the roll-off, and the others still to roll waiting", () => {
     const rows = slices(rollOff).roundRows;
-    expect(seatsWhere(rows, "current")).toEqual([]);
-    expect(seatsWhere(rows, "waiting")).toEqual([1, 2, 3]);
+    expect(seatsWhere(rows, "current")).toEqual([1]);
+    expect(seatsWhere(rows, "waiting")).toEqual([2, 3]);
   });
 
   it("has only the tied seats in a tie-break", () => {

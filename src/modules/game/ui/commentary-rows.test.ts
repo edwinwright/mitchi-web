@@ -136,6 +136,17 @@ describe("commentaryRows", () => {
     expect(actions(rows).map((row) => row.seat)).toEqual([...winners]);
   });
 
+  it("rollOffStarted yields no row; the viewer's turnStarted{rollOff} yields the turn row", () => {
+    const [gameStarted, rollOffStarted, turnStarted] = rollOff.events;
+    expect(rollOffStarted.type).toBe("rollOffStarted");
+    expect(commentaryRows([gameStarted, rollOffStarted], VIEWER)).toEqual([]);
+    expect(turnStarted).toMatchObject({ seat: VIEWER, context: "rollOff" });
+    // The viewer rolls first, so the turn row is the first row, once.
+    const rows = commentaryRows(rollOff.events, VIEWER);
+    expect(rows[0]).toMatchObject({ kind: "turn" });
+    expect(rows.filter((row) => row.kind === "turn")).toHaveLength(1);
+  });
+
   it("turn row for the viewer is last in the step", () => {
     // At the start of round 1 the roll-off hands the viewer the turn.
     expect(commentaryRows(viewerToRoll.events, VIEWER).at(-1)).toMatchObject({
@@ -168,9 +179,7 @@ describe("commentaryRows over simulated games", () => {
       const { steps, eventSteps } = play(seed, 2);
       steps.forEach((rows, index) => {
         const last = eventSteps[index]!.at(-1)!;
-        const handsTurn =
-          (last.type === "turnStarted" && last.seat === 2) ||
-          (last.type === "rollOffStarted" && last.seats.includes(2));
+        const handsTurn = last.type === "turnStarted" && last.seat === 2;
         if (handsTurn) {
           checked += 1;
           expect(rows.at(-1)?.kind, `seed ${seed}`).toBe("turn");

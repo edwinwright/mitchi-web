@@ -43,6 +43,7 @@ export function applyEvent(state: GameState, event: GameEvent): GameState {
 
     case "rollOffRolled": {
       if (phase.kind !== "rollOff") throw corrupt();
+      check(acting === event.seat);
       const rolled = [...phase.rolled, { seat: event.seat, die: event.die }];
       return { ...state, phase: { ...phase, rolled }, acting: null };
     }
@@ -89,6 +90,14 @@ export function applyEvent(state: GameState, event: GameEvent): GameState {
             event.seat === round.order[round.finished.length],
         );
         return { ...state, phase: freshTurn(event.seat), acting: event.seat };
+      }
+      if (event.context === "rollOff") {
+        // The pass rolls in seat order: the next seat is the first not yet rolled.
+        check(
+          phase.kind === "rollOff" &&
+            event.seat === phase.seats[phase.rolled.length],
+        );
+        return { ...state, acting: event.seat };
       }
       check(
         phase.kind === "tieBreak" &&
