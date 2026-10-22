@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import {
   applyEvent,
+  receive,
   select,
   type BotStep,
   type GameEvent,
@@ -389,6 +390,19 @@ describe("advance", () => {
   it("a queued beat needs no spare (spare null)", () => {
     const stopped = send(viewerRolled(), STOP);
     expect(() => send(stopped, advance(stopped, null))).not.toThrow();
+  });
+
+  it("corrupt event throws out of the reducer", () => {
+    // Unreachable locally (the simulation proves it): a keep before any game.
+    const base = initStore();
+    const store: Store = {
+      ...base,
+      playback: receive(base.playback, [
+        { type: "keepSet", seat: VIEWER_SEAT, die: 0, kept: true },
+      ]),
+    };
+    expect(whatsNext(store)).toBe("beat");
+    expect(() => storeReducer(store, advance(store))).toThrow(/^Corrupt log: /);
   });
 
   it("a bot move with spare null throws", () => {

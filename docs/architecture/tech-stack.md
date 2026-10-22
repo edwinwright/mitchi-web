@@ -36,6 +36,8 @@ The first interactive feature, the practice game, landed in WO-0016 with plain b
 
 - An unavailable control uses `aria-disabled` and a guarded click handler, never the `disabled` attribute: a focused disabled button drops focus to `<body>`.
 - A control is never unmounted by a state change, except one the user just pressed. Automatic changes (a bot's move, a new round) never move focus.
+- A press that should move focus moves it in its own handler. It never sets a flag for a later commit to act on: a rejected press commits nothing, and the flag waits for the next automatic change.
+- A held Enter acts once: a repeated Enter keydown is prevented. Only Enter: Space clicks on keyup, and a held Tab must still move focus.
 - One polite live region per feature; nothing else announces.
 - Targets are at least 44 by 44 pixels, and every transition sits behind `motion-safe:`.
 - Unavailable is shown by more than colour: a dashed border, changed text or both.

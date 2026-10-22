@@ -24,7 +24,7 @@ Mitchi has no hidden information: every die is public. That is what keeps the se
 4. `applyAction` never throws on bad input. It returns a typed rejection with the same state reference and no events. It throws only for a corrupt state.
 5. Keep is engine state, one flag per die, set by `{ type: "keep", seat, die, kept }`. Never a toggle, never a parameter on `roll`. A kept die stays kept across rolls until the player un-keeps it; both flags reset to `false` only when a turn starts.
 6. Rank is the index in `HANDS`. No second table, no comparator that restates the order. Index 0 is the best hand, so the worst hand has the highest rank.
-7. Derived values (worst hand so far, rolls left) are selectors, never stored. The acting seat is stored (`acting`), because a state folded to the middle of an action needs "nobody yet": between a turn's end and the next turn's start, nobody is acting.
+7. Derived values (worst hand so far, rolls left) are selectors, never stored. The acting seat is stored (`acting`), because a state folded to the middle of an action needs "nobody yet": between a turn's end and the next turn's start, nobody is acting. `acting` is null or the seat whose turn, roll to start or tie-break roll it is; every selector relies on this, and tests hold it, not the types.
 8. Bots are pure functions of state. A decision has at most one reason, on the `roll` or `stop` that completes it. A bot swapping the die it keeps lets go of the old one before keeping the new one, so it never holds both; the session applies the two keeps as one move.
 9. Seats are numbers. No names, "you" or avatars in the engine. The UI compares against `view.viewerSeat`, never `0`.
 10. Control actions (`newGame`, `nextRound`) carry no seat. Player actions do.
@@ -34,7 +34,7 @@ Mitchi has no hidden information: every die is public. That is what keeps the se
 
 ## Session rules (SES)
 
-1. `local/` is the only place that runs the engine, and the only place with `Math.random` and `setTimeout`. There is no exception: `ui/` has no timer, and any duration reaches it as `view.rollMs`. The initial store state is deterministic. Dice are generated in event handlers and timer callbacks and passed in the message.
+1. `local/` is the only place that runs the engine, and the only place with `Math.random` and `setTimeout`. There is no exception: `ui/` has no timer, and any duration reaches it as `view.rollMs`. ESLint's `game/ui-no-pacing` block bans timers, `window`, `globalThis` and `Math.random` in `ui/`. The initial store state is deterministic. Dice are generated in event handlers and timer callbacks and passed in the message.
 2. `ui/` receives a `GameSession` and reads the engine through types and the `select` namespace. It never calls `applyAction` or the bots, and never imports `local/`. Only the `local/` import is checked; the rest is review.
 3. Only `GameBoard` receives the `GameSession`. Panels take slices as props.
 4. Nothing is written to the device: no `localStorage`, `sessionStorage` or cookies.
