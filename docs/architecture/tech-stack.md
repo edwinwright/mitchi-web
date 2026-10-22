@@ -54,7 +54,7 @@ Inline SVG, written here. No icon or illustration package for a site whose only 
 
 ## Testing
 
-Vitest, in the node environment, for the game engine, the local store and pure UI helpers. Testing Library and jsdom are for the `useLocalSession` hook and the focus handoff, and are installed with the slice that writes those tests. Since WO-0017 they also cover board behaviour that only a rendered DOM shows: the dice hold's timing and the By hand order. Anything that can be tested as a pure slice stays in the node environment. A test opts into jsdom per file with a `// @vitest-environment jsdom` docblock; the default in `vitest.config.ts` stays `node`. Dev dependencies only. `@types/node` follows the Node major in use (24).
+Vitest, in the node environment, for the game engine, the local store and pure UI helpers. Testing Library and jsdom are for the `useLocalSession` hook and the focus handoff, and are installed with the slice that writes those tests. Since WO-0017 they also cover board behaviour that only a rendered DOM shows: the beat-by-beat status line and announcer, focus across beats, and the By hand order. Anything that can be tested as a pure slice stays in the node environment. A test opts into jsdom per file with a `// @vitest-environment jsdom` docblock; the default in `vitest.config.ts` stays `node`. Dev dependencies only. `@types/node` follows the Node major in use (24).
 
 Not Jest, Playwright or Cypress. The existing checks stay: the build route table, a keyboard pass, and `./scripts/smoke.sh` (request-time locale routing and HTML canonical / hreflang).
 

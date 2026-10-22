@@ -241,7 +241,7 @@ describe("speed", () => {
 });
 
 describe("slow", () => {
-  it("slow delays the next beat by 2000 ms", () => {
+  it("slow delays the next beat by DELAY_MS.slow", () => {
     const { result } = render();
     act(() => result.current.pacing!.setSpeed("slow"));
     act(() => result.current.intents.newGame());

@@ -41,7 +41,7 @@ The practice game (`src/modules/game/`, WO-0016) has its own group, **Practice g
 
 A panel story renders a real game state without running the engine:
 
-- `fixtureSession(fixture, options)` from `../testing` builds a `GameSession` whose intents do nothing. The named fixtures (`viewerToRoll`, `botMidTurn`, `roundSummary`, `gameOverDraw` and the rest) were made by running the real engine, so every state on screen is one the game can reach.
+- `fixtureSession(fixture, options)` from `../testing` builds a `GameSession` whose intents do nothing. The named fixtures (`viewerToRoll`, `botMidTurn`, `roundSummary`, `gameOverDraw` and the rest) were made by running the real engine, so every state on screen is one the game can reach. A named fixture is the last beat of its script. For a moment inside an action, such as "after the stop, before the next turn starts", use a named beat fixture (`beatViewerStops`, `beatTieBreakOpens` and the rest) or `beatFixtures(script)`, never a flag that fakes it.
 - `sliceSession(session)` turns that session into the props a panel takes, so a story passes the same data the page does.
 
 **The stories exception.** Production code never imports `../testing`; stories and tests may, and `.dependency-cruiser.cjs` enforces it. `select` (from `../engine`) is the one engine value the UI imports, and stories use it the same way; that one is held in review, not by lint.

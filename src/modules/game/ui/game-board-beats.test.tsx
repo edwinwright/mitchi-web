@@ -2,7 +2,7 @@
 import { readFileSync } from "node:fs";
 import { NextIntlClientProvider } from "next-intl";
 import { act, cleanup, render, screen } from "@testing-library/react";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { select, type Action, type Die, type Seat } from "../engine";
 import * as fixtures from "../testing";
 import {
@@ -24,6 +24,10 @@ const messages = JSON.parse(readFileSync("messages/en.json", "utf8")) as Record<
 >;
 
 afterEach(cleanup);
+
+// Several tests render the board at every beat of a whole game: past the
+// default 5 s when the full suite runs in parallel.
+vi.setConfig({ testTimeout: 20_000 });
 
 function board(fixture: Fixture) {
   return (
