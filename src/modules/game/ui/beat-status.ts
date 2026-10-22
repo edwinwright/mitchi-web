@@ -164,9 +164,11 @@ export function latestStatus(
   state: GameState,
   viewerSeat: Seat,
 ): BeatStatusData | null {
-  const silent = (beat: Beat<LoggedEvent>) =>
-    statusOf(beat, state, viewerSeat) === null;
-  const beat = select.lastBeat(events, silent);
-  const status = beat && statusOf(beat, state, viewerSeat);
-  return beat && status ? { beat: beat.id, status } : null;
+  // The walk stops on the first beat with a status: keep it, not work it out again.
+  const found: { status: Status | null } = { status: null };
+  const beat = select.lastBeat(events, (candidate) => {
+    found.status = statusOf(candidate, state, viewerSeat);
+    return found.status === null;
+  });
+  return beat && found.status ? { beat: beat.id, status: found.status } : null;
 }

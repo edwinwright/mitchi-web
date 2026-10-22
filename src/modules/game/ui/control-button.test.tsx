@@ -18,4 +18,10 @@ describe("key repeat", () => {
       true,
     );
   });
+
+  it("a repeated Tab keydown is not prevented", () => {
+    render(<ControlButton onPress={vi.fn()}>Roll</ControlButton>);
+    const button = screen.getByRole("button", { name: "Roll" });
+    expect(fireEvent.keyDown(button, { key: "Tab", repeat: true })).toBe(true);
+  });
 });

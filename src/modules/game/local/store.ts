@@ -81,7 +81,7 @@ export function viewOf(store: Store): SessionView {
 
 /** Nothing until the view has caught up and the viewer's dice have landed. */
 export function allowedOf(store: Store): AllowedIntents {
-  return caughtUp(store.playback) && store.animating === null
+  return viewerMayAct(store)
     ? select.allowedIntents(store.game, VIEWER_SEAT)
     : select.noIntents;
 }

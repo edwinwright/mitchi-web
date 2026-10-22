@@ -37,9 +37,10 @@ export function ControlButton({
       aria-disabled={unavailable}
       aria-busy={busy}
       aria-pressed={pressed}
-      // A held key acts once: a repeat would roll again as soon as the lock lifts.
+      // A held Enter acts once: a repeat would roll again as soon as the lock
+      // lifts. Space clicks on keyup, and any other held key (Tab) must pass.
       onKeyDown={(event) => {
-        if (event.repeat) event.preventDefault();
+        if (event.repeat && event.key === "Enter") event.preventDefault();
       }}
       onClick={() => {
         if (unavailable) return;

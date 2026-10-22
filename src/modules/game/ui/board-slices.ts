@@ -252,7 +252,7 @@ export function sliceSession(session: GameSession): BoardSlices {
   const primary = select.limitReached(state) ? ENDING : PRIMARY[phase.kind];
 
   return {
-    header: headerOf(state, events, viewerSeat),
+    header: headerOf(state, events, beat, viewerSeat),
     tray: {
       shown,
       // Only the acting seat mid-turn has keep flags; any other roll is past.
@@ -329,12 +329,19 @@ function roundBarOf(state: GameState): RoundBarData | null {
  * nobody is acting, the player the last beat was about. It never names the
  * next player before their handover beat, which sets `acting`.
  */
-function headingSeat(state: GameState, events: SessionView["events"]): Seat {
+function headingSeat(
+  state: GameState,
+  events: SessionView["events"],
+  beat: LoggedBeat | null,
+): Seat {
   const { phase, acting } = state;
   if (acting !== null) return acting;
   // The player whose turn has just ended, or the starter as the round starts.
   if (phase.kind === "turn") return phase.seat;
-  const subject = select.lastBeat(events, (beat) => beat.seat === null)?.seat;
+  // Walk back only when the last beat has no subject.
+  const subject =
+    beat?.seat ??
+    select.lastBeat(events, (earlier) => earlier.seat === null)?.seat;
   if (subject !== undefined && subject !== null) return subject;
   // Not reachable after gameStarted: its beat sets `acting`.
   if (phase.kind === "tieBreak") return phase.order[0];
@@ -344,6 +351,7 @@ function headingSeat(state: GameState, events: SessionView["events"]): Seat {
 function headerOf(
   state: GameState,
   events: SessionView["events"],
+  beat: LoggedBeat | null,
   viewerSeat: Seat,
 ): HeaderData {
   const { phase, round } = state;
@@ -351,7 +359,7 @@ function headerOf(
     case "notStarted":
       return { stage: "notStarted" };
     case "rollOff": {
-      const seat = headingSeat(state, events);
+      const seat = headingSeat(state, events, beat);
       return {
         stage: "rollOff",
         seat,
@@ -361,7 +369,7 @@ function headerOf(
     }
     case "turn":
     case "tieBreak": {
-      const seat = headingSeat(state, events);
+      const seat = headingSeat(state, events, beat);
       if (!round) throw new Error(`A ${phase.kind} with no round`);
       const tieBreak = select.tieBreakNumber(state);
       return {

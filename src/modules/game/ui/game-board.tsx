@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useRef } from "react";
-import type { GameSession, GameState } from "../engine";
+import { useMemo, useRef } from "react";
+import type { GameSession } from "../engine";
 import { sliceSession } from "./board-slices";
 import { CommentaryPanel } from "./commentary-panel";
 import { commentaryRows } from "./commentary-rows";
@@ -28,23 +28,12 @@ export function GameBoard({ session }: { session: GameSession }) {
 
   // Start, Next round and Play again are labels of the Roll node, so a key
   // press leaves focus on it already. A click may not focus a button (Safari),
-  // so the flag still hands focus to Roll. Nothing else moves focus: not bot
-  // play, not the end of a round or game, not the viewer's turn.
+  // so the press focuses it, there and then: nothing is left pending for a
+  // later commit, which a rejected intent never makes. Nothing else moves
+  // focus: not bot play, not the end of a round or game, not the viewer's turn.
   const rollRef = useRef<HTMLButtonElement>(null);
-  const focusRoll = useRef(false);
-  const committedState = useRef<GameState>(view.state);
-  useEffect(() => {
-    // Cleared on the next commit whatever happened. A rejected or no-op
-    // intent commits the same state and moves nothing, and a flag left over
-    // from one must not let a later bot step steal focus.
-    const moved = committedState.current !== view.state;
-    committedState.current = view.state;
-    const wanted = focusRoll.current;
-    focusRoll.current = false;
-    if (wanted && moved) rollRef.current?.focus();
-  });
   const thenFocusRoll = (intent: () => void) => () => {
-    focusRoll.current = true;
+    rollRef.current?.focus();
     intent();
   };
 

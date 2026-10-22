@@ -224,8 +224,6 @@ export function lastBeat(
   return null;
 }
 
-export { beatsOf };
-
 /** False only for non-participants in a tie-break. */
 export function inContest(state: GameState, seat: Seat): boolean {
   const { phase } = state;

@@ -59,12 +59,13 @@ describe("focus handoff", () => {
     ["Next round", roundSummary, "nextRound"],
     ["Play again", gameOverUnique, "newGame"],
   ] as const)(
-    "%s: focus lands on Roll once the next commit arrives",
+    "%s: a click focuses the node, which stays focused as Roll",
     (name, from, intent) => {
       const first = spied(from);
       const { rerender } = render(board(first.session));
       fireEvent.click(button(name));
       expect(first.intents[intent]).toHaveBeenCalledOnce();
+      expect(document.activeElement).toBe(button(name));
 
       rerender(board(fixtureSession(viewerToRoll)));
       expect(document.activeElement).toBe(button("Roll"));
@@ -88,17 +89,20 @@ describe("focus handoff", () => {
     expect(document.activeElement).toBe(log);
   });
 
-  it("a no-op intent does not leave the flag set to steal focus later", () => {
+  it("a press that changes nothing leaves nothing to steal focus later", () => {
+    // The spy changes nothing and the board does not commit, as when the
+    // reducer rejects the intent and React bails out.
     const first = spied(notStarted);
     const { rerender } = render(board(first.session));
     fireEvent.click(button("Start"));
-    // The intent changed nothing, but the board commits again (Roll is not mounted yet).
-    rerender(board(first.session));
-    expect(document.activeElement).toBe(document.body);
 
-    // A later commit that does mount Roll must not pull focus to it.
+    // The reader moves on. Later state changes must leave focus where it is.
+    fireEvent.click(button("What happened"));
+    const log = screen.getByRole("list", { name: "What happened" });
+    log.focus();
     rerender(board(fixtureSession(viewerToRoll)));
-    expect(document.activeElement).not.toBe(button("Roll"));
+    rerender(board(fixtureSession(botMidTurn)));
+    expect(document.activeElement).toBe(log);
   });
 
   it("clicking Roll does not move focus", () => {
