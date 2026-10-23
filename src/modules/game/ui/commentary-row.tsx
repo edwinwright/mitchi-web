@@ -26,12 +26,16 @@ function shownCells(
     ];
   }
   // High die first, as everywhere a hand is named, not the rolled order.
-  const { high, low } = handById(shown.hand);
+  const { high, low, group } = handById(shown.hand);
+  // One cell: the drawing has no text, so as a cell of its own it read as an
+  // empty item, "Player 2, , double-six".
   return [
-    <MitchiHand key="dice" high={high} low={low} size={20} />,
     <span key="hand" className="inline-flex items-center gap-2">
       {/* Decorative: the hand name is already text. */}
-      {handById(shown.hand).group === "mitchi" ? <Mark name="mitchi" /> : null}
+      <span aria-hidden className="flex">
+        <MitchiHand high={high} low={low} size={20} />
+      </span>
+      {group === "mitchi" ? <Mark name="mitchi" /> : null}
       {hands(shown.hand)}
     </span>,
   ];
