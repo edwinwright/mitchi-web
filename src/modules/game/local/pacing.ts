@@ -3,7 +3,7 @@ import type { Speed } from "../engine";
 /** The wait before each beat. */
 export const DELAY_MS: Record<Speed, number> = {
   slow: 2600,
-  normal: 1800,
+  normal: 1500,
   fast: 400,
 };
 

@@ -5,9 +5,9 @@ import { DELAY_MS, ROLL_MS } from "./pacing";
 const SPEEDS: readonly Speed[] = ["slow", "normal", "fast"];
 
 describe("tables", () => {
-  it("DELAY_MS is slow 2600, normal 1800, fast 400", () => {
+  it("DELAY_MS is slow 2600, normal 1500, fast 400", () => {
     // Raised from 2000 and 1200 after Pass H: Normal was too quick to read.
-    expect(DELAY_MS).toStrictEqual({ slow: 2600, normal: 1800, fast: 400 });
+    expect(DELAY_MS).toStrictEqual({ slow: 2600, normal: 1500, fast: 400 });
   });
 
   it("ROLL_MS is 800, 500, 200", () => {

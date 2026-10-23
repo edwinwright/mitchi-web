@@ -68,7 +68,7 @@ A beat is one thing a player or the game does, with its consequences riding alon
 
 - `beatsOf(events)` groups a received batch into beats, reading only the events, never time or the viewer. It never merges two batches. The rules are in `engine/beats.ts`; the ones a reader would not guess: `gameStarted` carries the roll to start's first turn (the Start click is the pause); `roundStarted` carries its starter's turn only after round 1 (in round 1 the winner of the roll to start is named on one beat and their turn starts on the next); a bot's un-keep and keep of the other die are one `keepSwapped` beat.
 - `Playback` is the cursor: `receive` stamps and queues a batch, `release` folds the first queued beat into what is shown. Both are pure engine code. The session decides only when to release.
-- The local session releases a viewer's intent's first beat at once (the click is the pause) and every other beat after `DELAY_MS` (Slow 2600, Normal 1800, Fast 400). A roll's animation, `ROLL_MS` (800, 500, 200), runs inside its beat and is always shorter than the delay. Pause holds beats, not an animation already under way; Step releases exactly one.
+- The local session releases a viewer's intent's first beat at once (the click is the pause) and every other beat after `DELAY_MS` (Slow 2600, Normal 1500, Fast 400). A roll's animation, `ROLL_MS` (800, 500, 200), runs inside its beat and is always shorter than the delay. Pause holds beats, not an animation already under way; Step releases exactly one.
 - The UI reads `view.state` and `select.lastBeat(view.events)`, so every panel shows the same beat. One hidden announcer, keyed by the beat id, is the page's only live region.
 
 ## Phase machine

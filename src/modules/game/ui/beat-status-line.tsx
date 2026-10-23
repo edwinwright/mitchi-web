@@ -90,12 +90,15 @@ function StatusText({
 /**
  * What is happening now, under the dice card's heading. A plain paragraph:
  * not live, so it is not announced, but found in place by a reader. Always
- * rendered, so the card does not shift when the first status arrives; it
- * grows rather than clips on a narrow screen.
+ * rendered, and tall enough for nearly every status, so the dice below do
+ * not move as it changes: three 21px lines below `sm`, two from it. From
+ * 669 statuses (five simulated games) in en, es and pl, that fits all but
+ * the longest few percent, mostly Polish; a longer one grows rather than
+ * clips. No row gap: it would make two lines taller than the space kept.
  */
 export function BeatStatus({ status, viewerSeat }: Props) {
   return (
-    <p className="flex min-h-[54px] flex-wrap content-center items-center justify-center gap-x-2.5 gap-y-1 px-[18px] pt-3 text-center text-[15px] leading-[1.4] text-stone-800">
+    <p className="flex min-h-[75px] flex-wrap content-center items-center justify-center gap-x-2.5 px-[18px] sm:min-h-[54px] pt-3 text-center text-[15px] leading-[1.4] text-stone-800">
       {status ? (
         <StatusText status={status.status} viewerSeat={viewerSeat} />
       ) : null}
