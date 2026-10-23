@@ -414,8 +414,7 @@
     },
     "game": {
       "pointLimit": "Limit punktów",
-      "usuallyTo25": "Prawdziwe gry zwykle toczą się do 25 punktów.",
-      "fewestPoints": "Najmniej punktów",
+      "leader": "Prowadzi",
       "closeToLimit": "Blisko limitu punktów",
       "reachedLimit": "Osiągnięty limit punktów"
     },
@@ -485,7 +484,7 @@
     "end": {
       "heading": "Koniec gry",
       "standings": "Punkty końcowe",
-      "winner": "Zwycięzca"
+      "winner": "Wygrywa"
     },
     "header": {
       "readyToPlay": "Gotowe do gry",
@@ -497,7 +496,7 @@
       "worstHand": "Najgorszy układ"
     },
     "tray": {
-      "intro": "Zagraj w grę treningową przeciwko trzem innym graczom. Naciśnij Zacznij, aby rozpocząć."
+      "intro": "Zagraj w grę treningową przeciwko trzem innym graczom. Naciśnij Zacznij, aby rozpocząć. Prawdziwe gry zwykle toczą się do 25 punktów."
     },
     "status": {
       "intro": "Każdy gracz rzuca jedną kością. Pierwszą rundę zaczyna ten, kto wyrzuci najwięcej oczek.",

@@ -7,7 +7,8 @@ export type MarkName =
   | "starting"
   | "holdsWorst"
   | "mitchi"
-  | "fewestPoints"
+  | "leader"
+  | "winner"
   | "closeToLimit"
   | "reachedLimit";
 
@@ -19,7 +20,8 @@ const LABEL_KEYS = {
   starting: "play.players.starting",
   holdsWorst: "play.players.holdsWorst",
   mitchi: "handGroups.mitchi.name",
-  fewestPoints: "play.game.fewestPoints",
+  leader: "play.game.leader",
+  winner: "play.end.winner",
   closeToLimit: "play.game.closeToLimit",
   reachedLimit: "play.game.reachedLimit",
 } as const;
@@ -140,7 +142,15 @@ function Glyph({ name, size }: { name: MarkName; size: MarkSize }) {
       return <DownArrowDisc px={size === "md" ? 22 : 16} />;
     case "mitchi":
       return <Flame size={size} />;
-    case "fewestPoints":
+    case "leader":
+      // A chevron up in a ring: ahead in the game, not the trophy.
+      return (
+        <LineIcon size={size} className="text-stone-900">
+          <circle cx="12" cy="12" r="9.5" />
+          <path d="M7.5 14l4.5-4.5 4.5 4.5" strokeWidth="2.4" />
+        </LineIcon>
+      );
+    case "winner":
       return (
         <LineIcon size={size} className="text-gold-800">
           <path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z" />

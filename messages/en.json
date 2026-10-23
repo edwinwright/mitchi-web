@@ -414,8 +414,7 @@
     },
     "game": {
       "pointLimit": "Point limit",
-      "usuallyTo25": "Real games are usually played to 25.",
-      "fewestPoints": "Fewest points",
+      "leader": "Leader",
       "closeToLimit": "Close to the point limit",
       "reachedLimit": "Reached the point limit"
     },
@@ -497,7 +496,7 @@
       "worstHand": "Worst hand"
     },
     "tray": {
-      "intro": "Play a practice game against three other players. Press Start to begin."
+      "intro": "Play a practice game against three other players. Press Start to begin. Real games are usually played to 25."
     },
     "status": {
       "intro": "Each player rolls one die. The highest starts the first round.",

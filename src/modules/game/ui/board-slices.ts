@@ -131,8 +131,11 @@ export type RoundRowData = {
 export type PointsRowData = {
   seat: Seat;
   points: number;
-  /** Every seat on the fewest points; nobody while every seat is on 0. */
-  fewest: boolean;
+  /**
+   * While playing, every seat on the fewest points; nobody while every seat
+   * is on 0. Never at game over: the winners have it then.
+   */
+  leader: boolean;
   /** During a game only. */
   close: boolean;
   /** At game over only. */
@@ -375,7 +378,7 @@ function pointsOf(state: GameState): PointsData {
     rows: points.map((p, seat) => ({
       seat,
       points: p,
-      fewest: anyPoints && p === fewest,
+      leader: !gameOver && anyPoints && p === fewest,
       close: !gameOver && p + CLOSE_TO_LIMIT >= config.pointLimit,
       reachedLimit: gameOver && p >= config.pointLimit,
       winner: winners.includes(seat),

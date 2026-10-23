@@ -19,8 +19,8 @@ type Story = StoryObj<typeof meta>;
 
 export const ThisRound: Story = {};
 export const Points: Story = {
-  args: { items: ["fewestPoints", "closeToLimit"] },
+  args: { items: ["leader", "closeToLimit"] },
 };
 export const PointsGameOver: Story = {
-  args: { items: ["fewestPoints", "reachedLimit"] },
+  args: { items: ["winner", "reachedLimit"] },
 };

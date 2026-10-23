@@ -13,7 +13,8 @@ type Story = StoryObj<typeof meta>;
 export const StartingPlayer: Story = {};
 export const WorstHand: Story = { args: { name: "holdsWorst" } };
 export const Mitchi: Story = { args: { name: "mitchi" } };
-export const FewestPoints: Story = { args: { name: "fewestPoints" } };
+export const Leader: Story = { args: { name: "leader" } };
+export const Winner: Story = { args: { name: "winner" } };
 export const CloseToLimit: Story = { args: { name: "closeToLimit" } };
 export const ReachedLimit: Story = { args: { name: "reachedLimit" } };
 
@@ -26,7 +27,8 @@ export const Small: Story = {
           "starting",
           "holdsWorst",
           "mitchi",
-          "fewestPoints",
+          "leader",
+          "winner",
           "closeToLimit",
           "reachedLimit",
         ] as const

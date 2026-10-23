@@ -173,7 +173,7 @@ function DiceRow({
               key={seat}
               className="inline-flex items-center gap-2 text-xl font-bold"
             >
-              <Mark name="fewestPoints" />
+              <Mark name="winner" />
               <SeatLabel seat={seat} viewerSeat={viewerSeat} />
             </li>
           ))}

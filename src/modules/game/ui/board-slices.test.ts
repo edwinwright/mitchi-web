@@ -513,25 +513,25 @@ describe("roundRows", () => {
   });
 });
 
-describe("fewest points", () => {
+describe("leaders and winners", () => {
   it("is nobody while every seat is on 0", () => {
-    expect(seatsWhere(slices(notStarted).points.rows, "fewest")).toEqual([]);
-    expect(seatsWhere(slices(viewerToRoll).points.rows, "fewest")).toEqual([]);
+    expect(seatsWhere(slices(notStarted).points.rows, "leader")).toEqual([]);
+    expect(seatsWhere(slices(viewerToRoll).points.rows, "leader")).toEqual([]);
   });
 
-  it("is every seat tied on the fewest once anyone has points", () => {
-    expect(seatsWhere(slices(roundSummary).points.rows, "fewest")).toEqual([
-      0, 1, 2,
-    ]);
+  it("makes every seat tied on the fewest a leader once anyone has points, and nobody a winner", () => {
+    const { rows } = slices(roundSummary).points;
+    expect(seatsWhere(rows, "leader")).toEqual([0, 1, 2]);
+    expect(seatsWhere(rows, "winner")).toEqual([]);
   });
 
-  it("is every winner at game over", () => {
+  it("has winners at game over, and no leaders", () => {
     const draw = slices(gameOverDraw).points.rows;
-    expect(seatsWhere(draw, "fewest")).toEqual([0, 2]);
     expect(seatsWhere(draw, "winner")).toEqual([0, 2]);
+    expect(seatsWhere(draw, "leader")).toEqual([]);
     const unique = slices(gameOverUnique).points.rows;
-    expect(seatsWhere(unique, "fewest")).toEqual([0]);
     expect(seatsWhere(unique, "winner")).toEqual([0]);
+    expect(seatsWhere(unique, "leader")).toEqual([]);
   });
 });
 

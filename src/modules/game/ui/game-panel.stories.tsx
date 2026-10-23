@@ -30,10 +30,12 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/** Every seat on 0: nobody is gold. */
+/** Every seat on 0: nobody is a leader. */
 export const NotStarted: Story = {};
-export const AfterOneRound: Story = { args: { fixture: roundSummary } };
+/** Three seats tied on 0: three leaders, and no row is gold. */
+export const ThreeLeaders: Story = { args: { fixture: roundSummary } };
 /** Seat 3 on 3 of 5 is close; seat 1 on 2 is not. */
 export const CloseToLimit: Story = { args: { fixture: closeToLimit } };
+/** Only the winner is gold, under the trophy. */
 export const GameOverWin: Story = { args: { fixture: gameOverUnique } };
 export const GameOverDraw: Story = { args: { fixture: gameOverDraw } };

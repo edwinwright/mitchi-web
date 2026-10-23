@@ -15,8 +15,8 @@ function Key({ item }: { item: LegendItem }) {
       return (
         <Swatch className="bg-blue-50 shadow-[inset_0_0_0_2px_var(--color-blue-600)]" />
       );
-    // The row's gold, which the trophy sits on.
-    case "fewestPoints":
+    // The winner's gold row, which the trophy sits on.
+    case "winner":
       return (
         <Swatch className="bg-gold-50 shadow-[inset_0_0_0_1.5px_var(--color-gold-600)]" />
       );

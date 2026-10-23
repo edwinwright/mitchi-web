@@ -20,19 +20,22 @@ function Row({
 }) {
   const t = useTranslations("play");
   const red = row.close || row.reachedLimit;
-  const marked = row.fewest || row.close || row.reachedLimit;
+  const marked = row.leader || row.winner || row.close || row.reachedLimit;
 
   return (
     <li
       className={cn(
         "grid h-14 grid-cols-[22px_minmax(0,1fr)_minmax(40px,1fr)_30px] items-center gap-2.5 rounded-xl pr-3 pl-2",
-        row.fewest
+        // Gold means winner: never while playing.
+        row.winner
           ? "bg-gold-50 shadow-[inset_0_0_0_1.5px_var(--color-gold-600)]"
           : "bg-white shadow-[inset_0_0_0_1px_var(--color-stone-200)]",
       )}
     >
       <span className="flex justify-center gap-0.5">
-        {row.fewest ? <Mark name="fewestPoints" labelled /> : null}
+        {row.leader ? <Mark name="leader" labelled /> : null}
+        {/* "Winner" is visible text in the row: the trophy repeats it. */}
+        {row.winner ? <Mark name="winner" /> : null}
         {row.close ? <Mark name="closeToLimit" labelled /> : null}
         {row.reachedLimit ? <Mark name="reachedLimit" labelled /> : null}
         {marked ? (
@@ -96,13 +99,9 @@ export function GamePanel({
   return (
     <div className="flex flex-col gap-1.5">
       <div className="grid h-12 grid-cols-[minmax(0,1fr)_auto_30px] items-center gap-2.5 rounded-xl bg-stone-100 px-3">
-        <span
-          className={cn(
-            "text-sm leading-tight",
-            data.gameOver ? "font-bold" : "text-stone-700",
-          )}
-        >
-          {data.gameOver ? t("end.standings") : t("game.usuallyTo25")}
+        {/* Empty while playing: the text before Start says real games go to 25. */}
+        <span className="text-sm leading-tight font-bold">
+          {data.gameOver ? t("end.standings") : null}
         </span>
         <span className="text-right text-xs font-semibold text-stone-700">
           {t("game.pointLimit")}
@@ -121,10 +120,11 @@ export function GamePanel({
       </ol>
       <div className="mt-1.5">
         <Legend
-          items={[
-            "fewestPoints",
-            data.gameOver ? "reachedLimit" : "closeToLimit",
-          ]}
+          items={
+            data.gameOver
+              ? ["winner", "reachedLimit"]
+              : ["leader", "closeToLimit"]
+          }
         />
       </div>
     </div>

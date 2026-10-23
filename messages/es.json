@@ -414,8 +414,7 @@
     },
     "game": {
       "pointLimit": "Límite de puntos",
-      "usuallyTo25": "Las partidas reales suelen jugarse a 25.",
-      "fewestPoints": "Menos puntos",
+      "leader": "Líder",
       "closeToLimit": "Cerca del límite de puntos",
       "reachedLimit": "Límite de puntos alcanzado"
     },
@@ -485,7 +484,7 @@
     "end": {
       "heading": "Fin de la partida",
       "standings": "Puntos finales",
-      "winner": "Ganador"
+      "winner": "Gana"
     },
     "header": {
       "readyToPlay": "Listo para jugar",
@@ -497,7 +496,7 @@
       "worstHand": "Peor mano"
     },
     "tray": {
-      "intro": "Juega una partida de práctica contra otros tres jugadores. Pulsa Empezar para comenzar."
+      "intro": "Juega una partida de práctica contra otros tres jugadores. Pulsa Empezar para comenzar. Las partidas reales suelen jugarse a 25."
     },
     "status": {
       "intro": "Cada jugador tira un dado. Empieza la primera ronda quien saque el número más alto.",

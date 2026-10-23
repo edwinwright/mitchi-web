@@ -10,6 +10,7 @@ import {
   botWorse,
   fixtureSession,
   gameOverDraw,
+  gameOverUnique,
   notStarted,
   roundSummary,
   starterLimitSet,
@@ -82,7 +83,8 @@ export const TieBreakRolledHeld: Story = {
 export const TieBreak: Story = { args: { fixture: tieBreakViewerToRoll } };
 /** The pot taken: placeholders. */
 export const PotTaken: Story = { args: { fixture: roundSummary } };
-export const GameOver: Story = { args: { fixture: gameOverDraw } };
+export const GameOverWin: Story = { args: { fixture: gameOverUnique } };
+export const GameOverDraw: Story = { args: { fixture: gameOverDraw } };
 export const Pending: Story = {
   args: { fixture: viewerKeptOne, options: { pending: true } },
 };
