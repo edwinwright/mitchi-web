@@ -101,7 +101,8 @@ function HandDice({ hand }: { hand: HandId | null }) {
 
 /**
  * The dice card's ink header: 128px, so nothing below it moves. A field that
- * does not apply keeps its space but is not shown. The heights are minimums:
+ * does not apply keeps its space but is not shown, except the rolls left, so
+ * a hand alone stays centred on line 2. The heights are minimums:
  * at 320px a long translation grows the header rather than being clipped.
  */
 export function RoundHeader({ header }: { header: HeaderData }) {
@@ -132,7 +133,8 @@ export function RoundHeader({ header }: { header: HeaderData }) {
         </dl>
       </div>
 
-      <dl className="mt-2.5 flex min-h-[54px] flex-wrap items-center gap-x-3 gap-y-1 border-t border-stone-800 py-1">
+      {/* One centred phrase: "Hand to beat [5][4] in [x][ ][ ]". */}
+      <dl className="mt-2.5 flex min-h-[54px] flex-wrap items-center justify-center gap-x-3 gap-y-1 border-t border-stone-800 py-1">
         <div
           className={cn("flex items-center gap-3", !cells.hand && "invisible")}
         >
@@ -141,17 +143,18 @@ export function RoundHeader({ header }: { header: HeaderData }) {
             {cells.hand ? <HandDice hand={cells.hand.hand} /> : null}
           </dd>
         </div>
-        <div
-          className={cn(
-            "ml-auto flex items-center gap-2.5",
-            !cells.rolls && "invisible",
-          )}
-        >
-          <dt className={LABEL}>{t("round.rollsLeft")}</dt>
-          <dd className="flex items-center">
-            {cells.rolls ? <RollBoxes {...cells.rolls} /> : null}
-          </dd>
-        </div>
+        {cells.rolls ? (
+          <div className="flex items-center gap-3">
+            {/* Seen as "in"; heard as "Rolls left", then the count. */}
+            <dt className={LABEL}>
+              <span aria-hidden>{t("header.rollsIn")}</span>
+              <span className="sr-only">{t("round.rollsLeft")}</span>
+            </dt>
+            <dd className="flex items-center">
+              <RollBoxes {...cells.rolls} />
+            </dd>
+          </div>
+        ) : null}
       </dl>
     </div>
   );

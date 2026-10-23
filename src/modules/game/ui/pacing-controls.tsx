@@ -51,7 +51,7 @@ export function PacingControls({ pacing }: { pacing: Pacing }) {
       <span id={headingId} className="text-sm font-bold">
         {t("heading")}
       </span>
-      <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
+      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-3">
         <div className="flex items-center gap-3">
           {/* The box's heading says what the dropdown is for. */}
           <label htmlFor={speedId} className="sr-only">

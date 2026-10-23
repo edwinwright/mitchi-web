@@ -494,6 +494,7 @@
       "tieBreak": "Tie-break {number}",
       "endOfRound": "End of round",
       "handToBeat": "Hand to beat",
+      "rollsIn": "in",
       "worstHand": "Worst hand"
     },
     "tray": {
