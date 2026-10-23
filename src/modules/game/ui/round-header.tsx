@@ -133,10 +133,14 @@ export function RoundHeader({ header }: { header: HeaderData }) {
         </dl>
       </div>
 
-      {/* One centred phrase: "Hand to beat [5][4] in [x][ ][ ]". */}
-      <dl className="mt-2.5 flex min-h-[54px] flex-wrap items-center justify-center gap-x-3 gap-y-1 border-t border-stone-800 py-1">
+      {/* Centred together: the hand to beat and the rolls to beat it in.
+          Each label sits above its value, so the line stays short at 320px. */}
+      <dl className="mt-2.5 flex min-h-18 flex-wrap items-center justify-center gap-x-8 gap-y-1 border-t border-stone-800 py-1">
         <div
-          className={cn("flex items-center gap-3", !cells.hand && "invisible")}
+          className={cn(
+            "flex flex-col items-center gap-1",
+            !cells.hand && "invisible",
+          )}
         >
           <dt className={LABEL}>{cells.hand?.label}</dt>
           <dd className="flex items-center">
@@ -144,13 +148,9 @@ export function RoundHeader({ header }: { header: HeaderData }) {
           </dd>
         </div>
         {cells.rolls ? (
-          <div className="flex items-center gap-3">
-            {/* Seen as "in"; heard as "Rolls left", then the count. */}
-            <dt className={LABEL}>
-              <span aria-hidden>{t("header.rollsIn")}</span>
-              <span className="sr-only">{t("round.rollsLeft")}</span>
-            </dt>
-            <dd className="flex items-center">
+          <div className="flex flex-col items-center gap-1">
+            <dt className={LABEL}>{t("round.rollsLeft")}</dt>
+            <dd className="flex min-h-[26px] items-center">
               <RollBoxes {...cells.rolls} />
             </dd>
           </div>

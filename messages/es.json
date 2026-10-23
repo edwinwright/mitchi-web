@@ -494,7 +494,6 @@
       "tieBreak": "Desempate {number}",
       "endOfRound": "Fin de la ronda",
       "handToBeat": "Mano a superar",
-      "rollsIn": "en",
       "worstHand": "Peor mano"
     },
     "tray": {
