@@ -5,10 +5,10 @@ const meta = {
   title: "Practice game/Roll boxes",
   component: RollBoxes,
   args: { available: 3, used: 0 },
-  // The tray's linen.
+  // The header's ink.
   decorators: [
     (Story) => (
-      <div className="inline-flex bg-stone-100 p-4">
+      <div className="inline-flex bg-stone-950 p-4">
         <Story />
       </div>
     ),
@@ -22,5 +22,4 @@ type Story = StoryObj<typeof meta>;
 export const StarterThree: Story = {};
 export const StarterOneUsed: Story = { args: { used: 1 } };
 export const LimitTwoOneUsed: Story = { args: { available: 2, used: 1 } };
-/** A tie-break, or the roll to start. */
-export const OneRoll: Story = { args: { available: 1, used: 0 } };
+export const LimitOneUsed: Story = { args: { available: 1, used: 1 } };

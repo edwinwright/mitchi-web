@@ -489,18 +489,15 @@
     },
     "header": {
       "readyToPlay": "Listo para jugar",
+      "rollingToStart": "Tirar para empezar",
       "round": "Ronda {number}",
       "tieBreak": "Desempate {number}",
       "endOfRound": "Fin de la ronda",
       "handToBeat": "Mano a superar",
-      "worstHand": "Peor mano",
-      "youTakePot": "Te llevas el bote",
-      "takesPot": "Se lleva el bote",
-      "wins": "Gana"
+      "worstHand": "Peor mano"
     },
     "tray": {
-      "intro": "Juega una partida de práctica contra otros tres jugadores. Pulsa Empezar para comenzar.",
-      "rollsLeft": "tiradas restantes"
+      "intro": "Juega una partida de práctica contra otros tres jugadores. Pulsa Empezar para comenzar."
     },
     "status": {
       "intro": "Cada jugador tira un dado. Empieza la primera ronda quien saque el número más alto.",

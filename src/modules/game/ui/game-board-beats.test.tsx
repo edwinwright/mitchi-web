@@ -185,10 +185,10 @@ describe("status", () => {
     }
   });
 
-  it("the status line sits between the heading and the tray, and the heading still names the acting seat", () => {
+  it("the status line sits between the heading and the tray, and names the acting seat the heading does not", () => {
     render(board(fixtures.botMidTurn));
     const { announcer, visible } = statusNodes();
-    const heading = screen.getByRole("heading", { level: 2, name: /Player 2/ });
+    const heading = screen.getByRole("heading", { level: 2, name: "Round 1" });
     expect(visible.previousElementSibling?.contains(heading)).toBe(true);
     expect(
       announcer.nextElementSibling?.contains(
@@ -198,11 +198,20 @@ describe("status", () => {
     expect(visible.textContent).toContain("Player 2");
   });
 
-  it("with nobody acting, the heading names the seat alone", () => {
-    render(board(fixtures.beatNoRollsLeft));
-    const heading = screen.getByRole("heading", { level: 2, name: /Player 2/ });
-    expect(heading.textContent).not.toMatch(/Rolling now/);
-  });
+  it.each([
+    ["nobody acting", fixtures.beatNoRollsLeft, "Round 1"],
+    ["a tie-break opening", fixtures.beatTieBreakOpens, "Tie-break 1"],
+    ["the viewer's handover", fixtures.viewerToRoll, "Round 1"],
+  ])(
+    "with %s, the heading says where play is and names no seat",
+    (_, fixture, name) => {
+      render(board(fixture));
+      // The accessible name matches whole: nothing after it, no seat.
+      expect(screen.getByRole("heading", { level: 2, name }).textContent).toBe(
+        name,
+      );
+    },
+  );
 });
 
 describe("focus", () => {

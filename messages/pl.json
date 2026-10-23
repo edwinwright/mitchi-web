@@ -489,18 +489,15 @@
     },
     "header": {
       "readyToPlay": "Gotowe do gry",
+      "rollingToStart": "Rzucać, by zacząć",
       "round": "Runda {number}",
       "tieBreak": "Dogrywka {number}",
       "endOfRound": "Koniec rundy",
       "handToBeat": "Układ do pobicia",
-      "worstHand": "Najgorszy układ",
-      "youTakePot": "Zgarniasz pulę",
-      "takesPot": "Zgarnia pulę",
-      "wins": "Wygrywa"
+      "worstHand": "Najgorszy układ"
     },
     "tray": {
-      "intro": "Zagraj w grę treningową przeciwko trzem innym graczom. Naciśnij Zacznij, aby rozpocząć.",
-      "rollsLeft": "pozostałe rzuty"
+      "intro": "Zagraj w grę treningową przeciwko trzem innym graczom. Naciśnij Zacznij, aby rozpocząć."
     },
     "status": {
       "intro": "Każdy gracz rzuca jedną kością. Pierwszą rundę zaczyna ten, kto wyrzuci najwięcej oczek.",

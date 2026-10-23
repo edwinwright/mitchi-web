@@ -489,18 +489,15 @@
     },
     "header": {
       "readyToPlay": "Ready to play",
+      "rollingToStart": "Rolling to start",
       "round": "Round {number}",
       "tieBreak": "Tie-break {number}",
       "endOfRound": "End of round",
       "handToBeat": "Hand to beat",
-      "worstHand": "Worst hand",
-      "youTakePot": "You take the pot",
-      "takesPot": "Takes the pot",
-      "wins": "Wins"
+      "worstHand": "Worst hand"
     },
     "tray": {
-      "intro": "Play a practice game against three other players. Press Start to begin.",
-      "rollsLeft": "rolls left"
+      "intro": "Play a practice game against three other players. Press Start to begin."
     },
     "status": {
       "intro": "Each player rolls one die. The highest starts the first round.",

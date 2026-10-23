@@ -286,108 +286,100 @@ describe("the end of a round settled by a tie-break", () => {
 });
 
 describe("header", () => {
-  it("has nothing but its stage before start", () => {
+  it("has nothing but its stage before start and rolling to start", () => {
     expect(slices(notStarted).header).toEqual({ stage: "notStarted" });
+    expect(slices(rollOff).header).toEqual({ stage: "rollOff" });
+    expect(slices(rollOffReroll).header).toEqual({ stage: "rollOff" });
   });
 
-  it("names the next seat to roll to start, and whether it is the viewer", () => {
-    expect(slices(rollOff).header).toEqual({
-      stage: "rollOff",
-      seat: 1,
-      viewer: false,
-      rolling: true,
-    });
-    // 0 and 1 tied on 4: the viewer rolls first in the new pass.
-    expect(slices(rollOffReroll).header).toEqual({
-      stage: "rollOff",
-      seat: 0,
-      viewer: true,
-      rolling: true,
-    });
-  });
-
-  it("gives the round, the acting seat, the pot and the hand to beat in a turn", () => {
+  it("gives the round, the pot, the hand to beat and the rolls in a turn", () => {
     expect(slices(viewerToRoll).header).toEqual({
       stage: "round",
       number: 1,
       tieBreak: null,
-      seat: 0,
-      viewer: true,
-      rolling: true,
       pot: 1,
       handToBeat: null,
-      rollLimit: null,
+      rolls: { available: 3, used: 0 },
     });
-    expect(slices(botMidTurn).header).toMatchObject({
-      seat: 1,
-      viewer: false,
-      handToBeat: "6-3",
-    });
+    expect(slices(botMidTurn).header).toMatchObject({ handToBeat: "6-3" });
     expect(slices(mitchiInRound).header).toMatchObject({ pot: 2 });
   });
 
-  it("names the taker, the pot and the worst hand between rounds", () => {
+  it("gives the round, the pot and the worst hand between rounds", () => {
     expect(slices(roundSummary).header).toEqual({
       stage: "summary",
       number: 1,
-      taker: 3,
-      viewer: false,
       pot: 1,
       worstHand: "3-2",
     });
   });
 
-  it("gives the winners at game over, and whether the viewer is one", () => {
-    expect(slices(gameOverUnique).header).toEqual({
-      stage: "gameOver",
-      winners: [0],
-      viewerWon: true,
+  it("has nothing but its stage at game over", () => {
+    expect(slices(gameOverUnique).header).toEqual({ stage: "gameOver" });
+    expect(slices(gameOverDraw).header).toEqual({ stage: "gameOver" });
+  });
+
+  it("names no seat when a tie-break opens or the roll to start ties", () => {
+    // Seat 3 ended the round; seats 1 and 2 are in the tie-break.
+    expect(slices(beatTieBreakOpens).header).toEqual({
+      stage: "round",
+      number: 1,
+      tieBreak: 1,
+      pot: 2,
+      handToBeat: null,
+      rolls: null,
     });
-    expect(slices(gameOverDraw).header).toEqual({
-      stage: "gameOver",
-      winners: [0, 2],
-      viewerWon: true,
-    });
+    expect(slices(beatRollOffTie).header).toEqual({ stage: "rollOff" });
   });
 });
 
-describe("roll limit", () => {
-  it("is not shown on the starter's turn, who has three boxes", () => {
-    expect(slices(viewerToRoll).header).toMatchObject({ rollLimit: null });
-    expect(slices(viewerToRoll).tray.rolls).toEqual({ available: 3, used: 0 });
-    expect(slices(viewerRolledKeepable).tray.rolls).toEqual({
-      available: 3,
-      used: 1,
+describe("rolls left", () => {
+  it("gives the starter three boxes until the limit is set", () => {
+    expect(slices(viewerToRoll).header).toMatchObject({
+      rolls: { available: 3, used: 0 },
+    });
+    expect(slices(viewerRolledKeepable).header).toMatchObject({
+      rolls: { available: 3, used: 1 },
     });
   });
 
-  it("is shown once the starter has set it, and the boxes equal it", () => {
-    expect(slices(starterLimitSet).header).toMatchObject({ rollLimit: 2 });
-    expect(slices(starterLimitSet).tray.rolls).toEqual({
-      available: 2,
-      used: 0,
+  it("gives everyone else the limit once the starter has set it", () => {
+    expect(slices(starterLimitSet).header).toMatchObject({
+      rolls: { available: 2, used: 0 },
     });
-    expect(slices(botMidTurn).header).toMatchObject({ rollLimit: 2 });
-    expect(slices(botMidTurn).tray.rolls).toEqual({ available: 2, used: 1 });
+    expect(slices(botMidTurn).header).toMatchObject({
+      rolls: { available: 2, used: 1 },
+    });
+  });
+
+  it("has none outside a main-round turn", () => {
+    for (const fixture of [
+      notStarted,
+      rollOff,
+      beatViewerRollToStart,
+      tieBreakRunning,
+      beatTieBreakRolled,
+      roundSummary,
+      gameOverUnique,
+    ]) {
+      const { header } = slices(fixture);
+      expect(header.stage === "round" ? header.rolls : null).toBeNull();
+    }
   });
 });
 
 describe("tie-break", () => {
-  it("has no roll limit, one box, no comparison, and no hand to beat before the first tie-break roll", () => {
+  it("has no rolls left, no comparison, and no hand to beat before the first tie-break roll", () => {
     // The main round's limit is 1 and its worst hand 3-1; neither carries in.
     const running = slices(tieBreakRunning);
     expect(running.header).toEqual({
       stage: "round",
       number: 1,
       tieBreak: 1,
-      seat: 1,
-      viewer: false,
-      rolling: true,
       pot: 2,
       handToBeat: null,
-      rollLimit: null,
+      rolls: null,
     });
-    expect(running.tray.rolls).toEqual({ available: 1, used: 0 });
     expect(running.tray.comparison).toBeNull();
   });
 
@@ -395,12 +387,9 @@ describe("tie-break", () => {
     const viewerNext = slices(tieBreakViewerToRoll);
     expect(viewerNext.header).toMatchObject({
       tieBreak: 1,
-      seat: 0,
-      viewer: true,
       handToBeat: "4-3",
-      rollLimit: null,
+      rolls: null,
     });
-    expect(viewerNext.tray.rolls).toEqual({ available: 1, used: 0 });
     expect(viewerNext.tray.comparison).toBeNull();
   });
 });
@@ -417,13 +406,6 @@ describe("tray", () => {
       comparison: null,
       ownDice: true,
     });
-  });
-
-  it("has one box in the roll to start and none before start, between rounds or at game over", () => {
-    expect(slices(rollOff).tray.rolls).toEqual({ available: 1, used: 0 });
-    expect(slices(notStarted).tray.rolls).toBeNull();
-    expect(slices(roundSummary).tray.rolls).toBeNull();
-    expect(slices(gameOverUnique).tray.rolls).toBeNull();
   });
 
   it("has no comparison between rounds", () => {
@@ -449,21 +431,6 @@ describe("tray", () => {
   it("has no comparison when nobody is acting", () => {
     expect(slices(beatViewerStops).tray.comparison).toBeNull();
     expect(slices(beatNoRollsLeft).tray.comparison).toBeNull();
-  });
-
-  it("uses the one roll to start or tie-break only while a finished roll is on show", () => {
-    expect(slices(beatViewerRollToStart).tray.rolls).toEqual({
-      available: 1,
-      used: 1,
-    });
-    expect(slices(beatTieBreakRolled).tray.rolls).toEqual({
-      available: 1,
-      used: 1,
-    });
-    expect(slices(tieBreakViewerToRoll).tray.rolls).toEqual({
-      available: 1,
-      used: 0,
-    });
   });
 
   it("has the winners at game over only", () => {
@@ -589,47 +556,6 @@ describe("point limit", () => {
   });
 });
 
-describe("header between beats", () => {
-  it("acting null shows the seat label without the trailing phrase", () => {
-    // The viewer has stopped: still named, but not rolling.
-    expect(slices(beatViewerStops).header).toMatchObject({
-      stage: "round",
-      seat: 0,
-      viewer: true,
-      rolling: false,
-    });
-    expect(slices(beatNoRollsLeft).header).toMatchObject({
-      seat: 1,
-      rolling: false,
-    });
-  });
-
-  it("on roundStarted names the starter (the beat's subject)", () => {
-    expect(slices(beatRollOffWinner).header).toMatchObject({
-      stage: "round",
-      seat: 0,
-      rolling: false,
-    });
-    expect(slices(beatRoundTwoBotStarts).header).toMatchObject({
-      seat: 1,
-      rolling: true,
-    });
-  });
-
-  it("names the last roller on a tie-break opening and a roll-to-start tie", () => {
-    // Seat 3 rolled last before the tie-break; seat 3 rolled last before the tie.
-    expect(slices(beatTieBreakOpens).header).toMatchObject({
-      seat: 3,
-      rolling: false,
-    });
-    expect(slices(beatRollOffTie).header).toMatchObject({
-      stage: "rollOff",
-      seat: 3,
-      rolling: false,
-    });
-  });
-});
-
 describe("status", () => {
   it("null on notStarted", () => {
     expect(slices(notStarted).status).toBeNull();
@@ -680,19 +606,8 @@ describe("consistent turn", () => {
         const beat = select.lastBeat(fixture.events);
         if (!beat) throw new Error(`${where}: no beat`);
         const { acting } = fixture.state;
-        // A tie-break opening or a roll-to-start tie has no subject: the
-        // heading names the previous roller.
-        const previous = select.lastBeat(
-          fixture.events,
-          (b) => b.seat === null,
-        );
-        const subject = acting ?? beat.seat ?? previous?.seat;
         const view = slices(fixture);
 
-        if (view.header.stage === "rollOff" || view.header.stage === "round") {
-          expect(view.header.seat, where).toBe(subject);
-          expect(view.header.rolling, where).toBe(acting !== null);
-        }
         expect(seatsWhere(view.roundRows, "current"), where).toEqual(
           acting === null ? [] : [acting],
         );

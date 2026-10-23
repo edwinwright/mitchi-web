@@ -14,7 +14,6 @@ import { ControlButton } from "./control-button";
 import { DiePlaceholder } from "./die-placeholder";
 import { HandComparison } from "./hand-comparison";
 import { Icon, Mark } from "./marks";
-import { RollBoxes } from "./roll-boxes";
 import { SeatLabel } from "./seat-label";
 
 const DIE_SIZE = 72;
@@ -184,10 +183,10 @@ function DiceRow({
 }
 
 /**
- * Four fixed rows: the hand on show, the dice, the rolls, the buttons. The
- * Roll and Stop nodes are mounted in every phase; Start, Next round and Play
- * again are labels of the Roll node, so focus is already where the next
- * action is.
+ * Three fixed rows: the hand on show, the dice, the buttons; the rolls left
+ * are in the header. The Roll and Stop nodes are mounted in every phase;
+ * Start, Next round and Play again are labels of the Roll node, so focus is
+ * already where the next action is.
  */
 export function DiceTray(props: DiceTrayProps) {
   const { tray, controls, stage, onPrimary, onStop, rollRef } = props;
@@ -226,16 +225,7 @@ export function DiceTray(props: DiceTrayProps) {
         <DiceRow {...props} />
       </div>
 
-      <div
-        className={cn(
-          "mt-[22px] mb-2.5 flex h-[26px] w-full items-center",
-          !tray.rolls && "invisible",
-        )}
-      >
-        {tray.rolls ? <RollBoxes {...tray.rolls} /> : null}
-      </div>
-
-      <div className="flex min-h-[52px] w-full gap-2.5">
+      <div className="mt-[22px] flex min-h-[52px] w-full gap-2.5">
         <ControlButton
           ref={rollRef}
           unavailable={!available}
