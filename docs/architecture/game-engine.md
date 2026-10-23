@@ -84,7 +84,7 @@ take the pot: points += pot; if anyone is at the limit or over:
 gameOver ─newGame─▶ rollOff
 ```
 
-`roundSummary`, and `gameOver` when that pot ends the game, carries the deciding tie-break as `tieBreak` (`DecidingTieBreak`: its number, the hand tied on and each tied seat's tie-break roll), or null when the round had none. When tie-breaks chain, only the final one is kept: each tie-break phase replaces the one before. `select.seatHand` and `select.inContest` read it, so the end of a round shows the hands that decided it, and a seat outside the deciding tie-break is not in the contest.
+`roundSummary`, and `gameOver` when that pot ends the game, carries the deciding tie-break as `tieBreak` (`DecidingTieBreak`: its number, the hand tied on and each tied seat's tie-break roll), or null when the round had none. When tie-breaks chain, only the final one is kept: each tie-break phase replaces the one before. `select.seatHand` and `select.inContest` read it, so the end of a round shows the hands that decided it, and a seat outside the deciding tie-break is not in the contest. `gameOver` also keeps the round summary's taker and hand, so `select.worstHandSoFar` still names the worst hand of the round that ended the game.
 
 A hand is not fixed until the turn ends. A Mitchi rolled mid-turn and re-rolled counts for nothing; the pot changes only when a turn ends on a Mitchi. A tie-break roll is a whole turn, so a Mitchi there adds 2 as it lands.
 

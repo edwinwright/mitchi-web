@@ -74,7 +74,8 @@ export function worstHandSoFar(
   state: GameState,
 ): { hand: HandId; seats: readonly Seat[] } | null {
   const { phase, round } = state;
-  if (phase.kind === "roundSummary") {
+  // At game over too: the round that ended the game keeps its worst hand.
+  if (phase.kind === "roundSummary" || phase.kind === "gameOver") {
     return { hand: phase.takerHand, seats: [phase.taker] };
   }
   if (phase.kind === "turn" && round) return worstOf(round.finished);

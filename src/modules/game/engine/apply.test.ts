@@ -130,7 +130,13 @@ describe("newGame", () => {
       config: CONFIG,
       points: [5, 1, 2, 3],
       round: ROUND,
-      phase: { kind: "gameOver", winners: [1], tieBreak: null },
+      phase: {
+        kind: "gameOver",
+        winners: [1],
+        taker: 2,
+        takerHand: "3-1",
+        tieBreak: null,
+      },
       acting: null,
     });
     const result = ok(over, { type: "newGame" });
@@ -1388,6 +1394,8 @@ describe("game end", () => {
     expect(state.phase).toStrictEqual({
       kind: "gameOver",
       winners: [1],
+      taker: 3,
+      takerHand: "3-2",
       tieBreak: null,
     });
     expect(types(events)).not.toContain("roundSummary");
@@ -1427,6 +1435,8 @@ describe("game end", () => {
     expect(state.phase).toStrictEqual({
       kind: "gameOver",
       winners: [1],
+      taker: 3,
+      takerHand: "3-2",
       tieBreak: null,
     });
     expect(events.at(-1)).toMatchObject({ type: "gameEnded", winners: [1] });
@@ -1437,6 +1447,8 @@ describe("game end", () => {
     expect(two.state.phase).toStrictEqual({
       kind: "gameOver",
       winners: [1, 2],
+      taker: 3,
+      takerHand: "3-2",
       tieBreak: null,
     });
     expect(two.events.at(-1)).toMatchObject({
@@ -1447,6 +1459,8 @@ describe("game end", () => {
     expect(three.state.phase).toStrictEqual({
       kind: "gameOver",
       winners: [0, 1, 2],
+      taker: 3,
+      takerHand: "3-2",
       tieBreak: null,
     });
   });
@@ -1456,6 +1470,8 @@ describe("game end", () => {
     expect(state.phase).toStrictEqual({
       kind: "gameOver",
       winners: [0, 1, 2],
+      taker: 3,
+      takerHand: "3-2",
       tieBreak: null,
     });
   });

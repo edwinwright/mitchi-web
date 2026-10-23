@@ -88,6 +88,8 @@ export type Phase =
       readonly kind: "gameOver";
       readonly winners: Winners;
       /** The round just played's, carried from its roundSummary. */
+      readonly taker: Seat;
+      readonly takerHand: HandId;
       readonly tieBreak: DecidingTieBreak | null;
     };
 

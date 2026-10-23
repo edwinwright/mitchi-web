@@ -220,6 +220,8 @@ export function applyEvent(state: GameState, event: GameEvent): GameState {
         phase: {
           kind: "gameOver",
           winners: event.winners,
+          taker: phase.taker,
+          takerHand: phase.takerHand,
           tieBreak: phase.tieBreak,
         },
         acting: null,

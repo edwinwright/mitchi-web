@@ -81,7 +81,13 @@ const SUMMARY = state({
   takerHand: "3-1",
   tieBreak: null,
 });
-const GAME_OVER = state({ kind: "gameOver", winners: [1], tieBreak: null });
+const GAME_OVER = state({
+  kind: "gameOver",
+  winners: [1],
+  taker: 2,
+  takerHand: "3-1",
+  tieBreak: null,
+});
 
 /** Ends the game from a round summary, as the engine does once the limit is reached. */
 function endGame(summary: GameState): GameState {
@@ -311,7 +317,11 @@ describe("worstHandSoFar", () => {
       hand: "3-1",
       seats: [2],
     });
-    expect(select.worstHandSoFar(GAME_OVER)).toBeNull();
+    // Game over keeps the worst hand of the round that ended the game.
+    expect(select.worstHandSoFar(GAME_OVER)).toStrictEqual({
+      hand: "3-1",
+      seats: [2],
+    });
   });
 });
 

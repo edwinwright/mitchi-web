@@ -238,6 +238,8 @@ function expectResult({ before, event, after }: Step) {
       expect(after.phase).toStrictEqual({
         kind: "gameOver",
         winners: event.winners,
+        taker: before.phase.taker,
+        takerHand: before.phase.takerHand,
         tieBreak: before.phase.tieBreak,
       });
       expect(after.round).toBe(before.round);
@@ -322,6 +324,8 @@ describe("applyEvent", () => {
     expect(over.phase).toStrictEqual({
       kind: "gameOver",
       winners: [2, 3],
+      taker: summary.phase.taker,
+      takerHand: summary.phase.takerHand,
       tieBreak: summary.phase.tieBreak,
     });
   });

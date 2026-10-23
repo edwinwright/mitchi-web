@@ -513,6 +513,17 @@ describe("roundRows", () => {
   });
 });
 
+describe("game over", () => {
+  it("marks the worst hand of the round that ended the game in This round, not in the header", () => {
+    const view = slices(gameOverAfterTieBreak);
+    expect(seatsWhere(view.roundRows, "holdsWorst")).toEqual([3]);
+    expect(view.header).toEqual({ stage: "gameOver" });
+    expect(seatsWhere(slices(gameOverUnique).roundRows, "holdsWorst")).toEqual([
+      3,
+    ]);
+  });
+});
+
 describe("leaders and winners", () => {
   it("is nobody while every seat is on 0", () => {
     expect(seatsWhere(slices(notStarted).points.rows, "leader")).toEqual([]);

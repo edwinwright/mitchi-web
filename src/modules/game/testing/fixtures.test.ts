@@ -224,6 +224,8 @@ describe("the later fixtures", () => {
     expect(state.phase).toStrictEqual({
       kind: "gameOver",
       winners: [0],
+      taker: 3,
+      takerHand: "3-2",
       tieBreak: null,
     });
     expect(fixtures.gameOverUnique.events.at(-1)).toMatchObject({
@@ -238,6 +240,8 @@ describe("the later fixtures", () => {
     expect(state.phase).toStrictEqual({
       kind: "gameOver",
       winners: [0, 2],
+      taker: 3,
+      takerHand: "3-2",
       tieBreak: null,
     });
     expect(fixtureSession(fixtures.gameOverDraw).allowed.newGame).toBe(true);

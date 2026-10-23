@@ -617,6 +617,8 @@ describe("scripted game S1", () => {
     expect(store.game.phase).toStrictEqual({
       kind: "gameOver",
       winners: [1, 2],
+      taker: 3,
+      takerHand: "4-3",
       tieBreak: {
         number: 2,
         tiedOn: "3-2",

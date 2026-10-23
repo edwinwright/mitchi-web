@@ -138,7 +138,16 @@ describe("botStep: when to roll", () => {
       ),
     ).toBeNull();
     expect(
-      botStep(state({ kind: "gameOver", winners: [0], tieBreak: null }), 0),
+      botStep(
+        state({
+          kind: "gameOver",
+          winners: [0],
+          taker: 2,
+          takerHand: "3-1",
+          tieBreak: null,
+        }),
+        0,
+      ),
     ).toBeNull();
   });
 
