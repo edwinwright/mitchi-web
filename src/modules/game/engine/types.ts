@@ -31,6 +31,14 @@ export type TieRoll = {
   readonly hand: HandId;
 };
 
+/** The tie-break that settled a round: the final one when they chain. */
+export type DecidingTieBreak = {
+  readonly number: number;
+  readonly tiedOn: HandId;
+  /** Every tied seat's roll, in rolling order. */
+  readonly rolled: readonly TieRoll[];
+};
+
 export type RoundState = {
   readonly number: number;
   readonly startingSeat: Seat;
@@ -73,8 +81,15 @@ export type Phase =
       readonly kind: "roundSummary";
       readonly taker: Seat;
       readonly takerHand: HandId;
+      /** null when the round ended without a tie-break. */
+      readonly tieBreak: DecidingTieBreak | null;
     }
-  | { readonly kind: "gameOver"; readonly winners: Winners };
+  | {
+      readonly kind: "gameOver";
+      readonly winners: Winners;
+      /** The round just played's, carried from its roundSummary. */
+      readonly tieBreak: DecidingTieBreak | null;
+    };
 
 export type GameState = {
   readonly config: GameConfig;

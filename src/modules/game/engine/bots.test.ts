@@ -127,9 +127,19 @@ describe("botStep: when to roll", () => {
     expect(botStep(rollOff, 3)).toBeNull();
     expect(botStep(createGameLike("notStarted"), 0)).toBeNull();
     expect(
-      botStep(state({ kind: "roundSummary", taker: 1, takerHand: "3-1" }), 1),
+      botStep(
+        state({
+          kind: "roundSummary",
+          taker: 1,
+          takerHand: "3-1",
+          tieBreak: null,
+        }),
+        1,
+      ),
     ).toBeNull();
-    expect(botStep(state({ kind: "gameOver", winners: [0] }), 0)).toBeNull();
+    expect(
+      botStep(state({ kind: "gameOver", winners: [0], tieBreak: null }), 0),
+    ).toBeNull();
   });
 
   it("botStep is deterministic", () => {

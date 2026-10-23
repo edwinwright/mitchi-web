@@ -613,9 +613,18 @@ const S1: Item[] = [
 describe("scripted game S1", () => {
   it("runs a draw through chained tie-breaks", () => {
     const store = play(S1);
+    // Only the final tie-break is carried to game over.
     expect(store.game.phase).toStrictEqual({
       kind: "gameOver",
       winners: [1, 2],
+      tieBreak: {
+        number: 2,
+        tiedOn: "3-2",
+        rolled: [
+          { seat: 0, dice: [5, 1], hand: "5-1" },
+          { seat: 3, dice: [4, 3], hand: "4-3" },
+        ],
+      },
     });
     expect(store.game.points).toStrictEqual([1, 0, 0, 8]);
 

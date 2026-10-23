@@ -19,7 +19,9 @@ import {
   botKept,
   botMidTurn,
   closeToLimit,
+  chainedTieBreakSummary,
   fixtureSession,
+  gameOverAfterTieBreak,
   gameOverDraw,
   gameOverUnique,
   mitchiInRound,
@@ -29,6 +31,7 @@ import {
   roundSummary,
   starterLimitSet,
   tieBreakRunning,
+  tieBreakSummary,
   tieBreakViewerToRoll,
   viewerKeptOne,
   viewerRolledKeepable,
@@ -37,7 +40,7 @@ import {
   type Fixture,
 } from "../testing";
 import { statusOf } from "./beat-status";
-import { shownRoll, sliceSession } from "./board-slices";
+import { shownRoll, sliceSession, type RoundRowData } from "./board-slices";
 
 const shown = (fixture: Fixture) =>
   shownRoll(fixture.state, select.lastBeat(fixture.events));
@@ -200,6 +203,64 @@ describe("roundBar", () => {
       kind: "round",
       number: 7,
     });
+  });
+});
+
+describe("the end of a round settled by a tie-break", () => {
+  const handOf = (row: RoundRowData | undefined) =>
+    row?.hand?.kind === "hand" ? row.hand.hand : null;
+
+  it("keeps the deciding tie-break's bar", () => {
+    expect(slices(tieBreakSummary).roundBar).toEqual({
+      kind: "tieBreak",
+      number: 1,
+      tiedOn: "3-1",
+    });
+    expect(slices(chainedTieBreakSummary).roundBar).toEqual({
+      kind: "tieBreak",
+      number: 2,
+      tiedOn: "4-3",
+    });
+    expect(slices(gameOverAfterTieBreak).roundBar).toEqual({
+      kind: "tieBreak",
+      number: 1,
+      tiedOn: "3-1",
+    });
+  });
+
+  it.each([
+    ["one tie-break", tieBreakSummary],
+    ["chained tie-breaks", chainedTieBreakSummary],
+  ])("names the same worst hand in the header and the rows: %s", (_, f) => {
+    const { header, roundRows } = slices(f);
+    if (header.stage !== "summary") throw new Error("not a summary");
+    const worst = roundRows.filter((row) => row.holdsWorst);
+    expect(worst).toHaveLength(1);
+    expect(handOf(worst[0])).toBe(header.worstHand);
+  });
+
+  it("shows tie-break hands for the tied seats and nothing for the rest", () => {
+    const rows = (f: Fixture) =>
+      slices(f).roundRows.map((row) => [row.inContest, handOf(row)]);
+    expect(rows(tieBreakSummary)).toStrictEqual([
+      [true, "6-5"],
+      [true, "4-3"],
+      [false, null],
+      [false, null],
+    ]);
+    // Tie-break 1's 4-3s are not shown: only the final tie-break's hands.
+    expect(rows(chainedTieBreakSummary)).toStrictEqual([
+      [true, "5-2"],
+      [true, "6-6"],
+      [false, null],
+      [false, null],
+    ]);
+    expect(rows(gameOverAfterTieBreak)).toStrictEqual([
+      [false, null],
+      [true, "6-5"],
+      [false, null],
+      [true, "3-2"],
+    ]);
   });
 });
 

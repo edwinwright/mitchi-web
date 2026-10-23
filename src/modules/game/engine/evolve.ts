@@ -199,16 +199,29 @@ export function applyEvent(state: GameState, event: GameEvent): GameState {
           kind: "roundSummary",
           taker: event.seat,
           takerHand: event.hand,
+          // Only the final tie-break is still on the phase when they chain.
+          tieBreak:
+            phase.kind === "tieBreak"
+              ? {
+                  number: round.tieBreaks,
+                  tiedOn: phase.tiedOn,
+                  rolled: phase.rolled,
+                }
+              : null,
         },
         acting: null,
       };
 
     case "gameEnded":
-      check(phase.kind === "roundSummary");
+      if (phase.kind !== "roundSummary") throw corrupt();
       return {
         ...state,
         points: event.points,
-        phase: { kind: "gameOver", winners: event.winners },
+        phase: {
+          kind: "gameOver",
+          winners: event.winners,
+          tieBreak: phase.tieBreak,
+        },
         acting: null,
       };
 

@@ -4,13 +4,16 @@ import {
   beatRoundTwoBotStarts,
   beatViewerStops,
   botMidTurn,
+  chainedTieBreakSummary,
   fixtureSession,
+  gameOverAfterTieBreak,
   gameOverUnique,
   mitchiInRound,
   notStarted,
   rollOff,
   rollOffReroll,
   roundSummary,
+  tieBreakSummary,
   tieBreakViewerToRoll,
   viewerToRoll,
   type Fixture,
@@ -60,7 +63,26 @@ export const BotMidTurn: Story = {};
 export const Mitchi: Story = { args: { fixture: mitchiInRound } };
 export const TieBreak: Story = { args: { fixture: tieBreakViewerToRoll } };
 export const RoundSummary: Story = { args: { fixture: roundSummary } };
+/**
+ * Settled by tie-break 1: the tied seats show their tie-break hands, the
+ * header's worst hand among them; the others are not in this tie-break.
+ */
+export const TieBreakSummary: Story = { args: { fixture: tieBreakSummary } };
+export const TieBreakSummaryByHand: Story = {
+  args: { fixture: tieBreakSummary, defaultView: "byHand" },
+};
+/** Tie-breaks chained: only tie-break 2's hands, never tie-break 1's 4-3s. */
+export const ChainedTieBreakSummary: Story = {
+  args: { fixture: chainedTieBreakSummary },
+};
+export const ChainedTieBreakSummaryByHand: Story = {
+  args: { fixture: chainedTieBreakSummary, defaultView: "byHand" },
+};
 export const GameOver: Story = { args: { fixture: gameOverUnique } };
+/** The game ended on a tie-break: game over shows it, as the summary did. */
+export const GameOverAfterTieBreak: Story = {
+  args: { fixture: gameOverAfterTieBreak },
+};
 // "You" and the rest follow the viewer's seat, not seat 0.
 export const ViewedFromSeat2: Story = { args: { viewerSeat: 2 } };
 /** Opens on By hand; Tab to the switch and press By player to go back. */

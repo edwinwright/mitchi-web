@@ -51,6 +51,7 @@ export type RoundBarData =
   | { kind: "rollOff" }
   /** Between rounds and at game over too: the round just played. */
   | { kind: "round"; number: number }
+  /** Also between rounds and at game over, after a round it settled. */
   | { kind: "tieBreak"; number: number; tiedOn: HandId };
 
 /** The dice card's header, by stage. */
@@ -319,9 +320,18 @@ function roundBarOf(state: GameState): RoundBarData | null {
   if (phase.kind === "rollOff") return { kind: "rollOff" };
   if (!round) return null;
   const tieBreak = select.tieBreakNumber(state);
-  return tieBreak !== null && phase.kind === "tieBreak"
-    ? { kind: "tieBreak", number: tieBreak, tiedOn: phase.tiedOn }
-    : { kind: "round", number: round.number };
+  if (tieBreak !== null && phase.kind === "tieBreak") {
+    return { kind: "tieBreak", number: tieBreak, tiedOn: phase.tiedOn };
+  }
+  // A round settled by a tie-break keeps its bar once the pot is taken.
+  if (
+    (phase.kind === "roundSummary" || phase.kind === "gameOver") &&
+    phase.tieBreak
+  ) {
+    const { number, tiedOn } = phase.tieBreak;
+    return { kind: "tieBreak", number, tiedOn };
+  }
+  return { kind: "round", number: round.number };
 }
 
 /**

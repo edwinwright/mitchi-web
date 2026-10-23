@@ -23,6 +23,7 @@ describe("fixtures", () => {
         "closeToLimit",
         "gameOverDraw",
         "gameOverUnique",
+        "gameOverAfterTieBreak",
         "mitchiInRound",
         "notStarted",
         "rollOff",
@@ -32,6 +33,8 @@ describe("fixtures", () => {
         "starterLimitSet",
         "tieBreakRunning",
         "tieBreakViewerToRoll",
+        "tieBreakSummary",
+        "chainedTieBreakSummary",
         "viewerKeptBoth",
         "viewerKeptOne",
         "viewerRolledKeepable",
@@ -173,6 +176,7 @@ describe("the later fixtures", () => {
       kind: "roundSummary",
       taker: 3,
       takerHand: "3-2",
+      tieBreak: null,
     });
     expect(state.points).toStrictEqual([0, 0, 0, 1]);
     expect(fixtureSession(fixtures.roundSummary).allowed.nextRound).toBe(true);
@@ -217,7 +221,11 @@ describe("the later fixtures", () => {
   it("gameOverUnique: one winner, the final taker on 5", () => {
     const { state } = fixtures.gameOverUnique;
     expect(state.points).toStrictEqual([0, 1, 1, 5]);
-    expect(state.phase).toStrictEqual({ kind: "gameOver", winners: [0] });
+    expect(state.phase).toStrictEqual({
+      kind: "gameOver",
+      winners: [0],
+      tieBreak: null,
+    });
     expect(fixtures.gameOverUnique.events.at(-1)).toMatchObject({
       type: "gameEnded",
       winners: [0],
@@ -227,7 +235,11 @@ describe("the later fixtures", () => {
   it("gameOverDraw: seats 0 and 2 share the win", () => {
     const { state } = fixtures.gameOverDraw;
     expect(state.points).toStrictEqual([0, 1, 0, 5]);
-    expect(state.phase).toStrictEqual({ kind: "gameOver", winners: [0, 2] });
+    expect(state.phase).toStrictEqual({
+      kind: "gameOver",
+      winners: [0, 2],
+      tieBreak: null,
+    });
     expect(fixtureSession(fixtures.gameOverDraw).allowed.newGame).toBe(true);
   });
 

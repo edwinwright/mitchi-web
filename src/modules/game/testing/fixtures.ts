@@ -221,6 +221,25 @@ export const secondTieBreak: Fixture = build([
   roll(0, 3, 4),
 ]);
 
+/** Seat 1's 4-3 lost tie-break 1 to the viewer's 6-5: seat 1 takes 2. */
+export const tieBreakSummary: Fixture = build([
+  ...tieOnThreeOne,
+  roll(1, 4, 3),
+  roll(0, 6, 5),
+]);
+
+/**
+ * Tie-break 2, after both rolled 4-3 in tie-break 1: the viewer's 5-2 loses
+ * to seat 1's 6-6 and takes 4. Only tie-break 2's hands are carried.
+ */
+export const chainedTieBreakSummary: Fixture = build([
+  ...tieOnThreeOne,
+  roll(1, 4, 3),
+  roll(0, 3, 4),
+  roll(0, 5, 2),
+  roll(1, 6, 6),
+]);
+
 /**
  * Limit-1 rounds, each lost by a different seat in turn. The loser of a
  * round starts the next, so the starter is read from the previous loser.
@@ -261,6 +280,22 @@ export const gameOverUnique: Fixture = build([
 export const gameOverDraw: Fixture = build([
   ...[newGame, roll(0, 6), roll(1, 3), roll(2, 2), roll(3, 1)],
   ...lossRounds([3, 3, 3, 3, 1, 3]),
+]);
+
+/**
+ * Round 6, seat 1 starting at limit 1: seats 1 and 3 tie on 3-1, and seat
+ * 3's 3-2 loses the tie-break, taking 2 to reach 5. Seats 0 and 2 draw.
+ */
+export const gameOverAfterTieBreak: Fixture = build([
+  ...fiveRounds,
+  nextRound,
+  roll(1, 3, 1),
+  stop(1),
+  roll(2, 6, 5),
+  roll(3, 1, 3),
+  roll(0, 6, 4),
+  roll(3, 3, 2),
+  roll(1, 6, 5),
 ]);
 
 /**

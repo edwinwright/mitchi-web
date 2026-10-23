@@ -130,7 +130,7 @@ describe("newGame", () => {
       config: CONFIG,
       points: [5, 1, 2, 3],
       round: ROUND,
-      phase: { kind: "gameOver", winners: [1] },
+      phase: { kind: "gameOver", winners: [1], tieBreak: null },
       acting: null,
     });
     const result = ok(over, { type: "newGame" });
@@ -430,7 +430,12 @@ describe("rejections", () => {
       config: CONFIG,
       points: [1, 0, 0, 0],
       round: ROUND,
-      phase: { kind: "roundSummary", taker: 0, takerHand: "3-1" },
+      phase: {
+        kind: "roundSummary",
+        taker: 0,
+        takerHand: "3-1",
+        tieBreak: null,
+      },
       acting: null,
     });
     expectRejected(summary, roll(0, 3), "wrongPhase");
@@ -996,6 +1001,7 @@ describe("round resolution", () => {
       kind: "roundSummary",
       taker: 3,
       takerHand: "3-2",
+      tieBreak: null,
     });
 
     const next = ok(state, NEXT);
@@ -1133,6 +1139,15 @@ describe("tie-breaks", () => {
       kind: "roundSummary",
       taker: 2,
       takerHand: "4-3",
+      tieBreak: {
+        number: 1,
+        tiedOn: "3-1",
+        rolled: [
+          { seat: 2, dice: [4, 3], hand: "4-3" },
+          { seat: 1, dice: [6, 2], hand: "6-2" },
+          { seat: 0, dice: [5, 4], hand: "5-4" },
+        ],
+      },
     });
   });
 
@@ -1370,7 +1385,11 @@ describe("game end", () => {
   it("game end: points exactly equal to limit ends game", () => {
     const { state, events } = endingWith([4, 2, 3, 4], ...UNIQUE_WORST);
     expect(state.points).toStrictEqual([4, 2, 3, 5]);
-    expect(state.phase).toStrictEqual({ kind: "gameOver", winners: [1] });
+    expect(state.phase).toStrictEqual({
+      kind: "gameOver",
+      winners: [1],
+      tieBreak: null,
+    });
     expect(types(events)).not.toContain("roundSummary");
     expect(events.slice(-2)).toStrictEqual([
       {
@@ -1405,7 +1424,11 @@ describe("game end", () => {
 
   it("game end: limit reached by unique fewest", () => {
     const { state, events } = endingWith([4, 2, 3, 4], ...UNIQUE_WORST);
-    expect(state.phase).toStrictEqual({ kind: "gameOver", winners: [1] });
+    expect(state.phase).toStrictEqual({
+      kind: "gameOver",
+      winners: [1],
+      tieBreak: null,
+    });
     expect(events.at(-1)).toMatchObject({ type: "gameEnded", winners: [1] });
   });
 
@@ -1414,6 +1437,7 @@ describe("game end", () => {
     expect(two.state.phase).toStrictEqual({
       kind: "gameOver",
       winners: [1, 2],
+      tieBreak: null,
     });
     expect(two.events.at(-1)).toMatchObject({
       type: "gameEnded",
@@ -1423,12 +1447,17 @@ describe("game end", () => {
     expect(three.state.phase).toStrictEqual({
       kind: "gameOver",
       winners: [0, 1, 2],
+      tieBreak: null,
     });
   });
 
   it("game end: the final taker is never a winner", () => {
     const { state } = endingWith([4, 4, 4, 4], ...UNIQUE_WORST);
-    expect(state.phase).toStrictEqual({ kind: "gameOver", winners: [0, 1, 2] });
+    expect(state.phase).toStrictEqual({
+      kind: "gameOver",
+      winners: [0, 1, 2],
+      tieBreak: null,
+    });
   });
 
   it("game end: the round is kept, and only newGame is allowed", () => {

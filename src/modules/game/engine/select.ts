@@ -10,6 +10,7 @@ import {
   type RollCount,
   type Seat,
   type SeatHand,
+  type TieRoll,
 } from "./types";
 
 /** Pure and total on valid states (ENG-7). Nothing here is stored. */
@@ -162,12 +163,8 @@ export function seatHand(state: GameState, seat: Seat): SeatHand | null {
       const rolled = phase.rolled.find((r) => r.seat === seat);
       return rolled ? { kind: "die", face: rolled.die } : null;
     }
-    case "tieBreak": {
-      const roll = phase.rolled.find((r) => r.seat === seat);
-      return roll
-        ? handOf(roll.dice, roll.hand, null, { final: true, kept: null })
-        : null;
-    }
+    case "tieBreak":
+      return tieBreakHand(phase.rolled, seat);
     case "turn": {
       if (state.acting === seat && phase.dice !== null) {
         return handOf(
@@ -181,7 +178,10 @@ export function seatHand(state: GameState, seat: Seat): SeatHand | null {
     }
     case "roundSummary":
     case "gameOver":
-      return finishedHand(round, seat);
+      // The deciding tie-break, when there was one: the rolls that took the pot.
+      return phase.tieBreak
+        ? tieBreakHand(phase.tieBreak.rolled, seat)
+        : finishedHand(round, seat);
     default:
       return null;
   }
@@ -224,10 +224,23 @@ export function lastBeat(
   return null;
 }
 
-/** False only for non-participants in a tie-break. */
+/**
+ * False only for non-participants in a tie-break, and, at the end of a round
+ * it settled, in the deciding tie-break.
+ */
 export function inContest(state: GameState, seat: Seat): boolean {
   const { phase } = state;
-  return phase.kind !== "tieBreak" || phase.order.includes(seat);
+  switch (phase.kind) {
+    case "tieBreak":
+      return phase.order.includes(seat);
+    case "roundSummary":
+    case "gameOver":
+      return (
+        !phase.tieBreak || phase.tieBreak.rolled.some((r) => r.seat === seat)
+      );
+    default:
+      return true;
+  }
 }
 
 export function tieBreakNumber(state: GameState): number | null {
@@ -247,6 +260,13 @@ function finishedHand(round: GameState["round"], seat: Seat): SeatHand | null {
         final: true,
         kept: null,
       })
+    : null;
+}
+
+function tieBreakHand(rolled: readonly TieRoll[], seat: Seat): SeatHand | null {
+  const roll = rolled.find((r) => r.seat === seat);
+  return roll
+    ? handOf(roll.dice, roll.hand, null, { final: true, kept: null })
     : null;
 }
 

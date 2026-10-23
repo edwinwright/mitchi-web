@@ -219,14 +219,26 @@ function expectResult({ before, event, after }: Step) {
         kind: "roundSummary",
         taker: event.seat,
         takerHand: event.hand,
+        tieBreak:
+          before.phase.kind === "tieBreak"
+            ? {
+                number: before.round?.tieBreaks,
+                tiedOn: before.phase.tiedOn,
+                rolled: before.phase.rolled,
+              }
+            : null,
       });
       expect(after.acting).toBeNull();
       return;
     case "gameEnded":
+      if (before.phase.kind !== "roundSummary") {
+        throw new Error("not a round summary");
+      }
       expect(after.points).toStrictEqual(event.points);
       expect(after.phase).toStrictEqual({
         kind: "gameOver",
         winners: event.winners,
+        tieBreak: before.phase.tieBreak,
       });
       expect(after.round).toBe(before.round);
       expect(after.acting).toBeNull();
@@ -257,6 +269,61 @@ describe("applyEvent", () => {
     for (const { after } of STEPS) {
       expect(roundTrip(after)).toStrictEqual(after);
     }
+  });
+
+  it("potTaken after one tie-break carries it on the round summary", () => {
+    const { phase } = fixtures.tieBreakSummary.state;
+    expect(phase).toStrictEqual({
+      kind: "roundSummary",
+      taker: 1,
+      takerHand: "4-3",
+      tieBreak: {
+        number: 1,
+        tiedOn: "3-1",
+        rolled: [
+          { seat: 1, dice: [4, 3], hand: "4-3" },
+          { seat: 0, dice: [6, 5], hand: "6-5" },
+        ],
+      },
+    });
+  });
+
+  it("potTaken after chained tie-breaks carries only the final one", () => {
+    const { phase } = fixtures.chainedTieBreakSummary.state;
+    expect(phase).toStrictEqual({
+      kind: "roundSummary",
+      taker: 0,
+      takerHand: "5-2",
+      tieBreak: {
+        number: 2,
+        tiedOn: "4-3",
+        rolled: [
+          { seat: 0, dice: [5, 2], hand: "5-2" },
+          { seat: 1, dice: [6, 6], hand: "6-6" },
+        ],
+      },
+    });
+  });
+
+  it("potTaken after a round with no tie-break carries none", () => {
+    expect(fixtures.roundSummary.state.phase).toMatchObject({
+      tieBreak: null,
+    });
+  });
+
+  it("gameEnded keeps the round summary's tie-break", () => {
+    const summary = fixtures.chainedTieBreakSummary.state;
+    if (summary.phase.kind !== "roundSummary") throw new Error("no summary");
+    const over = applyEvent(summary, {
+      type: "gameEnded",
+      winners: [2, 3],
+      points: summary.points,
+    });
+    expect(over.phase).toStrictEqual({
+      kind: "gameOver",
+      winners: [2, 3],
+      tieBreak: summary.phase.tieBreak,
+    });
   });
 
   it("worstHandChanged returns the same reference", () => {

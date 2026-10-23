@@ -1,9 +1,11 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import {
   botMidTurn,
+  chainedTieBreakSummary,
   fixtureSession,
   mitchiInRound,
   notStarted,
+  tieBreakSummary,
   tieBreakViewerToRoll,
   type Fixture,
 } from "../testing";
@@ -35,4 +37,10 @@ export const DuringARound: Story = {};
 export const WithAMitchi: Story = { args: { fixture: mitchiInRound } };
 /** Tie-break rolls only: seat 1's 4-3, the viewer to roll. */
 export const TieBreak: Story = { args: { fixture: tieBreakViewerToRoll } };
+/** Settled by tie-break 1: seat 1's 4-3 is the worst row, the viewer's 6-5 above it. */
+export const TieBreakSummary: Story = { args: { fixture: tieBreakSummary } };
+/** Tie-breaks chained: tie-break 2's 6-6 and 5-2 only. */
+export const ChainedTieBreakSummary: Story = {
+  args: { fixture: chainedTieBreakSummary },
+};
 export const BeforeStart: Story = { args: { fixture: notStarted } };

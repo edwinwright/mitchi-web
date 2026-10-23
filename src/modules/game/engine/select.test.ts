@@ -75,8 +75,22 @@ const TIE_BREAK = state({
   order: [3, 1, 0],
   rolled: [{ seat: 3, dice: [4, 2], hand: "4-2" }],
 });
-const SUMMARY = state({ kind: "roundSummary", taker: 2, takerHand: "3-1" });
-const GAME_OVER = state({ kind: "gameOver", winners: [1] });
+const SUMMARY = state({
+  kind: "roundSummary",
+  taker: 2,
+  takerHand: "3-1",
+  tieBreak: null,
+});
+const GAME_OVER = state({ kind: "gameOver", winners: [1], tieBreak: null });
+
+/** Ends the game from a round summary, as the engine does once the limit is reached. */
+function endGame(summary: GameState): GameState {
+  return applyEvent(summary, {
+    type: "gameEnded",
+    winners: [2, 3],
+    points: summary.points,
+  });
+}
 
 const FINISHED = [
   { seat: 0, dice: [6, 3], hand: "6-3", rollsUsed: 2 },
@@ -498,6 +512,45 @@ describe("seatHand", () => {
   it("seatHand is null before the first game", () => {
     expect(select.seatHand(NOT_STARTED, 0)).toBeNull();
   });
+
+  it("seatHand at a round summary with no tie-break shows main-round hands", () => {
+    const { state: summary } = fixtures.roundSummary;
+    expect(select.seatHand(summary, 3)).toStrictEqual({
+      kind: "hand",
+      dice: [3, 2],
+      hand: "3-2",
+      rollsUsed: 1,
+      final: true,
+      kept: null,
+    });
+  });
+
+  it("seatHand at a round summary after a tie-break shows tie-break hands", () => {
+    const { state: summary } = fixtures.tieBreakSummary;
+    expect(select.seatHand(summary, 1)).toStrictEqual({
+      kind: "hand",
+      dice: [4, 3],
+      hand: "4-3",
+      rollsUsed: null,
+      final: true,
+      kept: null,
+    });
+    expect(select.seatHand(summary, 0)).toMatchObject({ hand: "6-5" });
+    expect(select.seatHand(summary, 2)).toBeNull();
+    expect(select.seatHand(summary, 3)).toBeNull();
+  });
+
+  it("seatHand after chained tie-breaks shows the final one's hands only", () => {
+    const { state: summary } = fixtures.chainedTieBreakSummary;
+    expect(select.seatHand(summary, 0)).toMatchObject({ hand: "5-2" });
+    expect(select.seatHand(summary, 1)).toMatchObject({ hand: "6-6" });
+  });
+
+  it("seatHand at game over shows the round just played, tie-break included", () => {
+    const over = endGame(fixtures.tieBreakSummary.state);
+    expect(select.seatHand(over, 1)).toMatchObject({ hand: "4-3" });
+    expect(select.seatHand(over, 2)).toBeNull();
+  });
 });
 
 describe("inContest", () => {
@@ -506,6 +559,21 @@ describe("inContest", () => {
     expect(select.inContest(TIE_BREAK, 2)).toBe(false);
     expect(select.inContest(turn(0, 0, null), 2)).toBe(true);
     expect(select.inContest(ROLL_OFF, 2)).toBe(true);
+  });
+
+  it("inContest at the end of a round is false outside its deciding tie-break", () => {
+    const { state: summary } = fixtures.tieBreakSummary;
+    expect(
+      [0, 1, 2, 3].map((seat) => select.inContest(summary, seat)),
+    ).toStrictEqual([true, true, false, false]);
+    const over = endGame(summary);
+    expect(
+      [0, 1, 2, 3].map((seat) => select.inContest(over, seat)),
+    ).toStrictEqual([true, true, false, false]);
+    const plain = fixtures.roundSummary.state;
+    expect([0, 1, 2, 3].every((seat) => select.inContest(plain, seat))).toBe(
+      true,
+    );
   });
 });
 
