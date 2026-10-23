@@ -255,6 +255,60 @@ expect "/pl/zasady never advertises /en/rules" \
   "yes" \
   "$(html_lacks "$ZASADY_HTML" "${ORIGIN}/en/rules")"
 
+# Practice game (WO-0016). /es/jugar and /pl/zagraj are hand-typed because
+# bash cannot read routing.ts: if the "/play" slugs there change, update them
+# here too.
+expect "localised Spanish play slug serves" \
+  "200|" \
+  "$(probe "$BASE/es/jugar" -H "$EN")"
+
+expect "localised Polish play slug serves" \
+  "200|" \
+  "$(probe "$BASE/pl/zagraj" -H "$EN")"
+
+expect "NEXT_LOCALE rewrites /play to the Spanish slug" \
+  "${LOCALE_REDIRECT}|/es/jugar" \
+  "$(probe "$BASE/play" -H "$EN" -H 'Cookie: NEXT_LOCALE=es')"
+
+expect "NEXT_LOCALE rewrites /play to the Polish slug" \
+  "${LOCALE_REDIRECT}|/pl/zagraj" \
+  "$(probe "$BASE/play" -H "$EN" -H 'Cookie: NEXT_LOCALE=pl')"
+
+expect "old Spanish play slug redirects to localised slug" \
+  "${LOCALE_REDIRECT}|/es/jugar" \
+  "$(probe "$BASE/es/play" -H "$EN")"
+
+expect "old Polish play slug redirects to localised slug" \
+  "${LOCALE_REDIRECT}|/pl/zagraj" \
+  "$(probe "$BASE/pl/play" -H "$EN")"
+
+PLAY_HTML="$(fetch_html "$BASE/play" -H "$EN")"
+JUGAR_HTML="$(fetch_html "$BASE/es/jugar" -H "$EN")"
+ZAGRAJ_HTML="$(fetch_html "$BASE/pl/zagraj" -H "$EN")"
+
+for page in "play:$PLAY_HTML:/play" "jugar:$JUGAR_HTML:/es/jugar" "zagraj:$ZAGRAJ_HTML:/pl/zagraj"; do
+  name="${page%%:*}"; rest="${page#*:}"
+  html="${rest%:*}"; path="${rest##*:}"
+  expect "$path has rel=canonical for its own URL" \
+    "yes" \
+    "$(html_link_has "$html" "canonical" "${ORIGIN}${path}")"
+  expect "$path hreflang=en points at /play" \
+    "yes" \
+    "$(html_hreflang_has "$html" "en" "${ORIGIN}/play")"
+  expect "$path hreflang=es points at /es/jugar" \
+    "yes" \
+    "$(html_hreflang_has "$html" "es" "${ORIGIN}/es/jugar")"
+  expect "$path hreflang=pl points at /pl/zagraj" \
+    "yes" \
+    "$(html_hreflang_has "$html" "pl" "${ORIGIN}/pl/zagraj")"
+  expect "$path hreflang=x-default points at /play" \
+    "yes" \
+    "$(html_hreflang_has "$html" "x-default" "${ORIGIN}/play")"
+  expect "$path never advertises /en/play" \
+    "yes" \
+    "$(html_lacks "$html" "${ORIGIN}/en/play")"
+done
+
 echo
 if (( FAILS > 0 )); then
   printf '%d failed\n' "$FAILS"

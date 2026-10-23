@@ -62,12 +62,20 @@ export default function RulesPage() {
             <Winning />
             <Vocabulary />
           </div>
-          <OnwardBlock
-            href="/reference"
-            heading={tOnward("heading")}
-            label={tOnward("reference.label")}
-            summary={tOnward("reference.summary")}
-          />
+          <div className="flex flex-col gap-8">
+            <OnwardBlock
+              href="/play"
+              heading={tOnward("heading")}
+              label={tOnward("play.label")}
+              summary={tOnward("play.summary")}
+            />
+            <OnwardBlock
+              href="/reference"
+              heading={tOnward("heading")}
+              label={tOnward("reference.label")}
+              summary={tOnward("reference.summary")}
+            />
+          </div>
         </div>
       </Container>
     </>

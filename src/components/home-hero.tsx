@@ -3,7 +3,6 @@ import { useTranslations } from "next-intl";
 import { Container } from "@/components/container";
 import { CtaLink } from "@/components/cta-link";
 import { tags } from "@/i18n/rich-text";
-import { DiceHeroOverlay } from "@/components/dice-hero-overlay";
 import { Heading } from "./heading";
 
 export function HomeHero() {
@@ -27,7 +26,7 @@ export function HomeHero() {
               </div>
             </header>
             <footer className="flex flex-col gap-4">
-              <nav className="flex flex-col gap-2.5 md:flex-row md:gap-3 w-full md:w-auto">
+              <nav className="flex flex-col gap-2.5 md:flex-row md:flex-wrap md:gap-3 w-full md:w-auto">
                 <CtaLink
                   className="w-full md:w-auto"
                   href="/rules"
@@ -35,6 +34,14 @@ export function HomeHero() {
                   inverse
                 >
                   {t("links.rules")}
+                </CtaLink>
+                <CtaLink
+                  className="w-full md:w-auto"
+                  href="/play"
+                  variant="secondary"
+                  inverse
+                >
+                  {t("links.play")}
                 </CtaLink>
                 <CtaLink
                   className="w-full md:w-auto"
@@ -62,14 +69,6 @@ export function HomeHero() {
               className="object-cover"
             />
           </div>
-          {/* <DiceHeroOverlay
-            size={64}
-            className="absolute left-5 -top-8 md:hidden"
-          />
-          <DiceHeroOverlay
-            size={104}
-            className="absolute hidden md:flex md:-left-14 md:top-20"
-          /> */}
         </div>
       </div>
       <div className="md:hidden bg-foreground text-white">

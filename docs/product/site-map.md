@@ -2,12 +2,13 @@
 
 English has no locale prefix. Spanish is `/es` and Polish is `/pl`, each plus a localised slug.
 
-| English      | Spanish          | Polish          | Purpose                                                                        |
-| ------------ | ---------------- | --------------- | ------------------------------------------------------------------------------ |
-| `/`          | `/es`            | `/pl`           | What the game is, the one key idea, and where to read on.                      |
-| `/rules`     | `/es/reglas`     | `/pl/zasady`    | The full rules, from setup to the end of the game, then the game vocabulary.   |
-| `/reference` | `/es/referencia` | `/pl/sciagawka` | Hand ranking and scoring on one screen, for use mid-game.                      |
-| `/about`     | `/es/acerca-de`  | `/pl/o-grze`    | How the author learnt the game, why the rules are written down, related games. |
+| English      | Spanish          | Polish          | Purpose                                                                                          |
+| ------------ | ---------------- | --------------- | ------------------------------------------------------------------------------------------------ |
+| `/`          | `/es`            | `/pl`           | What the game is, the one key idea, and where to read on.                                        |
+| `/rules`     | `/es/reglas`     | `/pl/zasady`    | The full rules, from setup to the end of the game, then the game vocabulary.                     |
+| `/reference` | `/es/referencia` | `/pl/sciagawka` | Hand ranking and scoring on one screen, for use mid-game.                                        |
+| `/about`     | `/es/acerca-de`  | `/pl/o-grze`    | How the author learnt the game, why the rules are written down, related games.                   |
+| `/play`      | `/es/jugar`      | `/pl/zagraj`    | A short practice game against three other players. Linked from Home and Rules, not the main nav. |
 
 Retired pages answer with a permanent redirect (`redirects()` in `next.config.ts`, checked by `scripts/smoke.sh`):
 
@@ -34,7 +35,7 @@ Dotted paths that skip the proxy matcher (for example `/references.txt`) can sti
 
 ## Deliberately not built
 
-Score tracker, hand comparison tool, search, scroll spy, breadcrumbs, dice that roll or play a turn, dark-mode toggle, print stylesheet, strategy page.
+Score tracker, hand comparison tool, search, scroll spy, breadcrumbs, a configurable game (player count, point limit, difficulty), dark-mode toggle, print stylesheet, strategy page.
 
 ## Canonical source
 

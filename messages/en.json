@@ -12,6 +12,10 @@
       "title": "Mitchi quick reference",
       "description": "Hand ranking and scoring on one screen, for use mid-game."
     },
+    "play": {
+      "title": "Mitchi practice game",
+      "description": "Play a short game of Mitchi against three other players and see how the roll limit, the worst hand and the pot work."
+    },
     "about": {
       "title": "About Mitchi",
       "description": "Mitchi is a fast dice game for two or more players. What it is, where it came from, and games like it."
@@ -40,6 +44,10 @@
       "label": "The full rules",
       "summary": "Everything you need to play, from setup to the end of the game."
     },
+    "play": {
+      "label": "Practice game",
+      "summary": "Play a short game against three other players."
+    },
     "reference": {
       "label": "Quick reference",
       "summary": "Hand ranking and scoring on one screen."
@@ -57,6 +65,7 @@
     "youNeed": "<strong>You need:</strong> two dice, a pen and paper, and at least one other player.",
     "links": {
       "rules": "Read the rules",
+      "play": "Play a practice game",
       "reference": "Quick reference"
     },
     "quickStart": {
@@ -353,6 +362,152 @@
     "pointLimit": {
       "name": "Point limit",
       "definition": "The score that ends the game. Usually 25."
+    }
+  },
+  "play": {
+    "title": "Practice game",
+    "intro": "Play a short game against three other players. Roll, keep and stop as you would at a table.",
+    "controls": {
+      "start": "Start",
+      "roll": "Roll",
+      "keep": "Keep",
+      "stop": "Stop",
+      "keepDie": "Keep the {face}",
+      "nextRound": "Next round",
+      "playAgain": "Play again"
+    },
+    "dice": {
+      "yourTurn": "Your turn"
+    },
+    "pacing": {
+      "heading": "Pace",
+      "pause": "Pause",
+      "resume": "Resume",
+      "step": "Step",
+      "speed": "Speed",
+      "slow": "Slow",
+      "normal": "Normal",
+      "fast": "Fast"
+    },
+    "rolls": {
+      "none": "None",
+      "one": "One",
+      "two": "Two",
+      "three": "Three"
+    },
+    "players": {
+      "heading": "Players",
+      "you": "You",
+      "player1": "Player 1",
+      "player2": "Player 2",
+      "player3": "Player 3",
+      "player4": "Player 4",
+      "points": "Points",
+      "starting": "Starting player",
+      "rollingNow": "Rolling now",
+      "holdsWorst": "Worst hand so far",
+      "outOfTieBreak": "Not in this tie-break",
+      "waiting": "Waiting",
+      "thisRound": "This round",
+      "byPlayer": "By player",
+      "byHand": "By hand",
+      "highestDieStarts": "Highest die starts"
+    },
+    "game": {
+      "pointLimit": "Point limit",
+      "leader": "Leader",
+      "closeToLimit": "Close to the point limit",
+      "reachedLimit": "Reached the point limit"
+    },
+    "round": {
+      "tiedOn": "Tied on",
+      "rollLimit": "Roll limit",
+      "rollsLeft": "Rolls left",
+      "worstHandNone": "None yet",
+      "pot": "The pot",
+      "standing": {
+        "beats": "Your hand beats it",
+        "ties": "Your hand ties it",
+        "worse": "Your hand is worse"
+      },
+      "otherStanding": {
+        "beats": "Their hand beats it",
+        "ties": "Their hand ties it",
+        "worse": "Their hand is worse"
+      }
+    },
+    "commentary": {
+      "heading": "What happened",
+      "empty": "Nothing yet",
+      "you": {
+        "turn": "Your turn",
+        "stop": "You stop",
+        "noRollsLeft": "You have no rolls left",
+        "rolls": "You roll",
+        "rollsToStart": "You roll to start",
+        "startsRound": "You start the round",
+        "takesPot": "You take the pot: {pot}",
+        "wins": "You win"
+      },
+      "player": {
+        "stop": "Stops",
+        "noRollsLeft": "Has no rolls left",
+        "rollAgainBoth": "Rolls both dice again",
+        "rollAgainKeeping": "Rolls again, keeping one die",
+        "rolls": "Rolls",
+        "rollsToStart": "Rolls to start",
+        "startsRound": "Starts the round",
+        "takesPot": "Takes the pot: {pot}",
+        "wins": "Wins"
+      },
+      "reason": {
+        "beatsWorstHandSoFar": "Beats the worst hand so far",
+        "goodEnough": "Good enough to stop",
+        "keepingHighDie": "Trying to improve, keeping a high die",
+        "rerollingBoth": "Trying to improve, no die worth keeping"
+      },
+      "notice": {
+        "round": "Round {number}",
+        "rollLimit": {
+          "one": "Roll limit: one",
+          "two": "Roll limit: two",
+          "three": "Roll limit: three"
+        },
+        "tieBreakAnticlockwise": "Tie-break {number}, anticlockwise",
+        "tieBreakClockwise": "Tie-break {number}, clockwise",
+        "potMitchi": "A Mitchi raises the pot to {pot}",
+        "potDoubled": "The pot doubles to {pot}",
+        "tiedOnFewest": "Tied on the fewest points",
+        "draw": "The game is a draw.",
+        "gameOver": "Game over"
+      }
+    },
+    "end": {
+      "heading": "Game over",
+      "standings": "Final points",
+      "winner": "Winner"
+    },
+    "header": {
+      "readyToPlay": "Ready to play",
+      "rollingToStart": "Rolling to start",
+      "round": "Round {number}",
+      "tieBreak": "Tie-break {number}",
+      "endOfRound": "End of round",
+      "handToBeat": "Hand to beat",
+      "worstHand": "Worst hand"
+    },
+    "tray": {
+      "intro": "Play a practice game against three other players. Press Start to begin. Real games are usually played to 25."
+    },
+    "status": {
+      "intro": "Each player rolls one die. The highest starts the first round.",
+      "youRollFirst": "You roll first",
+      "youRolledToStart": "You roll a {face}",
+      "playerRolledToStart": "Rolls a {face}",
+      "tied": "Tied on {face}. The tied players roll again.",
+      "rollsNext": "Rolls next",
+      "keeps": "Keeps the {face}",
+      "keepsInstead": "Keeps the {face} instead"
     }
   }
 }

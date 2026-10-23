@@ -1,0 +1,281 @@
+import type { HandId } from "@/data/hands";
+import { beatsOf, type LoggedBeat } from "./beats";
+import type { AllowedIntents, LoggedEvent } from "./session";
+import { handFromDice, rankOf, worstOf } from "./hand-rank";
+import {
+  MAX_ROLLS,
+  type DicePair,
+  type GameState,
+  type KeptPair,
+  type RollCount,
+  type Seat,
+  type SeatHand,
+  type TieRoll,
+} from "./types";
+
+/** Pure and total on valid states (ENG-7). Nothing here is stored. */
+
+/** Null between turns: nobody holds the turn. */
+export function actingSeat(state: GameState): Seat | null {
+  return state.acting;
+}
+
+/** Who may roll now: the acting seat, in every phase. Nobody between turns. */
+export function toRoll(state: GameState): readonly Seat[] {
+  const { acting } = state;
+  return acting === null ? [] : [acting];
+}
+
+/**
+ * Rolling to start: the seats still to roll this pass, ascending, not
+ * counting the acting seat. Otherwise nobody. The acting seat is rolling
+ * now, never also waiting.
+ */
+export function stillToRoll(state: GameState): readonly Seat[] {
+  const { phase, acting } = state;
+  if (phase.kind !== "rollOff") return [];
+  return phase.seats.filter(
+    (seat) =>
+      seat !== acting && !phase.rolled.some((rolled) => rolled.seat === seat),
+  );
+}
+
+export function diceToRoll(state: GameState): 0 | 1 | 2 {
+  const { phase } = state;
+  switch (phase.kind) {
+    case "rollOff":
+      return 1;
+    case "tieBreak":
+      return 2;
+    case "turn": {
+      const keptCount = phase.kept.filter(Boolean).length;
+      return (2 - keptCount) as 0 | 1 | 2;
+    }
+    default:
+      return 0;
+  }
+}
+
+/** The acting seat in a main-round turn only. */
+export function rollsLeft(state: GameState): number | null {
+  const { phase } = state;
+  if (phase.kind !== "turn" || state.acting === null) return null;
+  return limitOf(state) - phase.rollsUsed;
+}
+
+export function rollLimit(state: GameState): {
+  set: number | null;
+  max: typeof MAX_ROLLS;
+} {
+  return { set: state.round?.rollLimit ?? null, max: MAX_ROLLS };
+}
+
+export function worstHandSoFar(
+  state: GameState,
+): { hand: HandId; seats: readonly Seat[] } | null {
+  const { phase, round } = state;
+  // At game over too: the round that ended the game keeps its worst hand.
+  if (phase.kind === "roundSummary" || phase.kind === "gameOver") {
+    return { hand: phase.takerHand, seats: [phase.taker] };
+  }
+  if (phase.kind === "turn" && round) return worstOf(round.finished);
+  if (phase.kind === "tieBreak") return worstOf(phase.rolled);
+  return null;
+}
+
+/**
+ * The acting seat's hand against the worst so far. Null unless it is a
+ * main-round turn, the seat has rolled, and someone has finished.
+ */
+export function standingAgainstWorst(
+  state: GameState,
+  seat: Seat,
+): "beats" | "ties" | "worse" | null {
+  const { phase } = state;
+  if (phase.kind !== "turn" || state.acting !== seat || phase.dice === null) {
+    return null;
+  }
+  const worst = worstHandSoFar(state);
+  if (!worst) return null;
+  const mine = rankOf(handFromDice(phase.dice));
+  const theirs = rankOf(worst.hand);
+  if (mine < theirs) return "beats";
+  return mine === theirs ? "ties" : "worse";
+}
+
+/** The seats with the most points, or null while nobody has any. */
+export function nearestLimit(
+  state: GameState,
+): { seats: readonly Seat[]; points: number } | null {
+  const points = Math.max(...state.points);
+  if (points <= 0) return null;
+  const seats = state.points.flatMap((p, seat) => (p === points ? [seat] : []));
+  return { seats, points };
+}
+
+/** Every intent unavailable. */
+export const noIntents: AllowedIntents = {
+  roll: false,
+  setKeep: false,
+  stop: false,
+  nextRound: false,
+  newGame: false,
+};
+
+export function allowedIntents(state: GameState, seat: Seat): AllowedIntents {
+  const none = noIntents;
+  const { phase } = state;
+  switch (phase.kind) {
+    case "notStarted":
+    case "gameOver":
+      return { ...none, newGame: true };
+    case "roundSummary":
+      return { ...none, nextRound: true };
+    case "rollOff":
+    case "tieBreak":
+      return { ...none, roll: toRoll(state).includes(seat) };
+    case "turn": {
+      if (state.acting !== seat) return none;
+      if (phase.dice === null) return { ...none, roll: true };
+      return {
+        ...none,
+        roll: !phase.kept[0] || !phase.kept[1],
+        setKeep: true,
+        stop: true,
+      };
+    }
+  }
+}
+
+/** The acting seat in a turn, once it has dice. Null otherwise. */
+export function kept(state: GameState, seat: Seat): KeptPair | null {
+  const { phase } = state;
+  if (phase.kind !== "turn" || state.acting !== seat || phase.dice === null) {
+    return null;
+  }
+  return phase.kept;
+}
+
+/** What a seat shows in the Players panel. Null when it has nothing to show. */
+export function seatHand(state: GameState, seat: Seat): SeatHand | null {
+  const { phase, round } = state;
+  switch (phase.kind) {
+    case "rollOff": {
+      const rolled = phase.rolled.find((r) => r.seat === seat);
+      return rolled ? { kind: "die", face: rolled.die } : null;
+    }
+    case "tieBreak":
+      return tieBreakHand(phase.rolled, seat);
+    case "turn": {
+      if (state.acting === seat && phase.dice !== null) {
+        return handOf(
+          phase.dice,
+          handFromDice(phase.dice),
+          phase.rollsUsed as RollCount,
+          { final: false, kept: phase.kept },
+        );
+      }
+      return finishedHand(round, seat);
+    }
+    case "roundSummary":
+    case "gameOver":
+      // The deciding tie-break, when there was one: the rolls that took the pot.
+      return phase.tieBreak
+        ? tieBreakHand(phase.tieBreak.rolled, seat)
+        : finishedHand(round, seat);
+    default:
+      return null;
+  }
+}
+
+/**
+ * The round summary whose pot took the taker to the point limit: the pot
+ * beat that ends the game, with `gameEnded` still to come. False otherwise.
+ */
+export function limitReached(state: GameState): boolean {
+  const { phase, points, config } = state;
+  return (
+    phase.kind === "roundSummary" && points[phase.taker] >= config.pointLimit
+  );
+}
+
+/**
+ * The latest beat in a stamped log, or null for an empty log. Walks back
+ * over runs of events sharing a `beat` stamp; with `silent`, skips the beats
+ * it marks and returns the latest one it does not. Throws if a run is not
+ * exactly one beat: a corrupt log.
+ */
+export function lastBeat(
+  events: readonly LoggedEvent[],
+  silent?: (beat: LoggedBeat) => boolean,
+): LoggedBeat | null {
+  let end = events.length;
+  while (end > 0) {
+    const stamp = events[end - 1].beat;
+    let start = end - 1;
+    while (start > 0 && events[start - 1].beat === stamp) start -= 1;
+    const grouped = beatsOf(events.slice(start, end));
+    if (grouped.length !== 1) {
+      throw new Error(`Corrupt log: beat ${stamp} is ${grouped.length} beats`);
+    }
+    const beat: LoggedBeat = { ...grouped[0], id: events[start].seq };
+    if (!silent?.(beat)) return beat;
+    end = start;
+  }
+  return null;
+}
+
+/**
+ * False only for non-participants in a tie-break, and, at the end of a round
+ * it settled, in the deciding tie-break.
+ */
+export function inContest(state: GameState, seat: Seat): boolean {
+  const { phase } = state;
+  switch (phase.kind) {
+    case "tieBreak":
+      return phase.order.includes(seat);
+    case "roundSummary":
+    case "gameOver":
+      return (
+        !phase.tieBreak || phase.tieBreak.rolled.some((r) => r.seat === seat)
+      );
+    default:
+      return true;
+  }
+}
+
+export function tieBreakNumber(state: GameState): number | null {
+  return state.phase.kind === "tieBreak" && state.round
+    ? state.round.tieBreaks
+    : null;
+}
+
+function limitOf(state: GameState): number {
+  return state.round?.rollLimit ?? MAX_ROLLS;
+}
+
+function finishedHand(round: GameState["round"], seat: Seat): SeatHand | null {
+  const finished = round?.finished.find((f) => f.seat === seat);
+  return finished
+    ? handOf(finished.dice, finished.hand, finished.rollsUsed as RollCount, {
+        final: true,
+        kept: null,
+      })
+    : null;
+}
+
+function tieBreakHand(rolled: readonly TieRoll[], seat: Seat): SeatHand | null {
+  const roll = rolled.find((r) => r.seat === seat);
+  return roll
+    ? handOf(roll.dice, roll.hand, null, { final: true, kept: null })
+    : null;
+}
+
+function handOf(
+  dice: DicePair,
+  hand: HandId,
+  rollsUsed: RollCount | null,
+  rest: { final: boolean; kept: KeptPair | null },
+): SeatHand {
+  return { kind: "hand", dice, hand, rollsUsed, ...rest };
+}

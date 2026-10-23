@@ -11,7 +11,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-function Onward({ page }: { page: "reference" | "rules" | "about" }) {
+function Onward({ page }: { page: "reference" | "rules" | "about" | "play" }) {
   const t = useTranslations("nextPage");
   return (
     <OnwardBlock
@@ -28,3 +28,5 @@ export const ToReference: Story = { render: () => <Onward page="reference" /> };
 export const ToRules: Story = { render: () => <Onward page="rules" /> };
 
 export const ToAbout: Story = { render: () => <Onward page="about" /> };
+
+export const ToPlay: Story = { render: () => <Onward page="play" /> };

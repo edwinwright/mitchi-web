@@ -40,6 +40,15 @@
   --color-blue-900: #1b2f6f;
   --color-blue-950: #121f43;
 
+  /* gold: fewest points (the trophy and the row) */
+  --color-gold-50: #fef6dc; /* row fill */
+  --color-gold-600: #b7891a; /* row border, 3:1 on white */
+  --color-gold-700: #9a6f00; /* trophy fill */
+  --color-gold-800: #7a5a00; /* trophy stroke */
+
+  --color-orange-600: #d9650b;
+  --color-orange-50: #fff1e3;
+
   /* stone — warm neutrals. Every stop but 400 is a brand sheet or Home
      canvas colour: page, linen, rule, dashed, muted-on-dark, slate, the two
      prose greys, the Home prose grey, ink. */
@@ -94,6 +103,34 @@
       transform: translateY(3px) rotate(-3deg);
     }
   }
+}
+
+/* Top level, so the keyframes are always emitted. A tumble and settle of the
+   finished face: the die already shows its value, so no face is swapped and
+   no timer is needed in ui/. At most 8px up, inside the Keep button's padding. */
+@keyframes die-roll {
+  0% {
+    transform: translateY(-8px) rotate(-240deg) scale(0.85);
+    opacity: 0.4;
+  }
+  45% {
+    transform: translateY(0) rotate(12deg) scale(1.05);
+    opacity: 1;
+  }
+  70% {
+    transform: rotate(-5deg) scale(0.99);
+  }
+  100% {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+/* inline, as for the fonts: --roll-ms is set on each rolling die, so the
+   utility must substitute it there, not resolve it once on :root. */
+@theme inline {
+  --animate-die-roll: die-roll var(--roll-ms, 500ms)
+    cubic-bezier(0.2, 0.7, 0.3, 1) both;
 }
 
 @layer base {

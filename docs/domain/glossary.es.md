@@ -10,30 +10,34 @@ Variety: European Spanish, informal.
 
 ## Terms
 
-| English                        | Spanish                  | Note                                                                                                                                                    |
-| ------------------------------ | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Mitchi (game, and the hand)    | Mitchi                   | Untranslated. The game's name never inflects; the hand pluralises, `dos Mitchis`. See below                                                             |
-| Game                           | el juego / la partida    | The system versus the session played. See below                                                                                                         |
-| Hand                           | la mano                  |                                                                                                                                                         |
-| Die / dice                     | el dado / los dados      |                                                                                                                                                         |
-| Roll (the noun, and the throw) | la tirada, tirar         | `tirar los dados` is the idiomatic game verb. `lanzar` is the athletic one                                                                              |
-| Roll (the result)              | sacar                    | `saca seis-cuatro`. See below                                                                                                                           |
-| Roll limit                     | el límite de tiradas     |                                                                                                                                                         |
-| In one, in two, in three       | en una, en dos, en tres  | Compact form, used in the example strip and the vocabulary definition (`seis-tres en dos`). Prose elsewhere spells it out (`en dos tiradas`), see below |
-| Stop                           | plantarse                | The verb Spanish games use for ending a turn, from blackjack and mus. `detenerse` and `parar` read as translation                                       |
-| Round                          | la ronda                 |                                                                                                                                                         |
-| Turn                           | el turno                 | Standard term for a player's rolls in a round, up to the roll limit                                                                                     |
-| Starting player                | el jugador inicial       | The standard term in Spanish board game rules                                                                                                           |
-| Worst hand                     | la peor mano             | The base term. The Spanish pair mirrors the English pair exactly                                                                                        |
-| Worst hand so far              | la peor mano hasta ahora | A direct translation of the English, which is why the English was renamed first                                                                         |
-| Doubles                        | dobles                   |                                                                                                                                                         |
-| The pot                        | el bote                  | See below                                                                                                                                               |
-| Take the pot                   | llevarse el bote         |                                                                                                                                                         |
-| Tie-break                      | el desempate             | Verb: `desempatar`                                                                                                                                      |
-| Tied                           | empatado/a               | From `empatar`, "to tie". Pairs with `desempate`/`desempatar`                                                                                           |
-| Draw                           | compartir la victoria    | `empate` is already Tied, so a draw is written as a shared win: `comparten la victoria`                                                                 |
-| Points                         | los puntos               |                                                                                                                                                         |
-| Point limit                    | el límite de puntos      |                                                                                                                                                         |
+| English                        | Spanish                  | Note                                                                                                                                                                                  |
+| ------------------------------ | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Mitchi (game, and the hand)    | Mitchi                   | Untranslated. The game's name never inflects; the hand pluralises, `dos Mitchis`. See below                                                                                           |
+| Game                           | el juego / la partida    | The system versus the session played. See below                                                                                                                                       |
+| Hand                           | la mano                  |                                                                                                                                                                                       |
+| Die / dice                     | el dado / los dados      |                                                                                                                                                                                       |
+| Roll (the noun, and the throw) | la tirada, tirar         | `tirar los dados` is the idiomatic game verb. `lanzar` is the athletic one                                                                                                            |
+| Roll (the result)              | sacar                    | `saca seis-cuatro`. See below                                                                                                                                                         |
+| Roll limit                     | el límite de tiradas     |                                                                                                                                                                                       |
+| In one, in two, in three       | en una, en dos, en tres  | Compact form, used in the example strip and the vocabulary definition (`seis-tres en dos`). Prose elsewhere spells it out (`en dos tiradas`), see below                               |
+| Stop                           | plantarse                | The verb Spanish games use for ending a turn, from blackjack and mus. `detenerse` and `parar` read as translation                                                                     |
+| Keep (a die)                   | conservar                | `conservar el 5`. Button: `Conservar`. Alternatives rejected in the section on the practice game                                                                                      |
+| Round                          | la ronda                 |                                                                                                                                                                                       |
+| Turn                           | el turno                 | Standard term for a player's rolls in a round, up to the roll limit                                                                                                                   |
+| Starting player                | el jugador inicial       | The standard term in Spanish board game rules                                                                                                                                         |
+| Worst hand                     | la peor mano             | The base term. The Spanish pair mirrors the English pair exactly                                                                                                                      |
+| Worst hand so far              | la peor mano hasta ahora | A direct translation of the English, which is why the English was renamed first                                                                                                       |
+| Doubles                        | dobles                   |                                                                                                                                                                                       |
+| The pot                        | el bote                  | See below                                                                                                                                                                             |
+| Take the pot                   | llevarse el bote         |                                                                                                                                                                                       |
+| Roll-off                       | tirar para empezar       | A phrase, not a term, as in English. Never a noun: not `tirada inicial`, not `desempate inicial`                                                                                      |
+| Tie-break                      | el desempate             | Verb: `desempatar`                                                                                                                                                                    |
+| Tied                           | empatado/a               | From `empatar`, "to tie". Pairs with `desempate`/`desempatar`                                                                                                                         |
+| Draw                           | compartir la victoria    | `empate` is already Tied, so a draw is written as a shared win: `comparten la victoria`                                                                                               |
+| Leader                         | Líder                    | A board label. The noun has one form for every gender (`el líder`, `la líder`), so it never guesses a player's gender. Replaces `Menos puntos`. Running text keeps `los menos puntos` |
+| Winner                         | Gana                     | A board label beside the seat name. The verb has one form for every gender; `Ganador` would guess. As `Wins` in the commentary                                                        |
+| Points                         | los puntos               |                                                                                                                                                                                       |
+| Point limit                    | el límite de puntos      |                                                                                                                                                                                       |
 
 ## Addressing the player
 
@@ -116,3 +120,41 @@ Informal second person singular, present tense, for procedure and definitions al
 About is first person, the author speaking: `aprendí Mitchi de mi primo`.
 
 The `vosotros` and `ustedes` question does not arise: the only second-person forms in the copy are singular. Where the English says "everyone" or "each player", Spanish keeps the impersonal (`cada jugador tira un dado`) rather than switching to a plural you.
+
+## The practice game
+
+The commentary log in `/es/jugar` is a column of rows. A row is cells: a player label, an action phrase, and sometimes a hand name. The action phrase has two whole strings, one for the viewer (`commentary.you.*`, second person singular, `tú`) and one for every other player (`commentary.player.*`, third person, read after the player's label). Controls and links use the infinitive, as the site's other buttons and links do (`Leer las reglas`).
+
+| Action                   | Viewer (`tú`)              | Another player                        |
+| ------------------------ | -------------------------- | ------------------------------------- |
+| Stop                     | `Te plantas`               | `Se planta`                           |
+| Has no rolls left        | `No te quedan tiradas`     | `No le quedan tiradas`                |
+| Rolls (the result)       | `Sacas`                    | `Saca`                                |
+| Rolls to start           | `Tiras para empezar`       | `Tira para empezar`                   |
+| Starts the round         | `Empiezas la ronda`        | `Empieza la ronda`                    |
+| Takes the pot            | `Te llevas el bote: {pot}` | `Se lleva el bote: {pot}`             |
+| Wins                     | `Ganas`                    | `Gana`                                |
+| Rolls both dice again    | (not shown)                | `Vuelve a tirar los dos dados`        |
+| Rolls again, keeping one | (not shown)                | `Vuelve a tirar, conservando un dado` |
+
+`Sacas` and `Saca` stand before a hand name in the next cell (`Saca` + `seis-cuatro`), so they use the outcome verb. `Tiras para empezar` is the act of rolling a die to start, so it uses `tirar`. See "Why 'roll' takes two verbs".
+
+**Keep.** `conservar` is the nearest Spanish verb to the English "keep": the die stays as it is while the other is thrown. `apartar` ("set aside") was rejected because it describes moving the die, not the choice; `guardar` was rejected because on a button it reads as "save". **Reviewer: `conservar` versus `apartar`.**
+
+**Draw.** `Comparten la victoria` stands alone as a sentence. `empate` is already Tied.
+
+**Slugs.** `/es/jugar` conflicts with nothing in `translation-rationale.es.md` (section 6 lists `reglas`, `referencia`, `acerca-de`). `jugar` is the verb of the page, in the style of `reglas` and `referencia`: one word, no diacritics.
+
+### The status line
+
+The line under the dice card's heading says what is happening now. Another player's line is a label cell, then the phrase, read after it, so the phrase is third person. The viewer's lines are second person (`tú`). `{face}` is a digit.
+
+| English                                         | Spanish                                                                               | Forms and note                                                                                         |
+| ----------------------------------------------- | ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| Each player rolls one die. The highest starts … | `Cada jugador tira un dado. Empieza la primera ronda quien saque el número más alto.` | `tirar` for the act, `sacar` for the result, as in `rules.setup.whoStarts`                             |
+| You roll first                                  | `Tiras tú primero`                                                                    | `tú` stated, because it follows the explanation addressed to everyone                                  |
+| You roll a {face} / Rolls a {face}              | `Sacas un {face}` / `Saca un {face}`                                                  | The result, so `sacar`. `un` agrees with the masculine `número`, understood                            |
+| Tied on {face}                                  | `Empate a {face}. Los jugadores empatados vuelven a tirar.`                           | `empate a` + number is the idiom (`empate a cero`). `empatados`, plural of the glossary's `empatado/a` |
+| Rolls next                                      | `Tira a continuación`                                                                 | The act, so `tirar`. Distinct from `Tira ahora`, Rolling now                                           |
+| Keeps the {face} / … instead                    | `Conserva el {face}` / `Conserva el {face} en su lugar`                               | `conservar el 5`, as for the Keep button                                                               |
+| Their hand (beats, ties, worse)                 | `Su mano la supera` / `Su mano empata con ella` / `Su mano es peor`                   | Mirrors `Tu mano …`. `su` carries no gender. `la`, `ella`: the hand to beat, `la mano`                 |

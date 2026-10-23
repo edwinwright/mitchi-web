@@ -12,6 +12,10 @@
       "title": "Ściągawka Mitchi",
       "description": "Ranking układów i punktacja na jednym ekranie, do zajrzenia w trakcie gry."
     },
+    "play": {
+      "title": "Gra treningowa Mitchi",
+      "description": "Zagraj w krótką grę Mitchi przeciwko trzem innym graczom i zobacz, jak działają limit rzutów, najgorszy układ i pula."
+    },
     "about": {
       "title": "O Mitchi",
       "description": "Mitchi to szybka gra w kości dla dwóch lub więcej graczy. Czym jest, skąd pochodzi i podobne gry."
@@ -40,6 +44,10 @@
       "label": "Pełne zasady",
       "summary": "Wszystko, czego potrzebujesz, żeby zagrać: od przygotowania po koniec gry."
     },
+    "play": {
+      "label": "Gra treningowa",
+      "summary": "Zagraj w krótką grę przeciwko trzem innym graczom."
+    },
     "reference": {
       "label": "Ściągawka",
       "summary": "Ranking układów i punktacja na jednym ekranie."
@@ -57,6 +65,7 @@
     "youNeed": "<strong>Potrzebujesz:</strong> dwóch kości, kartki i długopisu oraz co najmniej jednego innego gracza.",
     "links": {
       "rules": "Przeczytaj zasady",
+      "play": "Zagraj w grę treningową",
       "reference": "Ściągawka"
     },
     "quickStart": {
@@ -353,6 +362,152 @@
     "pointLimit": {
       "name": "Limit punktów",
       "definition": "Wynik, przy którym gra się kończy. Zwykle 25."
+    }
+  },
+  "play": {
+    "title": "Gra treningowa",
+    "intro": "Zagraj w krótką grę przeciwko trzem innym graczom. Rzucaj, zostawiaj kości i zatrzymuj się tak, jak przy stole.",
+    "controls": {
+      "start": "Zacznij",
+      "roll": "Rzuć",
+      "keep": "Zostaw",
+      "stop": "Zatrzymaj się",
+      "keepDie": "Zostaw {face}",
+      "nextRound": "Następna runda",
+      "playAgain": "Zagraj ponownie"
+    },
+    "dice": {
+      "yourTurn": "Twoja tura"
+    },
+    "pacing": {
+      "heading": "Tempo",
+      "pause": "Pauza",
+      "resume": "Wznów",
+      "step": "Krok",
+      "speed": "Szybkość",
+      "slow": "Wolna",
+      "normal": "Normalna",
+      "fast": "Szybka"
+    },
+    "rolls": {
+      "none": "Brak",
+      "one": "Jeden",
+      "two": "Dwa",
+      "three": "Trzy"
+    },
+    "players": {
+      "heading": "Gracze",
+      "you": "Ty",
+      "player1": "Gracz 1",
+      "player2": "Gracz 2",
+      "player3": "Gracz 3",
+      "player4": "Gracz 4",
+      "points": "Punkty",
+      "starting": "Gracz rozpoczynający",
+      "rollingNow": "Rzuca teraz",
+      "holdsWorst": "Najgorszy jak dotąd układ",
+      "outOfTieBreak": "Poza tą dogrywką",
+      "waiting": "Czeka",
+      "thisRound": "Ta runda",
+      "byPlayer": "Według graczy",
+      "byHand": "Według układów",
+      "highestDieStarts": "Zaczyna najwyższa kość"
+    },
+    "game": {
+      "pointLimit": "Limit punktów",
+      "leader": "Prowadzi",
+      "closeToLimit": "Blisko limitu punktów",
+      "reachedLimit": "Osiągnięty limit punktów"
+    },
+    "round": {
+      "tiedOn": "Remis na układzie",
+      "rollLimit": "Limit rzutów",
+      "rollsLeft": "Pozostałe rzuty",
+      "worstHandNone": "Jeszcze brak",
+      "pot": "Pula",
+      "standing": {
+        "beats": "Twój układ go pobija",
+        "ties": "Twój układ remisuje z nim",
+        "worse": "Twój układ jest gorszy"
+      },
+      "otherStanding": {
+        "beats": "Ten układ go pobija",
+        "ties": "Ten układ remisuje z nim",
+        "worse": "Ten układ jest gorszy"
+      }
+    },
+    "commentary": {
+      "heading": "Co się wydarzyło",
+      "empty": "Jeszcze nic",
+      "you": {
+        "turn": "Twoja tura",
+        "stop": "Zatrzymujesz się",
+        "noRollsLeft": "Nie masz już rzutów",
+        "rolls": "Wyrzucasz",
+        "rollsToStart": "Rzucasz, by zacząć",
+        "startsRound": "Zaczynasz rundę",
+        "takesPot": "Zgarniasz pulę: {pot}",
+        "wins": "Wygrywasz"
+      },
+      "player": {
+        "stop": "Zatrzymuje się",
+        "noRollsLeft": "Nie ma już rzutów",
+        "rollAgainBoth": "Przerzuca obie kości",
+        "rollAgainKeeping": "Przerzuca, zostawiając jedną kość",
+        "rolls": "Wyrzuca",
+        "rollsToStart": "Rzuca, by zacząć",
+        "startsRound": "Zaczyna rundę",
+        "takesPot": "Zgarnia pulę: {pot}",
+        "wins": "Wygrywa"
+      },
+      "reason": {
+        "beatsWorstHandSoFar": "Pobija najgorszy jak dotąd układ",
+        "goodEnough": "Wystarczająco dobry, by się zatrzymać",
+        "keepingHighDie": "Próbuje poprawić układ, zostawiając wysoką kość",
+        "rerollingBoth": "Próbuje poprawić układ, żadna kość nie jest warta zostawienia"
+      },
+      "notice": {
+        "round": "Runda {number}",
+        "rollLimit": {
+          "one": "Limit rzutów: jeden",
+          "two": "Limit rzutów: dwa",
+          "three": "Limit rzutów: trzy"
+        },
+        "tieBreakAnticlockwise": "Dogrywka {number}, przeciwnie do ruchu wskazówek zegara",
+        "tieBreakClockwise": "Dogrywka {number}, zgodnie z ruchem wskazówek zegara",
+        "potMitchi": "Mitchi podnosi pulę do {pot}",
+        "potDoubled": "Pula podwaja się do {pot}",
+        "tiedOnFewest": "Remis przy najmniejszej liczbie punktów",
+        "draw": "Dzielą się zwycięstwem.",
+        "gameOver": "Koniec gry"
+      }
+    },
+    "end": {
+      "heading": "Koniec gry",
+      "standings": "Punkty końcowe",
+      "winner": "Wygrywa"
+    },
+    "header": {
+      "readyToPlay": "Gotowe do gry",
+      "rollingToStart": "Rzucać, by zacząć",
+      "round": "Runda {number}",
+      "tieBreak": "Dogrywka {number}",
+      "endOfRound": "Koniec rundy",
+      "handToBeat": "Układ do pobicia",
+      "worstHand": "Najgorszy układ"
+    },
+    "tray": {
+      "intro": "Zagraj w grę treningową przeciwko trzem innym graczom. Naciśnij Zacznij, aby rozpocząć. Prawdziwe gry zwykle toczą się do 25 punktów."
+    },
+    "status": {
+      "intro": "Każdy gracz rzuca jedną kością. Pierwszą rundę zaczyna ten, kto wyrzuci najwięcej oczek.",
+      "youRollFirst": "Rzucasz najpierw",
+      "youRolledToStart": "Wyrzucasz {face}",
+      "playerRolledToStart": "Wyrzuca {face}",
+      "tied": "Remis, wynik {face}. Remisujący gracze rzucają jeszcze raz.",
+      "rollsNext": "Rzuca jako następny",
+      "keeps": "Zostawia {face}",
+      "keepsInstead": "W zamian zostawia {face}"
     }
   }
 }

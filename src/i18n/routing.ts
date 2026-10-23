@@ -25,6 +25,11 @@ export const routing = defineRouting({
       es: "/referencia",
       pl: "/sciagawka",
     },
+    "/play": {
+      en: "/play",
+      es: "/jugar",
+      pl: "/zagraj",
+    },
     "/rules": {
       en: "/rules",
       es: "/reglas",

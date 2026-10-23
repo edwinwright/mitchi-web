@@ -12,6 +12,10 @@
       "title": "Referencia rápida de Mitchi",
       "description": "La clasificación de las manos y la puntuación en una sola pantalla, para consultar durante la partida."
     },
+    "play": {
+      "title": "Partida de práctica de Mitchi",
+      "description": "Juega una partida corta de Mitchi contra otros tres jugadores y comprueba cómo funcionan el límite de tiradas, la peor mano y el bote."
+    },
     "about": {
       "title": "Acerca de Mitchi",
       "description": "Mitchi es un juego de dados rápido para dos o más jugadores. Qué es, de dónde viene y otros juegos parecidos."
@@ -40,6 +44,10 @@
       "label": "Las reglas completas",
       "summary": "Todo lo que necesitas para jugar, desde la preparación hasta el final de la partida."
     },
+    "play": {
+      "label": "Partida de práctica",
+      "summary": "Juega una partida corta contra otros tres jugadores."
+    },
     "reference": {
       "label": "Referencia rápida",
       "summary": "La clasificación de las manos y la puntuación en una sola pantalla."
@@ -57,6 +65,7 @@
     "youNeed": "<strong>Necesitas:</strong> dos dados, papel y bolígrafo, y al menos otro jugador.",
     "links": {
       "rules": "Leer las reglas",
+      "play": "Jugar una partida de práctica",
       "reference": "Referencia rápida"
     },
     "quickStart": {
@@ -353,6 +362,152 @@
     "pointLimit": {
       "name": "Límite de puntos",
       "definition": "La puntuación que termina la partida en cuanto un jugador la alcanza. Normalmente 25."
+    }
+  },
+  "play": {
+    "title": "Partida de práctica",
+    "intro": "Juega una partida corta contra otros tres jugadores. Tira, conserva y plántate como lo harías en una mesa.",
+    "controls": {
+      "start": "Empezar",
+      "roll": "Tirar",
+      "keep": "Conservar",
+      "stop": "Plantarse",
+      "keepDie": "Conservar el {face}",
+      "nextRound": "Siguiente ronda",
+      "playAgain": "Jugar otra vez"
+    },
+    "dice": {
+      "yourTurn": "Tu turno"
+    },
+    "pacing": {
+      "heading": "Ritmo",
+      "pause": "Pausa",
+      "resume": "Reanudar",
+      "step": "Paso",
+      "speed": "Velocidad",
+      "slow": "Lenta",
+      "normal": "Normal",
+      "fast": "Rápida"
+    },
+    "rolls": {
+      "none": "Ninguna",
+      "one": "Una",
+      "two": "Dos",
+      "three": "Tres"
+    },
+    "players": {
+      "heading": "Jugadores",
+      "you": "Tú",
+      "player1": "Jugador 1",
+      "player2": "Jugador 2",
+      "player3": "Jugador 3",
+      "player4": "Jugador 4",
+      "points": "Puntos",
+      "starting": "Jugador inicial",
+      "rollingNow": "Tira ahora",
+      "holdsWorst": "Peor mano hasta ahora",
+      "outOfTieBreak": "No está en este desempate",
+      "waiting": "Esperando",
+      "thisRound": "Esta ronda",
+      "byPlayer": "Por jugador",
+      "byHand": "Por mano",
+      "highestDieStarts": "Empieza el dado más alto"
+    },
+    "game": {
+      "pointLimit": "Límite de puntos",
+      "leader": "Líder",
+      "closeToLimit": "Cerca del límite de puntos",
+      "reachedLimit": "Límite de puntos alcanzado"
+    },
+    "round": {
+      "tiedOn": "Empatados con",
+      "rollLimit": "Límite de tiradas",
+      "rollsLeft": "Tiradas restantes",
+      "worstHandNone": "Todavía ninguna",
+      "pot": "El bote",
+      "standing": {
+        "beats": "Tu mano la supera",
+        "ties": "Tu mano empata con ella",
+        "worse": "Tu mano es peor"
+      },
+      "otherStanding": {
+        "beats": "Su mano la supera",
+        "ties": "Su mano empata con ella",
+        "worse": "Su mano es peor"
+      }
+    },
+    "commentary": {
+      "heading": "Qué ha pasado",
+      "empty": "Todavía nada",
+      "you": {
+        "turn": "Tu turno",
+        "stop": "Te plantas",
+        "noRollsLeft": "No te quedan tiradas",
+        "rolls": "Sacas",
+        "rollsToStart": "Tiras para empezar",
+        "startsRound": "Empiezas la ronda",
+        "takesPot": "Te llevas el bote: {pot}",
+        "wins": "Ganas"
+      },
+      "player": {
+        "stop": "Se planta",
+        "noRollsLeft": "No le quedan tiradas",
+        "rollAgainBoth": "Vuelve a tirar los dos dados",
+        "rollAgainKeeping": "Vuelve a tirar, conservando un dado",
+        "rolls": "Saca",
+        "rollsToStart": "Tira para empezar",
+        "startsRound": "Empieza la ronda",
+        "takesPot": "Se lleva el bote: {pot}",
+        "wins": "Gana"
+      },
+      "reason": {
+        "beatsWorstHandSoFar": "Supera la peor mano hasta ahora",
+        "goodEnough": "Lo bastante buena para plantarse",
+        "keepingHighDie": "Intenta mejorar, conservando un dado alto",
+        "rerollingBoth": "Intenta mejorar, ningún dado merece conservarse"
+      },
+      "notice": {
+        "round": "Ronda {number}",
+        "rollLimit": {
+          "one": "Límite de tiradas: una",
+          "two": "Límite de tiradas: dos",
+          "three": "Límite de tiradas: tres"
+        },
+        "tieBreakAnticlockwise": "Desempate {number}, en sentido antihorario",
+        "tieBreakClockwise": "Desempate {number}, en sentido horario",
+        "potMitchi": "Mitchi sube el bote a {pot}",
+        "potDoubled": "El bote se dobla a {pot}",
+        "tiedOnFewest": "Empatados con menos puntos",
+        "draw": "Comparten la victoria.",
+        "gameOver": "Fin de la partida"
+      }
+    },
+    "end": {
+      "heading": "Fin de la partida",
+      "standings": "Puntos finales",
+      "winner": "Gana"
+    },
+    "header": {
+      "readyToPlay": "Listo para jugar",
+      "rollingToStart": "Tirar para empezar",
+      "round": "Ronda {number}",
+      "tieBreak": "Desempate {number}",
+      "endOfRound": "Fin de la ronda",
+      "handToBeat": "Mano a superar",
+      "worstHand": "Peor mano"
+    },
+    "tray": {
+      "intro": "Juega una partida de práctica contra otros tres jugadores. Pulsa Empezar para comenzar. Las partidas reales suelen jugarse a 25."
+    },
+    "status": {
+      "intro": "Cada jugador tira un dado. Empieza la primera ronda quien saque el número más alto.",
+      "youRollFirst": "Tiras tú primero",
+      "youRolledToStart": "Sacas un {face}",
+      "playerRolledToStart": "Saca un {face}",
+      "tied": "Empate a {face}. Los jugadores empatados vuelven a tirar.",
+      "rollsNext": "Tira a continuación",
+      "keeps": "Conserva el {face}",
+      "keepsInstead": "Conserva el {face} en su lugar"
     }
   }
 }

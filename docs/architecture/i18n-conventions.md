@@ -15,9 +15,9 @@ How message content is structured and authored. The routing decisions (`localePr
 | Production origin      | `src/lib/config.ts` (`SITE_ORIGIN`) — `metadataBase`, sitemap, robots                                   |
 | Sitemap and robots     | `src/app/sitemap.ts`, `src/app/robots.ts` (App Router built-ins; outside `[locale]`)                    |
 
-Namespaces, and no fourteenth without a reason: `meta`, `site`, `nav`, `nextPage`, `home`, `rules`, `reference`, `about`, `notFound`, `handGroups`, `hands`, `potTable`, `vocabulary`.
+Namespaces, and no fifteenth without a reason: `meta`, `site`, `nav`, `nextPage`, `home`, `rules`, `reference`, `about`, `notFound`, `handGroups`, `hands`, `potTable`, `vocabulary`, `play`. `play` is the fourteenth: the practice game's panels, controls and commentary, which are too large and too interactive to sit under `rules`.
 
-**`meta.*` is titles and descriptions only.** Wired through `generateMetadata` via `pageMetadata`. Each real page has `meta.<page>.title` and `meta.<page>.description` in every locale. Do not add message keys without asking; see Changing copy. Canonicals and hreflang are built with `getPathname` from the same `PAGES` map; never list `/en/...` as a 200 URL. The Open Graph/Twitter share image is locale-independent, so it is not a message key: its path and alt text are a constant in `src/i18n/metadata.ts`, not `messages/<locale>.json`.
+**`meta.*` is titles and descriptions only.** Wired through `generateMetadata` via `pageMetadata`. Each real page has `meta.<page>.title` and `meta.<page>.description` in every locale, including `meta.play` for the practice game. Do not add message keys without asking; see Changing copy. Canonicals and hreflang are built with `getPathname` from the same `PAGES` map; never list `/en/...` as a 200 URL. The Open Graph/Twitter share image is locale-independent, so it is not a message key: its path and alt text are a constant in `src/i18n/metadata.ts`, not `messages/<locale>.json`.
 
 ## Key rules
 
@@ -34,11 +34,15 @@ Namespaces, and no fourteenth without a reason: `meta`, `site`, `nav`, `nextPage
 1. Does the value change at runtime? No: write the whole string. Stop here. The `/rules` example strips broke this rule until WO-0014: `{hand} in {count, select, …}`, `needs {hand} or better`, `Player {n}`, `Tie-break {n}` were templates whose every value was fixed in the component. English and Spanish survived because their nouns do not inflect; Polish exposed it, since the host sentence dictates the case of the slot and the slot can supply only one form. Each template is now one whole string per note (`rules.round.everyoneElse.example1Strip.player3Note`), and a translator inflects in place.
 2. If it does change at runtime, is the value grammar-opaque: a number, an identifier, an indeclinable name? Yes: an ICU argument, with `plural` or `select` where the language needs it. No, it is a translated phrase: redesign the string, because the host sentence will demand a case the value cannot supply.
 
-At present no message file contains an ICU argument. `i18n:check` still compares parameters across locales for the day one is needed.
+Only `play` contains ICU arguments, and they are plain number arguments (`{number}`, `{pot}`, `{face}`), each grammar-opaque. No `plural` or `select`: `check-messages.mjs` compares case labels across locales, and Polish needs `few` and `many` where English has two forms. A closed set of counts becomes whole keys instead. `i18n:check` compares parameters across locales.
 
 **Strip keys name content, not layout.** `rules.round.rollLimit.exampleStrip` and `rules.round.everyoneElse.example1Strip` sit beside the prose example they decorate, and each note inside is a complete phrase (`player1Rolled`, `player1Limit`, `player2Note`). Separator glyphs (`→`, `·`) are rendered by the component, never part of the string.
 
 **Hands are data, names are messages.** The visible name of a hand comes from ``t(`hands.${hand.id}`)``. Never compose a hand name from two number words at runtime: "six-five" is not "six" plus "five" in Polish or Japanese, and "double-six" is not "six-six" in any language. Twenty-one whole strings per locale is the cheap option, not the expensive one. Group names and descriptions work the same way, under `handGroups.<group>.name` and `.description`.
+
+**An action that depends on who acts is two whole strings, never one with a person argument.** The practice game's commentary has `commentary.you.*` for the viewer (second person) and `commentary.player.*` for everyone else (third person, read after the player's label cell), so each locale chooses its own person and agreement.
+
+**Player labels and hand names are separate cells of a row, never an argument in a sentence.** A label such as "Player 2" or "You" and a hand name each have their own cell, so the host sentence never has to inflect either for case. Passing one into a message as an argument is the template problem described above.
 
 **Anchor IDs stay English in every locale.** `#hands`, `#round`, `#scoring`, `#tie-breaks`, `#winning`, `#vocabulary`. Visible headings translate, IDs do not. A URL fragment is never sent to the server, so no routing layer can rewrite it the way `pathnames` rewrites a slug. Localised IDs would break every shared link on a locale switch and add a per-locale fragment map to the language switcher.
 
