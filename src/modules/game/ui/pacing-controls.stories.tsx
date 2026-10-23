@@ -34,3 +34,8 @@ export const Paused: Story = {
 export const PausedNoStep: Story = {
   args: { pacing: { ...running, paused: true } },
 };
+
+// Running at Slow, the speed WO-0018 added: the dropdown shows it.
+export const Slow: Story = {
+  args: { pacing: { ...running, speed: "slow" } },
+};

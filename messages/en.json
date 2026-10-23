@@ -385,6 +385,7 @@
       "resume": "Resume",
       "step": "Step",
       "speed": "Speed",
+      "slow": "Slow",
       "normal": "Normal",
       "fast": "Fast"
     },
