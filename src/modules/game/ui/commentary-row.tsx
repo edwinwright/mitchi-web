@@ -7,24 +7,11 @@ import type { Seat } from "../engine";
 import type { CommentaryRow, Shown } from "./commentary-rows";
 import { Mark } from "./marks";
 import { SeatLabel } from "./seat-label";
+import { Cells } from "./spoken";
 
 // One commentary row, as the log and the status line both render it.
 
 const LIMIT_KEYS = [null, "one", "two", "three"] as const;
-
-/**
- * Each cell but the last is followed by a hidden comma, so a screen reader
- * hears "Player 2, six-three, rolls both dice again" as one phrase.
- */
-export function Cells({ cells }: { cells: ReactNode[] }) {
-  const present = cells.filter((cell) => cell !== null);
-  return present.map((cell, index) => (
-    <Fragment key={index}>
-      {cell}
-      {index < present.length - 1 ? <span className="sr-only">, </span> : null}
-    </Fragment>
-  ));
-}
 
 function shownCells(
   shown: Shown,

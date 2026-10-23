@@ -2,8 +2,7 @@ import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import type { RollsRowData } from "./board-slices";
 import { Icon } from "./marks";
-
-const COUNT_KEYS = ["none", "one", "two", "three"] as const;
+import { COUNT_KEYS } from "./spoken";
 
 /**
  * One box per roll this turn, for the dark header: a used roll is crossed

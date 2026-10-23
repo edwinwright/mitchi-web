@@ -4,10 +4,9 @@ import type { Seat } from "../engine";
 import type { BeatStatusData, Status, StatusLine } from "./beat-status";
 import { CommentaryRowView } from "./commentary-row";
 import { SeatLabel } from "./seat-label";
+import { Comma } from "./spoken";
 
 type Props = { status: BeatStatusData | null; viewerSeat: Seat };
-
-const comma = <span className="sr-only">, </span>;
 
 function Line({ line, viewerSeat }: { line: StatusLine; viewerSeat: Seat }) {
   const t = useTranslations("play");
@@ -17,7 +16,7 @@ function Line({ line, viewerSeat }: { line: StatusLine; viewerSeat: Seat }) {
       <span className="font-semibold">
         <SeatLabel seat={seat} viewerSeat={viewerSeat} />
       </span>
-      {comma}
+      <Comma />
       <span>{phrase}</span>
     </>
   );
@@ -80,7 +79,7 @@ function StatusText({
       <Line line={status.line} viewerSeat={viewerSeat} />
       {status.details.map((row) => (
         <Fragment key={row.key}>
-          {comma}
+          <Comma />
           <CommentaryRowView row={row} viewerSeat={viewerSeat} />
         </Fragment>
       ))}

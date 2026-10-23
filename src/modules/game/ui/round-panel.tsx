@@ -13,14 +13,11 @@ import { Legend } from "./legend";
 import { Icon, Mark } from "./marks";
 import { RoundByHand } from "./round-by-hand";
 import { SeatLabel } from "./seat-label";
+import { Comma, COUNT_KEYS } from "./spoken";
 
 const DIE_SIZE = 22;
 /** Wide enough for a hand or two placeholders, so neither moves the other. */
 const DICE_WIDTH = "w-[49px]";
-const COUNT_KEYS = ["none", "one", "two", "three"] as const;
-
-/** A hidden comma, so a row reads as one phrase. */
-const Comma = () => <span className="sr-only">, </span>;
 
 function RoundBar({ bar }: { bar: RoundBarData | null }) {
   const t = useTranslations("play");

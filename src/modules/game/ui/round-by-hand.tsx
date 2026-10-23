@@ -7,9 +7,7 @@ import type { Seat } from "../engine";
 import type { RoundRowData } from "./board-slices";
 import { Mark } from "./marks";
 import { SeatLabel } from "./seat-label";
-
-/** A hidden comma, so a row reads as one phrase. */
-const Comma = () => <span className="sr-only">, </span>;
+import { Comma } from "./spoken";
 
 // Decorative: the order of the list and the labelled worst row already say
 // which hands are below the worst so far.

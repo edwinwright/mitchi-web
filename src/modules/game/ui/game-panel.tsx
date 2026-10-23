@@ -5,9 +5,7 @@ import type { PointsData, PointsRowData } from "./board-slices";
 import { Legend } from "./legend";
 import { Mark } from "./marks";
 import { SeatLabel } from "./seat-label";
-
-/** A hidden comma, so a row reads as one phrase. */
-const Comma = () => <span className="sr-only">, </span>;
+import { Comma } from "./spoken";
 
 function Row({
   row,
