@@ -15,7 +15,9 @@ import { RoundByHand } from "./round-by-hand";
 import { SeatLabel } from "./seat-label";
 
 const DIE_SIZE = 22;
-const ROLLED_IN = [null, "one", "two", "three"] as const;
+/** Wide enough for a hand or two placeholders, so neither moves the other. */
+const DICE_WIDTH = "w-[49px]";
+const COUNT_KEYS = ["none", "one", "two", "three"] as const;
 
 /** A hidden comma, so a row reads as one phrase. */
 const Comma = () => <span className="sr-only">, </span>;
@@ -32,6 +34,7 @@ function RoundBar({ bar }: { bar: RoundBarData | null }) {
           ? t("header.tieBreak", { number: bar.number })
           : t("header.round", { number: bar.number });
   const tiedOn = bar?.kind === "tieBreak" ? handById(bar.tiedOn) : null;
+  const rollLimit = bar?.kind === "round" ? bar.rollLimit : null;
 
   return (
     <div
@@ -51,6 +54,26 @@ function RoundBar({ bar }: { bar: RoundBarData | null }) {
             <MitchiHand high={tiedOn.high} low={tiedOn.low} size={20} />
           </span>
           <span className="sr-only">{hands(bar.tiedOn)}</span>
+        </span>
+      ) : null}
+      {bar?.kind === "round" ? (
+        // Hidden until the starter's turn ends, keeping its space.
+        <span
+          className={cn(
+            "ml-auto inline-flex items-center gap-2",
+            rollLimit === null && "invisible",
+          )}
+        >
+          <Comma />
+          <span className="text-xs font-semibold text-stone-700">
+            {t("round.rollLimit")}
+          </span>
+          {rollLimit === null ? null : (
+            <>
+              <Comma />
+              <span>{t(`rolls.${COUNT_KEYS[rollLimit]}`)}</span>
+            </>
+          )}
         </span>
       ) : null}
     </div>
@@ -101,18 +124,11 @@ function Row({
   rollOff: boolean;
 }) {
   const t = useTranslations("play");
-  const { hand } = row;
-  const rolledIn =
-    hand?.kind === "hand" && hand.final && hand.rollsUsed !== null
-      ? ROLLED_IN[hand.rollsUsed]
-      : null;
   const note = !row.inContest
     ? t("players.outOfTieBreak")
     : row.waiting
       ? t("players.waiting")
-      : rolledIn
-        ? t(`rolledIn.${rolledIn}`)
-        : null;
+      : null;
 
   return (
     <li
@@ -169,22 +185,22 @@ function Row({
             </>
           ) : null}
         </span>
-        {row.inContest ? (
-          <>
-            <Comma />
-            <Dice row={row} single={rollOff} />
-          </>
-        ) : null}
+        {/* The note sits before the dice, so its length never moves them. */}
         {note ? (
           <>
             <Comma />
             <span
-              className={cn(
-                "min-w-[50px] text-[13px]",
-                row.inContest && "text-stone-700",
-              )}
+              className={cn("text-[13px]", row.inContest && "text-stone-700")}
             >
               {note}
+            </span>
+          </>
+        ) : null}
+        {row.inContest ? (
+          <>
+            <Comma />
+            <span className={cn("flex", DICE_WIDTH)}>
+              <Dice row={row} single={rollOff} />
             </span>
           </>
         ) : null}

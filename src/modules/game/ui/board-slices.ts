@@ -49,8 +49,11 @@ export type ControlsData = {
 /** The This round header bar. */
 export type RoundBarData =
   | { kind: "rollOff" }
-  /** Between rounds and at game over too: the round just played. */
-  | { kind: "round"; number: number }
+  /**
+   * Between rounds and at game over too: the round just played. The roll
+   * limit is null until the starter's turn ends.
+   */
+  | { kind: "round"; number: number; rollLimit: number | null }
   /** Also between rounds and at game over, after a round it settled. */
   | { kind: "tieBreak"; number: number; tiedOn: HandId };
 
@@ -331,7 +334,11 @@ function roundBarOf(state: GameState): RoundBarData | null {
     const { number, tiedOn } = phase.tieBreak;
     return { kind: "tieBreak", number, tiedOn };
   }
-  return { kind: "round", number: round.number };
+  return {
+    kind: "round",
+    number: round.number,
+    rollLimit: select.rollLimit(state).set,
+  };
 }
 
 /**

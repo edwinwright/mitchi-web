@@ -189,7 +189,11 @@ describe("roundBar", () => {
   });
 
   it("names the round, or the tie-break and the hand tied on", () => {
-    expect(slices(botMidTurn).roundBar).toEqual({ kind: "round", number: 1 });
+    expect(slices(botMidTurn).roundBar).toEqual({
+      kind: "round",
+      number: 1,
+      rollLimit: 2,
+    });
     expect(slices(tieBreakRunning).roundBar).toEqual({
       kind: "tieBreak",
       number: 1,
@@ -198,11 +202,28 @@ describe("roundBar", () => {
   });
 
   it("names the round just played between rounds and at game over", () => {
-    expect(slices(roundSummary).roundBar).toEqual({ kind: "round", number: 1 });
-    expect(slices(gameOverUnique).roundBar).toEqual({
+    expect(slices(roundSummary).roundBar).toMatchObject({
+      kind: "round",
+      number: 1,
+    });
+    expect(slices(gameOverUnique).roundBar).toMatchObject({
       kind: "round",
       number: 7,
     });
+  });
+
+  it("shows the roll limit once the starter's turn ends, never in a tie-break", () => {
+    expect(slices(viewerToRoll).roundBar).toEqual({
+      kind: "round",
+      number: 1,
+      rollLimit: null,
+    });
+    expect(slices(starterLimitSet).roundBar).toEqual({
+      kind: "round",
+      number: 1,
+      rollLimit: 2,
+    });
+    expect(slices(tieBreakRunning).roundBar).not.toHaveProperty("rollLimit");
   });
 });
 
