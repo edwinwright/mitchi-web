@@ -82,9 +82,9 @@ Open Graph and Twitter card images are a single static file, `public/meta/og-def
 
 ## Component workshop
 
-Storybook (`storybook`), with the `@storybook/nextjs-vite` framework and `vite`, which the framework needs as a peer. Dev dependencies only: nothing here reaches the site bundle. No addons. Setup, conventions and deployment are in `docs/architecture/storybook.md`.
+Storybook (`storybook`), with the `@storybook/nextjs-vite` framework and `vite`, which the framework needs as a peer. Dev dependencies only: nothing here reaches the site bundle. One addon, `@storybook/addon-a11y`: an Accessibility panel that runs axe-core on the open story, for looking, not a gate (added in WO-0019, the author's decision). Setup, conventions and deployment are in `docs/architecture/storybook.md`.
 
-Not Chromatic or any visual regression service, not interaction or accessibility test runners, and not `addon-docs` (MDX and autodocs pages). Not `npx storybook init`, which adds those. Not `@tailwindcss/vite`: Tailwind already runs through PostCSS and works unchanged.
+Not Chromatic or any visual regression service, not interaction tests or an accessibility test runner in CI, and not `addon-docs` (MDX and autodocs pages). Not `npx storybook init`, which adds those. Not `@tailwindcss/vite`: Tailwind already runs through PostCSS and works unchanged.
 
 ## Analytics
 

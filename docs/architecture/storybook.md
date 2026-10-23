@@ -15,13 +15,13 @@ If a story fails to load with "Failed to fetch dynamically imported module", res
 
 Everything lives in `.storybook/`.
 
-| File                                     | What it does                                                                                                                         |
-| ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
-| `main.ts`                                | Framework `@storybook/nextjs-vite`, stories from `src/**/*.stories.@(ts\|tsx)`, `public/` as static files, telemetry off, no addons. |
-| `manager.ts`                             | The sidebar mark: the Mitchi wordmark, linking to `SITE_ORIGIN`.                                                                     |
-| `preview.tsx`                            | The global decorator, the locale toolbar, the viewport list and the Next.js navigation flag.                                         |
-| `decorators.tsx`                         | Shared decorators for inverse stories.                                                                                               |
-| `preview-head.html`, `manager-head.html` | The `noindex` meta tag.                                                                                                              |
+| File                                     | What it does                                                                                                                                       |
+| ---------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `main.ts`                                | Framework `@storybook/nextjs-vite`, stories from `src/**/*.stories.@(ts\|tsx)`, `public/` as static files, telemetry off, `@storybook/addon-a11y`. |
+| `manager.ts`                             | The sidebar mark: the Mitchi wordmark, linking to `SITE_ORIGIN`.                                                                                   |
+| `preview.tsx`                            | The global decorator, the locale toolbar, the viewport list and the Next.js navigation flag.                                                       |
+| `decorators.tsx`                         | Shared decorators for inverse stories.                                                                                                             |
+| `preview-head.html`, `manager-head.html` | The `noindex` meta tag.                                                                                                                            |
 
 **Brand.** The sidebar image is capped at 150 by 100 pixels. `public/brand/mitchi-wordmark.svg` still reads at that size. The full lockup is wider, so the same cap shrinks the dice. The manager stays on the light theme, so the mark is the ink wordmark, served from `staticDirs`.
 
@@ -74,7 +74,7 @@ Stories sit in the root `tsconfig.json`, so `tsc` and `next build` type-check th
 
 ## What it does not cover
 
-No Chromatic, visual regression, interaction tests or accessibility test runner. No addons, no MDX or autodocs pages (they need `addon-docs`), and no design token documentation. `npx storybook init` is not used: it adds docs, a11y, Vitest and Chromatic addons. Stories are for looking at components. The checks that gate the site stay as they are: `tsc`, lint, the build route table and `scripts/smoke.sh`.
+No Chromatic, visual regression, interaction tests or accessibility test runner in CI. One addon, `@storybook/addon-a11y`: its Accessibility panel runs axe-core on the story in view, in the current locale and viewport. It is for looking, like the stories, and gates nothing. No MDX or autodocs pages (they need `addon-docs`), and no design token documentation. `npx storybook init` is not used: it adds docs, a11y, Vitest and Chromatic addons. Stories are for looking at components. The checks that gate the site stay as they are: `tsc`, lint, the build route table and `scripts/smoke.sh`.
 
 `dice-hero-overlay` is unused and has no story. `container`, `heading`, `section-heading`, `prose` and `rule-body` are thin wrappers, covered by `typography.stories.tsx` and by the stories of the components that use them.
 
