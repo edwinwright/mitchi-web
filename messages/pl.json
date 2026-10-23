@@ -431,9 +431,9 @@
         "worse": "Twój układ jest gorszy"
       },
       "otherStanding": {
-        "beats": "Jego układ go pobija",
-        "ties": "Jego układ remisuje z nim",
-        "worse": "Jego układ jest gorszy"
+        "beats": "Ten układ go pobija",
+        "ties": "Ten układ remisuje z nim",
+        "worse": "Ten układ jest gorszy"
       }
     },
     "commentary": {
