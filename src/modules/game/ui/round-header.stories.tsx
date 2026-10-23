@@ -18,7 +18,7 @@ import { RoundHeader } from "./round-header";
 
 function Showcase({ fixture }: { fixture: Fixture }) {
   return (
-    <div className="max-w-[420px] overflow-hidden rounded-[22px]">
+    <div className="max-w-[420px] overflow-hidden rounded-xl">
       <RoundHeader header={sliceSession(fixtureSession(fixture)).header} />
     </div>
   );

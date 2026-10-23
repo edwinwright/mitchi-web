@@ -38,7 +38,7 @@ function Showcase({
   const { status } = sliceSession(session);
   const { viewerSeat } = session.view;
   return (
-    <div className="max-w-[420px] rounded-[22px] bg-stone-100 pb-3">
+    <div className="max-w-[420px] rounded-xl bg-stone-100 pb-3">
       {announcer ? (
         <div className="p-3 outline outline-dashed outline-stone-400 [&_[role=status]]:not-sr-only">
           <BeatAnnouncer status={status} viewerSeat={viewerSeat} />

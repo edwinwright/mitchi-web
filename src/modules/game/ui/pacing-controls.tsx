@@ -46,14 +46,15 @@ export function PacingControls({ pacing }: { pacing: Pacing }) {
     <div
       role="group"
       aria-labelledby={headingId}
-      className="flex flex-col gap-2 rounded-[22px] border border-stone-200 bg-stone-50 px-[18px] pt-3 pb-3.5"
+      className="flex flex-col gap-2 rounded-xl border border-stone-200 bg-stone-50 px-[18px] pt-3 pb-3.5"
     >
       <span id={headingId} className="text-sm font-bold">
         {t("heading")}
       </span>
       <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
         <div className="flex items-center gap-3">
-          <label htmlFor={speedId} className="text-sm font-semibold text-muted">
+          {/* The box's heading says what the dropdown is for. */}
+          <label htmlFor={speedId} className="sr-only">
             {t("speed")}
           </label>
           {/* Native: the platform's own keyboard and screen reader handling. */}

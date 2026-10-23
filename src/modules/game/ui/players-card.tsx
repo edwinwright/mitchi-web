@@ -47,7 +47,7 @@ export function PlayersCard({
   );
 
   return (
-    <section className="flex min-w-0 flex-col gap-2 rounded-[22px] border border-stone-200 bg-stone-50 px-2.5 pt-2.5 pb-3.5">
+    <section className="flex min-w-0 flex-col gap-2 rounded-xl border border-stone-200 bg-stone-50 px-2.5 pt-2.5 pb-3.5">
       <h2 id={headingId} className="sr-only">
         {t("heading")}
       </h2>

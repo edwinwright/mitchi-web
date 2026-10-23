@@ -34,7 +34,7 @@ function Showcase({
   const session = fixtureSession(fixture, options);
   const slices = sliceSession(session);
   return (
-    <div className="max-w-[420px] rounded-[22px] bg-stone-100">
+    <div className="max-w-[420px] rounded-xl bg-stone-100">
       <DiceTray
         tray={slices.tray}
         controls={slices.controls}

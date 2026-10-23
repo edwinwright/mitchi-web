@@ -11,9 +11,10 @@ import { PlayersCard } from "./players-card";
 
 /**
  * The only component that receives the session. DOM order is dice card,
- * pacing bar, players card, log, at every width. Below `xl` that is one
- * column; from `xl` the same order fills three columns left to right, so
- * visual order is DOM order and the tab order needs no exception. No
+ * pacing bar, players card, log, at every width. Below `lg` that is one
+ * column. From `lg` the dice card and pacing bar stack in the first column,
+ * the players card is beside them, and the log spans both below: visual
+ * order is still DOM order, so the tab order needs no exception. No
  * `order`, no grid areas.
  */
 export function GameBoard({ session }: { session: GameSession }) {
@@ -38,7 +39,7 @@ export function GameBoard({ session }: { session: GameSession }) {
   };
 
   return (
-    <div className="grid min-w-0 gap-6 xl:grid-cols-[420px_370px_minmax(0,1fr)] xl:items-start xl:gap-8">
+    <div className="grid min-w-0 gap-6 lg:grid-cols-2 lg:items-start lg:gap-8">
       <div className="flex min-w-0 flex-col gap-4">
         <DiceCard
           slices={slices}
@@ -58,7 +59,7 @@ export function GameBoard({ session }: { session: GameSession }) {
       <div className="min-w-0">
         <PlayersCard slices={slices} viewerSeat={viewerSeat} />
       </div>
-      <div className="min-w-0">
+      <div className="min-w-0 lg:col-span-2">
         <CommentaryPanel rows={rows} viewerSeat={viewerSeat} />
       </div>
     </div>

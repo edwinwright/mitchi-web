@@ -94,7 +94,7 @@ export function CommentaryPanel({
       className={cn(
         "flex min-w-0 flex-col",
         wide
-          ? "gap-3 rounded-2xl border border-stone-200 bg-stone-50 p-4"
+          ? "gap-3 rounded-xl border border-stone-200 bg-stone-50 p-4"
           : "gap-1 border-t border-stone-200 pt-1",
       )}
     >

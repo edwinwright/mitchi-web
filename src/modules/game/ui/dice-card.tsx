@@ -30,7 +30,7 @@ export function DiceCard({
 }: DiceCardProps) {
   const { header, tray, controls, status } = slices;
   return (
-    <section className="min-w-0 overflow-hidden rounded-[22px] bg-stone-100">
+    <section className="min-w-0 overflow-hidden rounded-xl bg-stone-100">
       <RoundHeader header={header} />
       <BeatStatus status={status} viewerSeat={viewerSeat} />
       <BeatAnnouncer status={status} viewerSeat={viewerSeat} />
