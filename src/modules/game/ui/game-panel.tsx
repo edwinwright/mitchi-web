@@ -18,7 +18,10 @@ function Row({
 }) {
   const t = useTranslations("play");
   const red = row.close || row.reachedLimit;
+  // The trophy is unlabelled ("Winner" is text in the row), so it hides the
+  // dash but is not followed by a comma: nothing is read before it.
   const marked = row.leader || row.winner || row.close || row.reachedLimit;
+  const labelled = row.leader || row.close || row.reachedLimit;
 
   return (
     <li
@@ -36,9 +39,8 @@ function Row({
         {row.winner ? <Mark name="winner" /> : null}
         {row.close ? <Mark name="closeToLimit" labelled /> : null}
         {row.reachedLimit ? <Mark name="reachedLimit" labelled /> : null}
-        {marked ? (
-          <Comma />
-        ) : (
+        {labelled ? <Comma /> : null}
+        {marked ? null : (
           <span aria-hidden className="text-[15px] text-stone-500">
             –
           </span>
