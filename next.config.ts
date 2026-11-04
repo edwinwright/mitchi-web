@@ -7,6 +7,9 @@ const nextConfig: NextConfig = {
   // scripts. Next blocks other hosts by default, so the page renders but
   // never hydrates. No effect on the production build.
   allowedDevOrigins: ["192.168.*.*"],
+  // Memoises components and hooks at build time (babel-plugin-react-compiler),
+  // so a store update re-renders only what its data changed.
+  reactCompiler: true,
   // Retired pages. Sources are the external paths a visitor typed or shared,
   // so the Spanish ones carry their slug. Fragments travel in the Location header.
   async redirects() {
