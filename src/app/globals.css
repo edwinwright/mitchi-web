@@ -107,7 +107,10 @@
 
 /* Top level, so the keyframes are always emitted. A tumble and settle of the
    finished face: the die already shows its value, so no face is swapped and
-   no timer is needed in ui/. At most 8px up, inside the Keep button's padding. */
+   no timer is needed in ui/. At most 8px up, inside the Keep button's padding.
+   Every keyframe lists the same transform functions, in the same order: if any
+   differ, WebKit (all iOS browsers) interpolates matrices, which takes the
+   short way round, and the -240deg spin plays anticlockwise. */
 @keyframes die-roll {
   0% {
     transform: translateY(-8px) rotate(-240deg) scale(0.85);
@@ -118,10 +121,10 @@
     opacity: 1;
   }
   70% {
-    transform: rotate(-5deg) scale(0.99);
+    transform: translateY(0) rotate(-5deg) scale(0.99);
   }
   100% {
-    transform: none;
+    transform: translateY(0) rotate(0deg) scale(1);
     opacity: 1;
   }
 }
