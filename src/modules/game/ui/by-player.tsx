@@ -53,28 +53,19 @@ function Card({
           !round.inContest && "text-muted",
         )}
       >
-        <RoundCells row={round} viewerSeat={viewerSeat} rollOff={rollOff} />
+        <RoundCells
+          row={round}
+          viewerSeat={viewerSeat}
+          rollOff={rollOff}
+          winner={points.winner}
+        />
       </div>
       <Comma />
-      {/* The game. */}
-      <div className="grid h-6 grid-cols-[22px_minmax(0,1fr)_auto] items-center gap-2.5">
+      {/* The game: the round row's columns and gap, so the bar starts under the seat. */}
+      <div className="grid h-6 grid-cols-[22px_minmax(0,1fr)_auto] items-center gap-2">
         <PointsMarks row={points} />
-        <span className="flex min-w-0 items-center gap-2.5">
-          {points.winner ? (
-            <>
-              <span className="text-xs font-extrabold text-gold-800">
-                {t("end.winner")}
-              </span>
-              <Comma />
-            </>
-          ) : null}
-          <PointsBar
-            row={points}
-            pointLimit={pointLimit}
-            className="min-w-10 flex-1"
-          />
-        </span>
-        <span className="text-right text-[15px] whitespace-nowrap">
+        <PointsBar row={points} pointLimit={pointLimit} />
+        <span className="pl-2 text-right text-[15px] whitespace-nowrap">
           <span aria-hidden>
             <span className={cn("font-bold", red && "text-red-700")}>
               {points.points}

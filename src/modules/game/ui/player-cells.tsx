@@ -122,11 +122,14 @@ export function RoundCells({
   row,
   viewerSeat,
   rollOff,
+  winner,
 }: {
   row: RoundRowData;
   viewerSeat: Seat;
   /** The roll to start: one die per seat. */
   rollOff: boolean;
+  /** At game over: the trophy takes the seat's place. */
+  winner: boolean;
 }) {
   const t = useTranslations("play");
   const note = !row.inContest
@@ -137,15 +140,30 @@ export function RoundCells({
 
   return (
     <>
+      {/* The trophy, else the starting chip, else the seat number. */}
       <span className="flex justify-center">
-        {row.starting ? (
+        {/* The seat, not the player: the label beside it may be a name. Read
+            aloud even when a mark takes its place on screen. */}
+        <span className="sr-only">
+          {t("players.seat", { number: row.seat + 1 })}
+          <Comma />
+        </span>
+        {winner ? (
+          <>
+            <Mark name="winner" labelled />
+            <Comma />
+          </>
+        ) : row.starting ? (
           <>
             <Mark name="starting" labelled />
             <Comma />
           </>
         ) : (
-          <span aria-hidden className="text-[15px] text-stone-500">
-            –
+          <span
+            aria-hidden
+            className="flex size-5 items-center justify-center rounded-full text-xs font-bold text-stone-600 shadow-[inset_0_0_0_1.5px_var(--color-stone-300)]"
+          >
+            {row.seat + 1}
           </span>
         )}
       </span>
@@ -209,27 +227,18 @@ export function RoundCells({
 export const isRed = (row: PointsRowData) => row.close || row.reachedLimit;
 
 /**
- * The marks cell: leader, winner, close or reached limit, or a dash. A
- * labelled mark is followed by a hidden comma.
+ * The marks cell: leader, close or reached limit, or empty. The trophy is
+ * not here: it takes the seat's place on the round row. A mark is followed
+ * by a hidden comma.
  */
 export function PointsMarks({ row }: { row: PointsRowData }) {
-  // The trophy is unlabelled ("Winner" is text in the row), so it hides the
-  // dash but is not followed by a comma: nothing is read before it.
-  const marked = row.leader || row.winner || row.close || row.reachedLimit;
-  const labelled = row.leader || row.close || row.reachedLimit;
+  const marked = row.leader || row.close || row.reachedLimit;
   return (
     <span className="flex justify-center gap-0.5">
       {row.leader ? <Mark name="leader" labelled /> : null}
-      {/* "Winner" is visible text in the row: the trophy repeats it. */}
-      {row.winner ? <Mark name="winner" /> : null}
       {row.close ? <Mark name="closeToLimit" labelled /> : null}
       {row.reachedLimit ? <Mark name="reachedLimit" labelled /> : null}
-      {labelled ? <Comma /> : null}
-      {marked ? null : (
-        <span aria-hidden className="text-[15px] text-stone-500">
-          –
-        </span>
-      )}
+      {marked ? <Comma /> : null}
     </span>
   );
 }

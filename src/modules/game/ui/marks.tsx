@@ -49,7 +49,7 @@ function StartingChip({ size }: { size: MarkSize }) {
         cx="10"
         cy="10"
         r="8.5"
-        className="fill-white stroke-stone-950"
+        className="fill-stone-950 stroke-stone-950"
         strokeWidth="1.5"
       />
       <circle
@@ -57,7 +57,7 @@ function StartingChip({ size }: { size: MarkSize }) {
         cy="10"
         r="5"
         fill="none"
-        className="stroke-stone-950"
+        className="stroke-white"
         strokeWidth="1.5"
         strokeDasharray="2.2 2"
       />

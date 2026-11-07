@@ -398,6 +398,7 @@
     "players": {
       "heading": "Jugadores",
       "you": "Tú",
+      "seat": "Asiento {number}",
       "player1": "Jugador 1",
       "player2": "Jugador 2",
       "player3": "Jugador 3",

@@ -66,22 +66,24 @@ describe("ByPlayer", () => {
 
   it("reads the round, then the game: a leader", () => {
     expect(cardTexts(roundSummary)[0]).toMatch(
-      /^(Starting player, )?You, .*Leader, Points 0 of \d+$/,
+      /^Seat 1, (Starting player, )?You, .*Leader, Points 0 of \d+$/,
     );
+  });
+
+  it("reads the seat even where the starting chip replaces its number", () => {
+    expect(cardTexts(botMidTurn)[0]).toMatch(/^Seat 1, Starting player, You, /);
   });
 
   it("reads a seat with no dice yet with no empty item", () => {
     for (const text of cardTexts(botMidTurn)) {
       expect(text).not.toMatch(/, ,/);
     }
-    expect(cardTexts(botMidTurn)).toContain("Player 3, Points 0 of 5");
+    expect(cardTexts(botMidTurn)).toContain("Seat 3, Player 3, Points 0 of 5");
   });
 
-  it("reads a winner after the round, with no comma first", () => {
+  it("reads the seat, then a winner in place of the starting chip", () => {
     const texts = cardTexts(gameOverDraw);
-    expect(texts[0]).toMatch(
-      /^(Starting player, )?You(, .+)?, Winner, Points \d+ of \d+$/,
-    );
+    expect(texts[0]).toMatch(/^Seat 1, Winner, You(, .+)?, Points \d+ of \d+$/);
     for (const text of texts) expect(text).not.toMatch(/^,/);
   });
 
@@ -92,7 +94,7 @@ describe("ByPlayer", () => {
       .filter((card) => card.getAttribute("aria-current") === "true");
     expect(current).toHaveLength(1);
     expect(spoken(current[0])).toMatch(
-      /^(Starting player, )?Player 2, Rolling now/,
+      /^Seat 2, (Starting player, )?Player 2, Rolling now/,
     );
     cleanup();
 
