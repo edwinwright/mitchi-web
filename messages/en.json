@@ -402,19 +402,17 @@
       "player2": "Player 2",
       "player3": "Player 3",
       "player4": "Player 4",
-      "points": "Points",
+      "pointsOf": "Points {points} of {limit}",
       "starting": "Starting player",
       "rollingNow": "Rolling now",
       "holdsWorst": "Worst hand so far",
       "outOfTieBreak": "Not in this tie-break",
       "waiting": "Waiting",
-      "thisRound": "This round",
       "byPlayer": "By player",
       "byHand": "By hand",
       "highestDieStarts": "Highest die starts"
     },
     "game": {
-      "pointLimit": "Point limit",
       "leader": "Leader",
       "closeToLimit": "Close to the point limit",
       "reachedLimit": "Reached the point limit"
@@ -484,7 +482,6 @@
     },
     "end": {
       "heading": "Game over",
-      "standings": "Final points",
       "winner": "Winner"
     },
     "header": {

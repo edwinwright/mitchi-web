@@ -201,15 +201,9 @@ describe("roundBar", () => {
     });
   });
 
-  it("names the round just played between rounds and at game over", () => {
-    expect(slices(roundSummary).roundBar).toMatchObject({
-      kind: "round",
-      number: 1,
-    });
-    expect(slices(gameOverUnique).roundBar).toMatchObject({
-      kind: "round",
-      number: 7,
-    });
+  it("says End of round between rounds and Game over at the end", () => {
+    expect(slices(roundSummary).roundBar).toEqual({ kind: "endOfRound" });
+    expect(slices(gameOverUnique).roundBar).toEqual({ kind: "gameOver" });
   });
 
   it("shows the roll limit once the starter's turn ends, never in a tie-break", () => {
@@ -231,21 +225,13 @@ describe("the end of a round settled by a tie-break", () => {
   const handOf = (row: RoundRowData | undefined) =>
     row?.hand?.kind === "hand" ? row.hand.hand : null;
 
-  it("keeps the deciding tie-break's bar", () => {
-    expect(slices(tieBreakSummary).roundBar).toEqual({
-      kind: "tieBreak",
-      number: 1,
-      tiedOn: "3-1",
-    });
+  it("says End of round, or Game over, as after any round", () => {
+    expect(slices(tieBreakSummary).roundBar).toEqual({ kind: "endOfRound" });
     expect(slices(chainedTieBreakSummary).roundBar).toEqual({
-      kind: "tieBreak",
-      number: 2,
-      tiedOn: "4-3",
+      kind: "endOfRound",
     });
     expect(slices(gameOverAfterTieBreak).roundBar).toEqual({
-      kind: "tieBreak",
-      number: 1,
-      tiedOn: "3-1",
+      kind: "gameOver",
     });
   });
 
@@ -514,7 +500,7 @@ describe("roundRows", () => {
 });
 
 describe("game over", () => {
-  it("marks the worst hand of the round that ended the game in This round, not in the header", () => {
+  it("marks the worst hand of the round that ended the game in the players card, not in the header", () => {
     const view = slices(gameOverAfterTieBreak);
     expect(seatsWhere(view.roundRows, "holdsWorst")).toEqual([3]);
     expect(view.header).toEqual({ stage: "gameOver" });

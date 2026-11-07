@@ -1,17 +1,15 @@
-"use client";
+// The cells a player's card is built from: the round header bar, the
+// round's cells (row 1) and the points' marks and bar (row 2).
 
-import { useState, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import { MitchiDie } from "@/components/mitchi-die";
 import { MitchiHand } from "@/components/mitchi-hand";
 import { handById } from "@/data/hands";
 import { cn } from "@/lib/utils";
 import type { Seat } from "../engine";
-import type { RoundBarData, RoundRowData } from "./board-slices";
+import type { PointsRowData, RoundBarData, RoundRowData } from "./board-slices";
 import { DiePlaceholder } from "./die-placeholder";
-import { Legend } from "./legend";
-import { Icon, Mark } from "./marks";
-import { RoundByHand } from "./round-by-hand";
+import { Mark } from "./marks";
 import { SeatLabel } from "./seat-label";
 import { Comma, COUNT_KEYS } from "./spoken";
 
@@ -19,7 +17,8 @@ const DIE_SIZE = 22;
 /** Wide enough for a hand or two placeholders, so neither moves the other. */
 const DICE_WIDTH = "w-[49px]";
 
-function RoundBar({ bar }: { bar: RoundBarData | null }) {
+/** The phase of the game. Hidden before start, keeping its space. */
+export function RoundBar({ bar }: { bar: RoundBarData | null }) {
   const t = useTranslations("play");
   const hands = useTranslations("hands");
   const title =
@@ -29,7 +28,11 @@ function RoundBar({ bar }: { bar: RoundBarData | null }) {
         ? t("players.highestDieStarts")
         : bar.kind === "tieBreak"
           ? t("header.tieBreak", { number: bar.number })
-          : t("header.round", { number: bar.number });
+          : bar.kind === "endOfRound"
+            ? t("header.endOfRound")
+            : bar.kind === "gameOver"
+              ? t("end.heading")
+              : t("header.round", { number: bar.number });
   const tiedOn = bar?.kind === "tieBreak" ? handById(bar.tiedOn) : null;
   const rollLimit = bar?.kind === "round" ? bar.rollLimit : null;
 
@@ -110,7 +113,12 @@ function Dice({ row, single }: { row: RoundRowData; single: boolean }) {
   );
 }
 
-function Row({
+/**
+ * A seat's round, as three grid cells: the starting mark, the seat, then the
+ * marks, note and dice. The parent sets the grid
+ * (`grid-cols-[22px_minmax(0,1fr)_auto]`) and the row's colours.
+ */
+export function RoundCells({
   row,
   viewerSeat,
   rollOff,
@@ -128,17 +136,7 @@ function Row({
       : null;
 
   return (
-    <li
-      aria-current={row.current ? "true" : undefined}
-      className={cn(
-        "grid h-14 grid-cols-[22px_minmax(0,1fr)_auto] items-center gap-2 rounded-xl pr-3 pl-2",
-        row.current
-          ? "bg-blue-50 shadow-[inset_0_0_0_2px_var(--color-blue-600)]"
-          : "bg-white shadow-[inset_0_0_0_1px_var(--color-stone-200)]",
-        // The muted colour, never a faded row: faded text fails contrast.
-        !row.inContest && "text-muted",
-      )}
-    >
+    <>
       <span className="flex justify-center">
         {row.starting ? (
           <>
@@ -195,123 +193,74 @@ function Row({
         ) : null}
         {row.inContest ? (
           <>
-            <Comma />
+            {/* Placeholders are silent, so no comma before them. */}
+            {row.hand ? <Comma /> : null}
             <span className={cn("flex", DICE_WIDTH)}>
               <Dice row={row} single={rollOff} />
             </span>
           </>
         ) : null}
       </span>
-    </li>
+    </>
   );
 }
 
-export type RoundView = "byPlayer" | "byHand";
-
-function ListIcon() {
-  return (
-    <Icon
-      px={16}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-    >
-      <path d="M9 6h11M9 12h11M9 18h11" />
-      <circle cx="4.5" cy="6" r="1.2" fill="currentColor" />
-      <circle cx="4.5" cy="12" r="1.2" fill="currentColor" />
-      <circle cx="4.5" cy="18" r="1.2" fill="currentColor" />
-    </Icon>
-  );
-}
-
-function RankingIcon() {
-  return (
-    <Icon
-      px={16}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-    >
-      <path d="M4 6h16M4 12h11M4 18h6" />
-    </Icon>
-  );
-}
+/** Close to the limit, or reached it: the bar and the points turn red. */
+export const isRed = (row: PointsRowData) => row.close || row.reachedLimit;
 
 /**
- * This round, read by player (who is rolling, what each seat holds) or by
- * hand (every hand, best first, with its holders). The view is the user's:
- * local state, and switching never moves focus.
+ * The marks cell: leader, winner, close or reached limit, or a dash. A
+ * labelled mark is followed by a hidden comma.
  */
-export function RoundPanel({
-  bar,
-  rows,
-  viewerSeat,
-  defaultView = "byPlayer",
-}: {
-  bar: RoundBarData | null;
-  rows: readonly RoundRowData[];
-  viewerSeat: Seat;
-  /** The view on first render only, like `defaultValue`. */
-  defaultView?: RoundView;
-}) {
-  const t = useTranslations("play.players");
-  const [view, setView] = useState<RoundView>(defaultView);
+export function PointsMarks({ row }: { row: PointsRowData }) {
+  // The trophy is unlabelled ("Winner" is text in the row), so it hides the
+  // dash but is not followed by a comma: nothing is read before it.
+  const marked = row.leader || row.winner || row.close || row.reachedLimit;
+  const labelled = row.leader || row.close || row.reachedLimit;
+  return (
+    <span className="flex justify-center gap-0.5">
+      {row.leader ? <Mark name="leader" labelled /> : null}
+      {/* "Winner" is visible text in the row: the trophy repeats it. */}
+      {row.winner ? <Mark name="winner" /> : null}
+      {row.close ? <Mark name="closeToLimit" labelled /> : null}
+      {row.reachedLimit ? <Mark name="reachedLimit" labelled /> : null}
+      {labelled ? <Comma /> : null}
+      {marked ? null : (
+        <span aria-hidden className="text-[15px] text-stone-500">
+          –
+        </span>
+      )}
+    </span>
+  );
+}
 
-  const option = (value: RoundView, label: string, icon: ReactNode) => (
-    <button
-      type="button"
-      aria-pressed={view === value}
-      onClick={() => setView(value)}
+/** The points against the limit, drawn. Hidden: the points are text nearby. */
+export function PointsBar({
+  row,
+  pointLimit,
+  className,
+}: {
+  row: PointsRowData;
+  pointLimit: number;
+  className?: string;
+}) {
+  return (
+    <span
+      aria-hidden
       className={cn(
-        "focus-ring inline-flex min-h-11 items-center gap-1.5 px-1.5 text-[13px] font-semibold",
-        view === value
-          ? "text-foreground underline decoration-2 underline-offset-[5px]"
-          : "text-stone-600",
+        "relative block h-2 overflow-hidden rounded bg-stone-200 shadow-[inset_0_0_0_1px_var(--color-stone-300)]",
+        className,
       )}
     >
-      {icon}
-      {label}
-    </button>
-  );
-
-  return (
-    <div className="flex flex-col gap-1.5">
-      <div className="flex h-11 items-center gap-0.5 self-end">
-        {option("byPlayer", t("byPlayer"), <ListIcon />)}
-        <span aria-hidden className="h-4 w-px bg-stone-300" />
-        {option("byHand", t("byHand"), <RankingIcon />)}
-      </div>
-      <RoundBar bar={bar} />
-      {view === "byPlayer" ? (
-        <>
-          <ol className="flex flex-col gap-1.5">
-            {rows.map((row) => (
-              <Row
-                key={row.seat}
-                row={row}
-                viewerSeat={viewerSeat}
-                rollOff={bar?.kind === "rollOff"}
-              />
-            ))}
-          </ol>
-          <div className="mt-1.5">
-            <Legend
-              items={["rollingNow", "starting", "holdsWorst", "mitchi"]}
-            />
-          </div>
-        </>
-      ) : (
-        <>
-          <RoundByHand rows={rows} viewerSeat={viewerSeat} />
-          <div className="mt-1.5">
-            <Legend items={["rollingNow", "holdsWorst", "mitchi"]} />
-          </div>
-        </>
-      )}
-    </div>
+      <span
+        className={cn(
+          "absolute inset-y-0 left-0 motion-safe:transition-[width]",
+          isRed(row) ? "bg-red-600" : "bg-blue-600",
+        )}
+        style={{
+          width: `${Math.min(100, (row.points / pointLimit) * 100)}%`,
+        }}
+      />
+    </span>
   );
 }

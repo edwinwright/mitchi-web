@@ -402,19 +402,17 @@
       "player2": "Jugador 2",
       "player3": "Jugador 3",
       "player4": "Jugador 4",
-      "points": "Puntos",
+      "pointsOf": "Puntos {points} de {limit}",
       "starting": "Jugador inicial",
       "rollingNow": "Tira ahora",
       "holdsWorst": "Peor mano hasta ahora",
       "outOfTieBreak": "No está en este desempate",
       "waiting": "Esperando",
-      "thisRound": "Esta ronda",
       "byPlayer": "Por jugador",
       "byHand": "Por mano",
       "highestDieStarts": "Empieza el dado más alto"
     },
     "game": {
-      "pointLimit": "Límite de puntos",
       "leader": "Líder",
       "closeToLimit": "Cerca del límite de puntos",
       "reachedLimit": "Límite de puntos alcanzado"
@@ -484,7 +482,6 @@
     },
     "end": {
       "heading": "Fin de la partida",
-      "standings": "Puntos finales",
       "winner": "Gana"
     },
     "header": {
