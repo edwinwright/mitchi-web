@@ -5,13 +5,15 @@ import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import type { Seat } from "../engine";
 import type { BoardSlices } from "./board-slices";
-import { GamePanel } from "./game-panel";
-import { RoundPanel } from "./round-panel";
+import { ByPlayer } from "./by-player";
+import { Legend } from "./legend";
+import { RoundByHand } from "./round-by-hand";
+import { RoundBar } from "./player-cells";
 
-export type PlayersView = "thisRound" | "points";
+export type PlayersView = "byPlayer" | "byHand";
 
 /**
- * This round or Points, chosen by the user. It never switches by itself, at
+ * By player or By hand, chosen by the user. It never switches by itself, at
  * game over included: the dice card carries the result. Two toggle buttons,
  * not a tablist: there is no automatic switching to justify that keyboard
  * model. Switching never moves focus.
@@ -19,7 +21,7 @@ export type PlayersView = "thisRound" | "points";
 export function PlayersCard({
   slices,
   viewerSeat,
-  defaultView = "thisRound",
+  defaultView = "byPlayer",
 }: {
   slices: Pick<BoardSlices, "roundBar" | "roundRows" | "points">;
   viewerSeat: Seat;
@@ -56,19 +58,26 @@ export function PlayersCard({
         aria-labelledby={headingId}
         className="flex gap-1 rounded-[13px] bg-stone-100 p-1"
       >
-        {option("thisRound", t("thisRound"))}
-        {option("points", t("points"))}
+        {option("byPlayer", t("byPlayer"))}
+        {option("byHand", t("byHand"))}
       </div>
       {/* Both views share a minimum height, so switching moves nothing below. */}
       <div className="min-h-[470px]">
-        {view === "thisRound" ? (
-          <RoundPanel
+        {view === "byPlayer" ? (
+          <ByPlayer
             bar={slices.roundBar}
-            rows={slices.roundRows}
+            roundRows={slices.roundRows}
+            points={slices.points}
             viewerSeat={viewerSeat}
           />
         ) : (
-          <GamePanel data={slices.points} viewerSeat={viewerSeat} />
+          <div className="flex flex-col gap-1.5">
+            <RoundBar bar={slices.roundBar} />
+            <RoundByHand rows={slices.roundRows} viewerSeat={viewerSeat} />
+            <div className="mt-1.5">
+              <Legend items={["rollingNow", "holdsWorst", "mitchi"]} />
+            </div>
+          </div>
         )}
       </div>
     </section>

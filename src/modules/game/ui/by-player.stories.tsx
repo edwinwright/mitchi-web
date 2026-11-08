@@ -5,8 +5,10 @@ import {
   beatViewerStops,
   botMidTurn,
   chainedTieBreakSummary,
+  closeToLimit,
   fixtureSession,
   gameOverAfterTieBreak,
+  gameOverDraw,
   gameOverUnique,
   mitchiInRound,
   notStarted,
@@ -19,33 +21,31 @@ import {
   type Fixture,
 } from "../testing";
 import { sliceSession } from "./board-slices";
-import { RoundPanel, type RoundView } from "./round-panel";
+import { ByPlayer } from "./by-player";
 
 function Showcase({
   fixture,
   viewerSeat,
-  defaultView,
 }: {
   fixture: Fixture;
   viewerSeat?: number;
-  defaultView?: RoundView;
 }) {
   const session = fixtureSession(fixture, { viewerSeat });
-  const { roundBar, roundRows } = sliceSession(session);
+  const { roundBar, roundRows, points } = sliceSession(session);
   return (
     <div className="max-w-[370px]">
-      <RoundPanel
+      <ByPlayer
         bar={roundBar}
-        rows={roundRows}
+        roundRows={roundRows}
+        points={points}
         viewerSeat={session.view.viewerSeat}
-        defaultView={defaultView}
       />
     </div>
   );
 }
 
 const meta = {
-  title: "Practice game/Round panel",
+  title: "Practice game/By player",
   component: Showcase,
   args: { fixture: botMidTurn },
 } satisfies Meta<typeof Showcase>;
@@ -55,38 +55,29 @@ type Story = StoryObj<typeof meta>;
 
 export const NotStarted: Story = { args: { fixture: notStarted } };
 export const RollOff: Story = { args: { fixture: rollOff } };
-/** Only the tied seats roll again; the rest keep one empty slot. */
 export const RollOffReroll: Story = { args: { fixture: rollOffReroll } };
 export const StarterTurn: Story = { args: { fixture: viewerToRoll } };
 export const BotMidTurn: Story = {};
-/** The starter's Mitchi is also the worst hand so far: both marks show. */
 export const Mitchi: Story = { args: { fixture: mitchiInRound } };
+/** Seats outside the tie-break mute their round row; their points stay. */
 export const TieBreak: Story = { args: { fixture: tieBreakViewerToRoll } };
+/** End of round, three leaders on 0, no card gold. */
 export const RoundSummary: Story = { args: { fixture: roundSummary } };
-/**
- * Settled by tie-break 1: the tied seats show their tie-break hands, the
- * header's worst hand among them; the others are not in this tie-break.
- */
 export const TieBreakSummary: Story = { args: { fixture: tieBreakSummary } };
-export const TieBreakSummaryByHand: Story = {
-  args: { fixture: tieBreakSummary, defaultView: "byHand" },
-};
 /** Tie-breaks chained: only tie-break 2's hands, never tie-break 1's 4-3s. */
 export const ChainedTieBreakSummary: Story = {
   args: { fixture: chainedTieBreakSummary },
 };
-export const ChainedTieBreakSummaryByHand: Story = {
-  args: { fixture: chainedTieBreakSummary, defaultView: "byHand" },
-};
-export const GameOver: Story = { args: { fixture: gameOverUnique } };
-/** The game ended on a tie-break: game over shows it, as the summary did. */
+/** Seat 3 on 3 of 5 is close: its bar and points are red. */
+export const CloseToLimit: Story = { args: { fixture: closeToLimit } };
+/** Game over: only the winner's card is gold. */
+export const GameOverWin: Story = { args: { fixture: gameOverUnique } };
+export const GameOverDraw: Story = { args: { fixture: gameOverDraw } };
 export const GameOverAfterTieBreak: Story = {
   args: { fixture: gameOverAfterTieBreak },
 };
 // "You" and the rest follow the viewer's seat, not seat 0.
 export const ViewedFromSeat2: Story = { args: { viewerSeat: 2 } };
-/** Opens on By hand; Tab to the switch and press By player to go back. */
-export const ByHand: Story = { args: { defaultView: "byHand" } };
 
 /** The game starts: You are rolling now, the others Waiting. */
 export const RollToStartRolling: Story = { args: { fixture: beatGameStart } };

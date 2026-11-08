@@ -398,23 +398,22 @@
     "players": {
       "heading": "Gracze",
       "you": "Ty",
+      "seat": "Miejsce {number}",
       "player1": "Gracz 1",
       "player2": "Gracz 2",
       "player3": "Gracz 3",
       "player4": "Gracz 4",
-      "points": "Punkty",
+      "pointsOf": "Punkty {points} z {limit}",
       "starting": "Gracz rozpoczynający",
       "rollingNow": "Rzuca teraz",
       "holdsWorst": "Najgorszy jak dotąd układ",
       "outOfTieBreak": "Poza tą dogrywką",
       "waiting": "Czeka",
-      "thisRound": "Ta runda",
       "byPlayer": "Według graczy",
       "byHand": "Według układów",
       "highestDieStarts": "Zaczyna najwyższa kość"
     },
     "game": {
-      "pointLimit": "Limit punktów",
       "leader": "Prowadzi",
       "closeToLimit": "Blisko limitu punktów",
       "reachedLimit": "Osiągnięty limit punktów"
@@ -484,7 +483,6 @@
     },
     "end": {
       "heading": "Koniec gry",
-      "standings": "Punkty końcowe",
       "winner": "Wygrywa"
     },
     "header": {

@@ -45,16 +45,14 @@ export type ControlsData = {
   busy: boolean;
 };
 
-/** The This round header bar. */
+/** The players card's header bar: the phase of the game. */
 export type RoundBarData =
   | { kind: "rollOff" }
-  /**
-   * Between rounds and at game over too: the round just played. The roll
-   * limit is null until the starter's turn ends.
-   */
+  /** The roll limit is null until the starter's turn ends. */
   | { kind: "round"; number: number; rollLimit: number | null }
-  /** Also between rounds and at game over, after a round it settled. */
-  | { kind: "tieBreak"; number: number; tiedOn: HandId };
+  | { kind: "tieBreak"; number: number; tiedOn: HandId }
+  | { kind: "endOfRound" }
+  | { kind: "gameOver" };
 
 /**
  * The dice card's header, by stage. It says where play is, never who: the
@@ -307,18 +305,12 @@ function rollingOf(beat: LoggedBeat | null, ms: number): RollingData | null {
 function roundBarOf(state: GameState): RoundBarData | null {
   const { phase, round } = state;
   if (phase.kind === "rollOff") return { kind: "rollOff" };
+  if (phase.kind === "roundSummary") return { kind: "endOfRound" };
+  if (phase.kind === "gameOver") return { kind: "gameOver" };
   if (!round) return null;
   const tieBreak = select.tieBreakNumber(state);
   if (tieBreak !== null && phase.kind === "tieBreak") {
     return { kind: "tieBreak", number: tieBreak, tiedOn: phase.tiedOn };
-  }
-  // A round settled by a tie-break keeps its bar once the pot is taken.
-  if (
-    (phase.kind === "roundSummary" || phase.kind === "gameOver") &&
-    phase.tieBreak
-  ) {
-    const { number, tiedOn } = phase.tieBreak;
-    return { kind: "tieBreak", number, tiedOn };
   }
   return {
     kind: "round",

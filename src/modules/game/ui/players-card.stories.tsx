@@ -4,8 +4,10 @@ import {
   beatRoundTwoBotStarts,
   beatViewerStops,
   botMidTurn,
+  chainedTieBreakSummary,
   fixtureSession,
   gameOverDraw,
+  tieBreakSummary,
   type Fixture,
 } from "../testing";
 import { sliceSession } from "./board-slices";
@@ -39,12 +41,24 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const ThisRound: Story = {};
-export const Points: Story = { args: { defaultView: "points" } };
-/** Game over leaves the card on This round: it never switches by itself. */
+export const ByPlayer: Story = {};
+/** Opens on By hand; Tab to the switch and press By player to go back. */
+export const ByHand: Story = { args: { defaultView: "byHand" } };
+/** Game over leaves the card on By player: it never switches by itself. */
 export const GameOver: Story = { args: { fixture: gameOverDraw } };
-export const GameOverPoints: Story = {
-  args: { fixture: gameOverDraw, defaultView: "points" },
+export const GameOverByHand: Story = {
+  args: { fixture: gameOverDraw, defaultView: "byHand" },
+};
+/**
+ * Settled by tie-break 1: the tied seats show their tie-break hands, the
+ * header's worst hand among them; the others are not in this tie-break.
+ */
+export const TieBreakSummaryByHand: Story = {
+  args: { fixture: tieBreakSummary, defaultView: "byHand" },
+};
+/** Tie-breaks chained: only tie-break 2's hands, never tie-break 1's 4-3s. */
+export const ChainedTieBreakSummaryByHand: Story = {
+  args: { fixture: chainedTieBreakSummary, defaultView: "byHand" },
 };
 
 /** The game starts: You are rolling now, the others Waiting. */

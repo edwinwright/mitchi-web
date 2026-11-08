@@ -201,28 +201,28 @@ describe("the Roll and Stop nodes", () => {
 describe("the players card", () => {
   it("players card does not switch: game over leaves it on the view the user chose", () => {
     const { rerender } = render(board(fixtureSession(viewerRolledKeepable)));
-    const points = button("Points");
-    fireEvent.click(points);
-    expect(points.getAttribute("aria-pressed")).toBe("true");
+    const byHand = button("By hand");
+    fireEvent.click(byHand);
+    expect(byHand.getAttribute("aria-pressed")).toBe("true");
 
     rerender(board(fixtureSession(gameOverUnique)));
-    expect(button("Points")).toBe(points);
-    expect(points.getAttribute("aria-pressed")).toBe("true");
-    expect(button("This round").getAttribute("aria-pressed")).toBe("false");
+    expect(button("By hand")).toBe(byHand);
+    expect(byHand.getAttribute("aria-pressed")).toBe("true");
+    expect(button("By player").getAttribute("aria-pressed")).toBe("false");
   });
 
-  it("players card does not switch to Points at game over by itself", () => {
+  it("players card does not switch to By hand at game over by itself", () => {
     const { rerender } = render(board(fixtureSession(viewerRolledKeepable)));
     rerender(board(fixtureSession(gameOverUnique)));
-    expect(button("This round").getAttribute("aria-pressed")).toBe("true");
+    expect(button("By player").getAttribute("aria-pressed")).toBe("true");
   });
 
   it("switching views leaves focus on the switch", () => {
     render(board(fixtureSession(botMidTurn)));
-    const points = button("Points");
-    points.focus();
-    fireEvent.click(points);
-    expect(document.activeElement).toBe(points);
+    const byHand = button("By hand");
+    byHand.focus();
+    fireEvent.click(byHand);
+    expect(document.activeElement).toBe(byHand);
   });
 });
 
